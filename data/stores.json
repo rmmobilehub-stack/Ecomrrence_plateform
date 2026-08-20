@@ -1,0 +1,17 @@
+[
+  {
+    "id": "fcc7b344-fbb3-417b-8908-af154624bf7c",
+    "adminId": "7b813a93-c91c-4ff1-824f-5e2e9e43a211",
+    "name": "Demo Admin's Store",
+    "slug": "demo",
+    "description": "A demo store",
+    "logo": "",
+    "banner": "",
+    "primaryColor": "#6c63ff",
+    "currency": "USD",
+    "contactEmail": "admin@demo.com",
+    "socialLinks": {},
+    "isActive": true,
+    "createdAt": "2026-08-20T11:01:12.644Z"
+  }
+]
