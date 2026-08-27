@@ -4,6 +4,14 @@ import path from 'path';
 const DATA_DIR = path.join(process.cwd(), 'data');
 
 const locks: Record<string, boolean> = {};
+const cache = new Map<string, unknown[]>();
+const pendingReads = new Map<string, Promise<unknown[]>>();
+
+async function atomicWrite(filePath: string, data: unknown): Promise<void> {
+  const tempPath = `${filePath}.${process.pid}.${Date.now()}.tmp`;
+  await fs.writeFile(tempPath, JSON.stringify(data, null, 2), 'utf-8');
+  await fs.rename(tempPath, filePath);
+}
 
 async function acquireLock(file: string): Promise<void> {
   while (locks[file]) {
@@ -17,20 +25,34 @@ function releaseLock(file: string): void {
 }
 
 export async function readDb<T>(filename: string): Promise<T[]> {
-  const filePath = path.join(DATA_DIR, filename);
-  try {
-    const content = await fs.readFile(filePath, 'utf-8');
-    return JSON.parse(content) as T[];
-  } catch {
-    return [];
+  if (cache.has(filename)) {
+    return cache.get(filename) as T[];
   }
+
+  const pending = pendingReads.get(filename);
+  if (pending) {
+    return pending as Promise<T[]>;
+  }
+
+  const filePath = path.join(DATA_DIR, filename);
+  const read = fs.readFile(filePath, 'utf-8')
+    .then((content) => JSON.parse(content) as T[])
+    .catch(() => [] as T[])
+    .then((items) => {
+      cache.set(filename, items);
+      return items;
+    })
+    .finally(() => pendingReads.delete(filename));
+  pendingReads.set(filename, read as Promise<unknown[]>);
+  return read;
 }
 
 export async function writeDb<T>(filename: string, data: T[]): Promise<void> {
   await acquireLock(filename);
   try {
     const filePath = path.join(DATA_DIR, filename);
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
+    await atomicWrite(filePath, data);
+    cache.set(filename, data);
   } finally {
     releaseLock(filename);
   }
@@ -48,13 +70,9 @@ export async function insertOne<T>(filename: string, item: T): Promise<T> {
   await acquireLock(filename);
   try {
     const filePath = path.join(DATA_DIR, filename);
-    let items: T[] = [];
-    try {
-      const content = await fs.readFile(filePath, 'utf-8');
-      items = JSON.parse(content);
-    } catch {}
-    items.push(item);
-    await fs.writeFile(filePath, JSON.stringify(items, null, 2), 'utf-8');
+    const items = [...await readDb<T>(filename), item];
+    await atomicWrite(filePath, items);
+    cache.set(filename, items);
     return item;
   } finally {
     releaseLock(filename);
@@ -69,12 +87,12 @@ export async function updateOne<T extends { id: string }>(
   await acquireLock(filename);
   try {
     const filePath = path.join(DATA_DIR, filename);
-    const content = await fs.readFile(filePath, 'utf-8');
-    const items: T[] = JSON.parse(content);
+    const items = [...await readDb<T>(filename)];
     const index = items.findIndex((item) => item.id === id);
     if (index === -1) return null;
     items[index] = { ...items[index], ...updates };
-    await fs.writeFile(filePath, JSON.stringify(items, null, 2), 'utf-8');
+    await atomicWrite(filePath, items);
+    cache.set(filename, items);
     return items[index];
   } finally {
     releaseLock(filename);
@@ -88,11 +106,11 @@ export async function deleteOne<T extends { id: string }>(
   await acquireLock(filename);
   try {
     const filePath = path.join(DATA_DIR, filename);
-    const content = await fs.readFile(filePath, 'utf-8');
-    const items: T[] = JSON.parse(content);
+    const items = await readDb<T>(filename);
     const newItems = items.filter((item) => item.id !== id);
     if (newItems.length === items.length) return false;
-    await fs.writeFile(filePath, JSON.stringify(newItems, null, 2), 'utf-8');
+    await atomicWrite(filePath, newItems);
+    cache.set(filename, newItems);
     return true;
   } finally {
     releaseLock(filename);

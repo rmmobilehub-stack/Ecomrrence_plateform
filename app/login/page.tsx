@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import BrandMark from '@/components/ui/BrandMark';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -42,7 +43,7 @@ export default function AdminLoginPage() {
       </div>
       <div className="login-container">
         <div className="login-logo">
-          <div className="login-logo-icon">🛍️</div>
+          <BrandMark size={27} className="login-brand-mark" />
           <div>
             <div className="login-logo-name">ShopSaaS</div>
             <div className="login-logo-sub">Store Admin Portal</div>

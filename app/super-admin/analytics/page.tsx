@@ -1,0 +1,6 @@
+'use client';
+import { useEffect, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
+const RevenueBarChart = dynamic(() => import('@/components/charts/RevenueBarChart'), { ssr: false, loading: () => <div className="chart-loading" /> });
+type Order = { createdAt: string; total: number; status: string };
+export default function PlatformAnalytics() { const [orders, setOrders] = useState<Order[]>([]); useEffect(() => { fetch('/api/super-admin/orders').then(response => response.json()).then(data => setOrders(data.orders ?? [])); }, []); const data = useMemo(() => Array.from({ length: 7 }, (_, index) => { const date = new Date(); date.setDate(date.getDate() - (6 - index)); return { day: date.toLocaleDateString(undefined, { weekday: 'short' }), revenue: orders.filter(order => order.status !== 'cancelled' && new Date(order.createdAt).toDateString() === date.toDateString()).reduce((sum, order) => sum + order.total, 0) }; }), [orders]); return <><div className="page-header"><div><h1 className="page-title">Platform analytics</h1><p className="page-subtitle">Revenue across all stores in the past seven days.</p></div></div><div className="glass-card chart-card"><div className="chart-title">Daily platform revenue</div><RevenueBarChart data={data} height={320} color="#06b6d4"/></div></>; }

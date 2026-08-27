@@ -27,9 +27,15 @@ export interface Store {
   description: string;
   logo: string;
   banner: string;
+  heroTitle?: string;
+  heroCtaLabel?: string;
+  announcement?: string;
   primaryColor: string;
   currency: string;
   contactEmail: string;
+  whatsappNumber?: string;
+  deliveryFee?: number;
+  freeDeliveryThreshold?: number;
   socialLinks: {
     instagram?: string;
     facebook?: string;
@@ -90,6 +96,7 @@ export interface OrderItem {
   thumbnail: string;
   qty: number;
   price: number;
+  originalPrice?: number;
   selectedVariants: Record<string, string>;
 }
 
@@ -110,9 +117,26 @@ export interface Order {
   customer: CustomerInfo;
   items: OrderItem[];
   subtotal: number;
+  productDiscount?: number;
+  discount?: number;
+  couponCode?: string;
+  deliveryFee?: number;
   total: number;
   paymentMethod: 'COD';
+  channel?: 'website' | 'whatsapp';
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  createdAt: string;
+}
+
+export interface Discount {
+  id: string;
+  storeId: string;
+  code: string;
+  type: 'percentage' | 'fixed';
+  value: number;
+  minOrderAmount: number;
+  isActive: boolean;
+  expiresAt?: string;
   createdAt: string;
 }
 
@@ -132,6 +156,7 @@ export interface CartItem {
   productName: string;
   thumbnail: string;
   price: number;
+  originalPrice?: number;
   qty: number;
   selectedVariants: Record<string, string>;
 }

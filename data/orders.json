@@ -1,1 +1,92 @@
-[]
+[
+  {
+    "id": "a4c91a42-4965-4528-a47d-63fa9120fc30",
+    "storeId": "fcc7b344-fbb3-417b-8908-af154624bf7c",
+    "orderNumber": "ORD-0001",
+    "customer": {
+      "name": "smart_school",
+      "phone": "123456789",
+      "email": "ali@gmail.com",
+      "address": "house no 22 sunny parka extension",
+      "city": "lahore",
+      "country": "Pakistan",
+      "notes": "i want to get good product "
+    },
+    "items": [
+      {
+        "productId": "53d2338b-5efe-4771-b032-c5967510dcb5",
+        "productName": "Airpode ENC",
+        "thumbnail": "/uploads/1787764415943-b4xq3rzfqs.webp",
+        "qty": 1,
+        "price": 1500,
+        "selectedVariants": {}
+      }
+    ],
+    "subtotal": 1500,
+    "discount": 0,
+    "total": 1500,
+    "paymentMethod": "COD",
+    "status": "delivered",
+    "createdAt": "2026-08-26T17:15:39.787Z"
+  },
+  {
+    "id": "9e279a8d-0912-4638-9b58-7559cbb1f8e9",
+    "storeId": "fcc7b344-fbb3-417b-8908-af154624bf7c",
+    "orderNumber": "ORD-0002",
+    "customer": {
+      "name": "smart_school",
+      "phone": "03019836585",
+      "email": "ali@gmail.com",
+      "address": "house no 22 sunny parka extension",
+      "city": "lahore",
+      "country": "Pakistan",
+      "notes": "i want to get product  "
+    },
+    "items": [
+      {
+        "productId": "53d2338b-5efe-4771-b032-c5967510dcb5",
+        "productName": "Airpode ENC",
+        "thumbnail": "/uploads/1787764415943-b4xq3rzfqs.webp",
+        "qty": 1,
+        "price": 1500,
+        "selectedVariants": {}
+      }
+    ],
+    "subtotal": 1500,
+    "discount": 0,
+    "total": 1500,
+    "paymentMethod": "COD",
+    "status": "pending",
+    "createdAt": "2026-08-26T17:53:16.582Z"
+  },
+  {
+    "id": "99980060-f0f8-47cd-9efd-8b104a521be7",
+    "storeId": "fcc7b344-fbb3-417b-8908-af154624bf7c",
+    "orderNumber": "WA-ORD-0001",
+    "customer": {
+      "name": "WhatsApp customer",
+      "phone": "",
+      "email": "",
+      "address": "",
+      "city": "",
+      "country": "",
+      "notes": "Order request created before the WhatsApp conversation. Confirm customer details and stock in WhatsApp."
+    },
+    "items": [
+      {
+        "productId": "53d2338b-5efe-4771-b032-c5967510dcb5",
+        "productName": "Airpode ENC",
+        "thumbnail": "/uploads/1787764415943-b4xq3rzfqs.webp",
+        "qty": 1,
+        "price": 1500,
+        "selectedVariants": {}
+      }
+    ],
+    "subtotal": 1500,
+    "total": 1500,
+    "paymentMethod": "COD",
+    "channel": "whatsapp",
+    "status": "pending",
+    "createdAt": "2026-08-26T18:09:22.083Z"
+  }
+]

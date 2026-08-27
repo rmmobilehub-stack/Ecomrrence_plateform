@@ -1,1 +1,32 @@
-[]
+[
+  {
+    "id": "c26c19e8-992d-4b1a-a833-9f6d93dad4e2",
+    "adminId": "7b813a93-c91c-4ff1-824f-5e2e9e43a211",
+    "type": "new_order",
+    "title": "🛍️ New Order Received!",
+    "message": "Order ORD-0001 for $1500.00 from smart_school",
+    "orderId": "a4c91a42-4965-4528-a47d-63fa9120fc30",
+    "isRead": true,
+    "createdAt": "2026-08-26T17:15:39.797Z"
+  },
+  {
+    "id": "98e5aee5-c353-4d2c-b1e9-2f1335d533f2",
+    "adminId": "7b813a93-c91c-4ff1-824f-5e2e9e43a211",
+    "type": "new_order",
+    "title": "🛍️ New Order Received!",
+    "message": "Order ORD-0002 for $1500.00 from smart_school",
+    "orderId": "9e279a8d-0912-4638-9b58-7559cbb1f8e9",
+    "isRead": false,
+    "createdAt": "2026-08-26T17:53:16.603Z"
+  },
+  {
+    "id": "d68a025c-3f88-474b-8175-69d5e21be55f",
+    "adminId": "7b813a93-c91c-4ff1-824f-5e2e9e43a211",
+    "type": "new_order",
+    "title": "WhatsApp order request",
+    "message": "WA-ORD-0001: 1 × Airpode ENC awaiting customer confirmation",
+    "orderId": "99980060-f0f8-47cd-9efd-8b104a521be7",
+    "isRead": true,
+    "createdAt": "2026-08-26T18:09:22.088Z"
+  }
+]

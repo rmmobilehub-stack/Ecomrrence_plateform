@@ -27,8 +27,8 @@ export async function PUT(req: NextRequest) {
 
   const body = await req.json();
   const allowedFields: (keyof Store)[] = [
-    'name', 'slug', 'description', 'logo', 'banner',
-    'primaryColor', 'currency', 'contactEmail', 'socialLinks', 'isActive',
+    'name', 'slug', 'description', 'logo', 'banner', 'heroTitle', 'heroCtaLabel', 'announcement',
+    'primaryColor', 'currency', 'contactEmail', 'whatsappNumber', 'deliveryFee', 'freeDeliveryThreshold', 'socialLinks', 'isActive',
   ];
 
   const updates: Partial<Store> = {};

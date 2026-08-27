@@ -41,12 +41,12 @@ export async function getSessionFromRequest(
   return verifyToken(token);
 }
 
-export function createAuthCookie(token: string) {
+export function createAuthCookie(token: string, secure: boolean) {
   return {
     name: COOKIE_NAME,
     value: token,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure,
     sameSite: 'lax' as const,
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/',

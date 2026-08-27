@@ -45,6 +45,10 @@ export async function PUT(req: NextRequest) {
   }
 
   const { id, name, description } = await req.json();
+  const categories = await readDb<Category>('categories.json');
+  if (!categories.some((category) => category.id === id && category.storeId === session.storeId)) {
+    return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+  }
   const updates: Partial<Category> = {};
   if (name) { updates.name = name; updates.slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-'); }
   if (description !== undefined) updates.description = description;
@@ -65,6 +69,10 @@ export async function DELETE(req: NextRequest) {
   const id = searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
+  const categories = await readDb<Category>('categories.json');
+  if (!categories.some((category) => category.id === id && category.storeId === session.storeId)) {
+    return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+  }
   await deleteOne<Category>('categories.json', id);
   return NextResponse.json({ success: true });
 }

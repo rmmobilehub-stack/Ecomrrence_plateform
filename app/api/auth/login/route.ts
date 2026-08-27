@@ -46,7 +46,8 @@ export async function POST(req: NextRequest) {
     };
 
     const token = await signToken(payload);
-    const cookie = createAuthCookie(token);
+    const forwardedProtocol = req.headers.get('x-forwarded-proto')?.split(',')[0]?.trim();
+    const cookie = createAuthCookie(token, req.nextUrl.protocol === 'https:' || forwardedProtocol === 'https');
 
     const response = NextResponse.json({
       success: true,

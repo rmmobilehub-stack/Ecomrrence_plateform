@@ -37,6 +37,10 @@ export async function PUT(req: NextRequest) {
   }
 
   if (action === 'read' && id) {
+    const notifications = await readDb<Notification>('notifications.json');
+    if (!notifications.some((notification) => notification.id === id && notification.adminId === session.id)) {
+      return NextResponse.json({ error: 'Notification not found' }, { status: 404 });
+    }
     await updateOne<Notification>('notifications.json', id, { isRead: true });
     return NextResponse.json({ success: true });
   }

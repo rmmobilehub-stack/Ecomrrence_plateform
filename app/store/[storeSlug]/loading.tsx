@@ -1,0 +1,1 @@
+export default function StoreLoading() { return <main className="store-section"><div className="skeleton" style={{ height: 310, marginBottom: 28 }}/><div className="products-grid">{Array.from({ length: 4 }, (_, index) => <div className="skeleton" style={{ height: 310 }} key={index}/>)}</div></main>; }

@@ -16,6 +16,16 @@ export async function POST(req: NextRequest) {
     if (!files || files.length === 0) {
       return NextResponse.json({ error: 'No files provided' }, { status: 400 });
     }
+    if (files.length > 8) {
+      return NextResponse.json({ error: 'Upload up to 8 images at a time' }, { status: 400 });
+    }
+
+    const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+    for (const file of files) {
+      if (!allowedTypes.has(file.type) || file.size > 5 * 1024 * 1024) {
+        return NextResponse.json({ error: 'Only JPG, PNG, WEBP or GIF images up to 5 MB are allowed' }, { status: 400 });
+      }
+    }
 
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');
     await mkdir(uploadDir, { recursive: true });
@@ -25,7 +35,7 @@ export async function POST(req: NextRequest) {
     for (const file of files) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      const ext = file.name.split('.').pop() || 'jpg';
+      const ext = ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' } as Record<string, string>)[file.type];
       const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const filePath = path.join(uploadDir, filename);
       await writeFile(filePath, buffer);
