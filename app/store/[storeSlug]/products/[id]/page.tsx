@@ -1,10 +1,21 @@
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { readDb } from '@/lib/db';
 import type { Category, Product, Store } from '@/lib/types';
 import AddToCart from '@/components/store/AddToCart';
 import ImageGallery from '@/components/store/ImageGallery';
 import ProductCard from '@/components/store/ProductCard';
 import { calculateProductPrice, getReferencePrice } from '@/lib/pricing';
+
+export async function generateMetadata({ params }: { params: { storeSlug: string; id: string } }): Promise<Metadata> {
+  const [stores, products] = await Promise.all([readDb<Store>('stores.json'), readDb<Product>('products.json')]);
+  const store = stores.find(entry => entry.slug === params.storeSlug && entry.isActive);
+  const product = products.find(entry => entry.id === params.id && entry.storeId === store?.id && entry.status === 'active');
+  if (!store || !product) return { title: 'Product not found', robots: { index: false, follow: false } };
+  const description = product.description || `Buy ${product.name} from ${store.name}. Cash on delivery available.`;
+  const image = product.images?.find(Boolean) || product.thumbnail || store.banner;
+  return { title: { absolute: `${product.name} | ${store.name}` }, description, alternates: { canonical: `/store/${store.slug}/products/${product.id}` }, openGraph: { title: product.name, description, url: `/store/${store.slug}/products/${product.id}`, type: 'website', images: image ? [{ url: image, alt: product.name }] : [] } };
+}
 
 export default async function ProductPage({ params }: { params: { storeSlug: string; id: string } }) {
   const [stores, products, categories] = await Promise.all([readDb<Store>('stores.json'), readDb<Product>('products.json'), readDb<Category>('categories.json')]);

@@ -9,7 +9,8 @@ export async function generateMetadata({ params }: { params: { storeSlug: string
   const stores = await readDb<Store>('stores.json');
   const store = stores.find(entry => entry.slug === params.storeSlug && entry.isActive);
   if (!store) return { title: 'Store not found' };
-  return { title: `${store.name} | Shop online`, description: store.description || `Shop the latest products from ${store.name}.`, openGraph: { title: store.name, description: store.description || `Shop ${store.name} online.`, images: store.banner ? [store.banner] : [] } };
+  const description = store.description || `Shop the latest products from ${store.name}.`;
+  return { title: { absolute: `${store.name} | Shop online` }, description, alternates: { canonical: `/store/${store.slug}` }, openGraph: { title: store.name, description, url: `/store/${store.slug}`, type: 'website', images: store.banner ? [{ url: store.banner, alt: store.name }] : [] } };
 }
 
 export default async function StoreLayout({ children, params }: { children: React.ReactNode; params: { storeSlug: string } }) {

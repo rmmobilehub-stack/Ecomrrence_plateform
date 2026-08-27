@@ -33,3 +33,13 @@ Seed accounts:
 Set a strong `JWT_SECRET` in the deployment environment before production use. The current JSON storage requires a persistent filesystem, so it works well locally or on a persistent Node host. Serverless filesystems such as Vercel are not suitable for durable order data or uploads without replacing the data/upload layer with a managed database and object storage service.
 
 Use `npm run build` for the production compilation check and `npm start` to serve the build.
+
+## SEO
+
+The storefront uses Next.js server-rendered metadata, so React Helmet and prerendering are not needed. Set `NEXT_PUBLIC_SITE_URL` to the real HTTPS domain before deployment (see `.env.example`).
+
+- `robots.txt` is available at `/robots.txt` and excludes dashboards, login and API routes.
+- `/sitemap.xml` automatically includes active stores, catalog pages and active product pages.
+- Store, catalog and product pages have their own title, description, canonical URL and Open Graph metadata.
+
+After deploying, submit `https://your-domain.com/sitemap.xml` in Google Search Console.
