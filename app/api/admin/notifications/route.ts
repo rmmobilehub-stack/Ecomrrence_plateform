@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const notifications = await readDb<Notification>('notifications.json');
+  const notifications = await readDb<Notification>('notifications');
   const adminNotifs = notifications
     .filter((n) => n.adminId === session.id)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -28,20 +28,20 @@ export async function PUT(req: NextRequest) {
   const { action, id } = await req.json();
 
   if (action === 'read-all') {
-    const notifications = await readDb<Notification>('notifications.json');
+    const notifications = await readDb<Notification>('notifications');
     const updated = notifications.map((n) =>
       n.adminId === session.id ? { ...n, isRead: true } : n
     );
-    await writeDb<Notification>('notifications.json', updated);
+    await writeDb<Notification>('notifications', updated);
     return NextResponse.json({ success: true });
   }
 
   if (action === 'read' && id) {
-    const notifications = await readDb<Notification>('notifications.json');
+    const notifications = await readDb<Notification>('notifications');
     if (!notifications.some((notification) => notification.id === id && notification.adminId === session.id)) {
       return NextResponse.json({ error: 'Notification not found' }, { status: 404 });
     }
-    await updateOne<Notification>('notifications.json', id, { isRead: true });
+    await updateOne<Notification>('notifications', id, { isRead: true });
     return NextResponse.json({ success: true });
   }
 

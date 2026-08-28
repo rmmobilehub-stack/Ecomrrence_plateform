@@ -9,9 +9,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const products = await readDb<Product>('products.json');
-  const orders = await readDb<Order>('orders.json');
-  const categories = await readDb<Category>('categories.json');
+  const products = await readDb<Product>('products');
+  const orders = await readDb<Order>('orders');
+  const categories = await readDb<Category>('categories');
 
   const storeProducts = products.filter((p) => p.storeId === session.storeId);
   const storeOrders = orders.filter((o) => o.storeId === session.storeId);

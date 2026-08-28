@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { randomUUID } from 'crypto';
 import { getSessionFromRequest } from '@/lib/auth';
+import { getSupabaseAdmin } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,19 +27,24 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    await mkdir(uploadDir, { recursive: true });
-
     const urls: string[] = [];
+    const storage = getSupabaseAdmin().storage.from('product-images');
 
     for (const file of files) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const ext = ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' } as Record<string, string>)[file.type];
-      const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const filePath = path.join(uploadDir, filename);
-      await writeFile(filePath, buffer);
-      urls.push(`/uploads/${filename}`);
+      const owner = session.storeId || 'platform';
+      const objectPath = `${owner}/${Date.now()}-${randomUUID()}.${ext}`;
+      const { error } = await storage.upload(objectPath, buffer, {
+        contentType: file.type,
+        cacheControl: '31536000',
+        upsert: false,
+      });
+      if (error) throw error;
+
+      const { data } = storage.getPublicUrl(objectPath);
+      urls.push(data.publicUrl);
     }
 
     return NextResponse.json({ urls });

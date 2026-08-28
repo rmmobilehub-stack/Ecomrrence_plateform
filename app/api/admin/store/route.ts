@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const stores = await readDb<Store>('stores.json');
+  const stores = await readDb<Store>('stores');
   const store = stores.find((s) => s.id === session.storeId);
 
   if (!store) {
@@ -40,14 +40,14 @@ export async function PUT(req: NextRequest) {
 
   // Check slug uniqueness
   if (updates.slug) {
-    const stores = await readDb<Store>('stores.json');
+    const stores = await readDb<Store>('stores');
     const existing = stores.find((s) => s.slug === updates.slug && s.id !== session.storeId);
     if (existing) {
       return NextResponse.json({ error: 'Store slug already taken' }, { status: 409 });
     }
   }
 
-  const updated = await updateOne<Store>('stores.json', session.storeId!, updates);
+  const updated = await updateOne<Store>('stores', session.storeId!, updates);
   if (!updated) {
     return NextResponse.json({ error: 'Store not found' }, { status: 404 });
   }

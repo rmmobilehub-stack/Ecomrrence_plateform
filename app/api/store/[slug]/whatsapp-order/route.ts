@@ -6,14 +6,14 @@ import { calculateDeliveryFee, calculateProductPrice } from '@/lib/pricing';
 
 export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
   try {
-    const stores = await readDb<Store>('stores.json');
+    const stores = await readDb<Store>('stores');
     const store = stores.find(entry => entry.slug === params.slug && entry.isActive);
     if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
     if (!(store.whatsappNumber ?? '').replace(/\D/g, '')) return NextResponse.json({ error: 'WhatsApp ordering is not enabled for this store' }, { status: 400 });
 
     const { productId, qty, selectedVariants = {} } = await req.json();
     const quantity = Number(qty);
-    const products = await readDb<Product>('products.json');
+    const products = await readDb<Product>('products');
     const product = products.find(entry => entry.id === productId && entry.storeId === store.id && entry.status === 'active');
     if (!product || !Number.isInteger(quantity) || quantity < 1 || quantity > product.stock) return NextResponse.json({ error: 'This product is unavailable or out of stock' }, { status: 400 });
 
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
     const subtotal = itemPrice * quantity;
     const productDiscount = (originalPrice - itemPrice) * quantity;
     const deliveryFee = calculateDeliveryFee(store.deliveryFee, store.freeDeliveryThreshold, subtotal);
-    const orders = await readDb<Order>('orders.json');
+    const orders = await readDb<Order>('orders');
     const whatsappOrderCount = orders.filter(order => order.orderNumber.startsWith('WA-ORD-')).length + 1;
     const orderNumber = `WA-ORD-${String(whatsappOrderCount).padStart(4, '0')}`;
     const order: Order = {
@@ -36,13 +36,13 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
       items: [{ productId: product.id, productName: product.name, thumbnail: product.thumbnail, qty: quantity, price: itemPrice, originalPrice, selectedVariants }],
       subtotal, productDiscount, deliveryFee, total: subtotal + deliveryFee, paymentMethod: 'COD', channel: 'whatsapp', status: 'pending', createdAt: new Date().toISOString(),
     };
-    await insertOne<Order>('orders.json', order);
+    await insertOne<Order>('orders', order);
 
-    const admins = await readDb<Admin>('admins.json');
+    const admins = await readDb<Admin>('admins');
     const admin = admins.find(entry => entry.storeId === store.id);
     if (admin) {
       const notification: Notification = { id: uuidv4(), adminId: admin.id, type: 'new_order', title: 'WhatsApp order request', message: `${orderNumber}: ${quantity} × ${product.name} awaiting customer confirmation`, orderId: order.id, isRead: false, createdAt: new Date().toISOString() };
-      await insertOne<Notification>('notifications.json', notification);
+      await insertOne<Notification>('notifications', notification);
     }
 
     return NextResponse.json({ success: true, order: { id: order.id, orderNumber: order.orderNumber, total: order.total, status: order.status, channel: order.channel } }, { status: 201 });

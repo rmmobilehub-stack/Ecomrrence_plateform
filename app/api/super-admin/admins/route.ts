@@ -11,8 +11,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const admins = await readDb<Admin>('admins.json');
-  const stores = await readDb<Store>('stores.json');
+  const admins = await readDb<Admin>('admins');
+  const stores = await readDb<Store>('stores');
 
   const result = admins.map(({ passwordHash: _pw, ...admin }) => {
     const store = stores.find((s) => s.id === admin.storeId);
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Name, email and password required' }, { status: 400 });
   }
 
-  const admins = await readDb<Admin>('admins.json');
+  const admins = await readDb<Admin>('admins');
   if (admins.find((a) => a.email === email)) {
     return NextResponse.json({ error: 'Email already exists' }, { status: 409 });
   }
@@ -71,8 +71,8 @@ export async function POST(req: NextRequest) {
     createdAt: new Date().toISOString(),
   };
 
-  await insertOne<Admin>('admins.json', newAdmin);
-  await insertOne<Store>('stores.json', newStore);
+  await insertOne<Admin>('admins', newAdmin);
+  await insertOne<Store>('stores', newStore);
 
   const { passwordHash: _pw, ...safeAdmin } = newAdmin;
   return NextResponse.json({ admin: safeAdmin }, { status: 201 });

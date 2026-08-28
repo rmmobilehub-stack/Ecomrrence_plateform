@@ -3,7 +3,7 @@ import { readDb } from '@/lib/db';
 import type { Store } from '@/lib/types';
 
 export async function generateMetadata({ params }: { params: { storeSlug: string } }): Promise<Metadata> {
-  const stores = await readDb<Store>('stores.json');
+  const stores = await readDb<Store>('stores');
   const store = stores.find(entry => entry.slug === params.storeSlug && entry.isActive);
   if (!store) return { title: 'Products' };
   const description = `Browse the latest products, prices and offers from ${store.name}.`;

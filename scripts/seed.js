@@ -1,52 +1,135 @@
 /* eslint-disable no-console */
-const fs = require('fs/promises');
-const path = require('path');
 const bcrypt = require('bcryptjs');
 const { randomUUID } = require('crypto');
+const { createClient } = require('@supabase/supabase-js');
+const { loadEnvironment } = require('./load-env');
 
-const dataDir = path.join(process.cwd(), 'data');
-const files = ['super-admins.json', 'admins.json', 'stores.json', 'products.json', 'categories.json', 'orders.json', 'notifications.json', 'discounts.json'];
-
-async function read(filename) {
-  try { return JSON.parse(await fs.readFile(path.join(dataDir, filename), 'utf8')); } catch { return []; }
+function failOn(error, action) {
+  if (error) throw new Error(`${action}: ${error.message}`);
 }
-async function write(filename, value) { await fs.writeFile(path.join(dataDir, filename), JSON.stringify(value, null, 2)); }
 
-async function main() {
-  await fs.mkdir(dataDir, { recursive: true });
-  const records = Object.fromEntries(await Promise.all(files.map(async file => [file, await read(file)])));
+async function seedDatabase() {
+  loadEnvironment();
+  const url = process.env.SUPABASE_URL;
+  const secretKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !secretKey) {
+    throw new Error('Set SUPABASE_URL and SUPABASE_SECRET_KEY in .env.local before seeding.');
+  }
+
+  const supabase = createClient(url, secretKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
   const now = new Date().toISOString();
-  let superAdmin = records['super-admins.json'].find(item => item.email === 'super@platform.com');
+
+  let { data: superAdmin, error } = await supabase
+    .from('super_admins')
+    .select('*')
+    .eq('email', 'super@platform.com')
+    .maybeSingle();
+  failOn(error, 'Reading super admin');
+  const superPasswordHash = await bcrypt.hash('admin123', 12);
   if (!superAdmin) {
-    superAdmin = { id: randomUUID(), name: 'Super Admin', email: 'super@platform.com', passwordHash: await bcrypt.hash('admin123', 12), createdAt: now };
-    records['super-admins.json'].push(superAdmin);
-  } else if (!await bcrypt.compare('admin123', superAdmin.passwordHash)) {
-    // Repair older demo data whose documented credentials no longer match.
-    superAdmin.passwordHash = await bcrypt.hash('admin123', 12);
+    ({ data: superAdmin, error } = await supabase
+      .from('super_admins')
+      .insert({ id: randomUUID(), name: 'Super Admin', email: 'super@platform.com', password_hash: superPasswordHash, created_at: now })
+      .select('*')
+      .single());
+    failOn(error, 'Creating super admin');
+  } else if (!await bcrypt.compare('admin123', superAdmin.password_hash)) {
+    ({ error } = await supabase.from('super_admins').update({ password_hash: superPasswordHash }).eq('id', superAdmin.id));
+    failOn(error, 'Updating super admin password');
   }
-  let admin = records['admins.json'].find(item => item.email === 'admin@demo.com');
-  let store = records['stores.json'].find(item => item.slug === 'demo');
-  if (!admin || !store) {
-    const storeId = store?.id || randomUUID(); const adminId = admin?.id || randomUUID();
-    if (!admin) { admin = { id: adminId, name: 'Demo Admin', email: 'admin@demo.com', passwordHash: await bcrypt.hash('admin123', 12), status: 'active', plan: 'pro', storeId, createdAt: now }; records['admins.json'].push(admin); }
-    if (!store) { store = { id: storeId, adminId, name: 'Demo Store', slug: 'demo', description: 'A carefully curated demo storefront.', logo: '', banner: '', primaryColor: '#6c63ff', currency: 'USD', contactEmail: 'admin@demo.com', socialLinks: {}, isActive: true, createdAt: now }; records['stores.json'].push(store); }
+
+  let { data: admin, error: adminError } = await supabase
+    .from('admins')
+    .select('*')
+    .eq('email', 'admin@demo.com')
+    .maybeSingle();
+  failOn(adminError, 'Reading demo admin');
+
+  const storeId = admin?.store_id || randomUUID();
+  const adminId = admin?.id || randomUUID();
+  const adminPasswordHash = await bcrypt.hash('admin123', 12);
+  if (!admin) {
+    ({ data: admin, error: adminError } = await supabase
+      .from('admins')
+      .insert({ id: adminId, name: 'Demo Admin', email: 'admin@demo.com', password_hash: adminPasswordHash, status: 'active', plan: 'pro', store_id: storeId, created_at: now })
+      .select('*')
+      .single());
+    failOn(adminError, 'Creating demo admin');
+  } else if (!await bcrypt.compare('admin123', admin.password_hash)) {
+    ({ error: adminError } = await supabase.from('admins').update({ password_hash: adminPasswordHash }).eq('id', admin.id));
+    failOn(adminError, 'Updating demo admin password');
   }
-  if (admin && !await bcrypt.compare('admin123', admin.passwordHash)) {
-    // Same self-repair for the documented demo store administrator.
-    admin.passwordHash = await bcrypt.hash('admin123', 12);
+
+  let { data: store, error: storeError } = await supabase
+    .from('stores')
+    .select('*')
+    .eq('id', storeId)
+    .maybeSingle();
+  failOn(storeError, 'Reading demo store');
+  if (!store) {
+    ({ data: store, error: storeError } = await supabase
+      .from('stores')
+      .insert({
+        id: storeId,
+        admin_id: adminId,
+        name: 'Demo Store',
+        slug: 'demo',
+        description: 'A carefully curated demo storefront.',
+        logo: '',
+        banner: '',
+        primary_color: '#6c63ff',
+        currency: 'USD',
+        contact_email: 'admin@demo.com',
+        social_links: {},
+        is_active: true,
+        created_at: now,
+      })
+      .select('*')
+      .single());
+    failOn(storeError, 'Creating demo store');
   }
-  if (records['categories.json'].filter(item => item.storeId === store.id).length === 0) {
-    const apparel = { id: randomUUID(), storeId: store.id, name: 'Apparel', slug: 'apparel', description: 'Everyday essentials', createdAt: now };
-    const accessories = { id: randomUUID(), storeId: store.id, name: 'Accessories', slug: 'accessories', description: 'Finishing touches', createdAt: now };
-    records['categories.json'].push(apparel, accessories);
+
+  const { count: categoryCount, error: countError } = await supabase
+    .from('categories')
+    .select('id', { count: 'exact', head: true })
+    .eq('store_id', store.id);
+  failOn(countError, 'Counting demo categories');
+
+  if (!categoryCount) {
+    const apparelId = randomUUID();
+    const accessoriesId = randomUUID();
+    const { error: categoryError } = await supabase.from('categories').insert([
+      { id: apparelId, store_id: store.id, name: 'Apparel', slug: 'apparel', description: 'Everyday essentials', created_at: now },
+      { id: accessoriesId, store_id: store.id, name: 'Accessories', slug: 'accessories', description: 'Finishing touches', created_at: now },
+    ]);
+    failOn(categoryError, 'Creating demo categories');
+
     const products = [
-      { name: 'Classic Everyday Tee', price: 24, comparePrice: 30, stock: 30, categoryId: apparel.id, sku: 'TEE-001', description: 'A soft, reliable tee made for every day.', variants: [{ name: 'Size', options: ['S', 'M', 'L', 'XL'], priceModifier: 0 }] },
-      { name: 'Canvas Weekend Tote', price: 38, comparePrice: 0, stock: 15, categoryId: accessories.id, sku: 'TOT-001', description: 'A roomy canvas tote for your daily essentials.', variants: [] },
-      { name: 'Relaxed Hoodie', price: 54, comparePrice: 65, stock: 20, categoryId: apparel.id, sku: 'HOD-001', description: 'Comfortable warmth with a relaxed fit.', variants: [{ name: 'Size', options: ['S', 'M', 'L', 'XL'], priceModifier: 0 }] },
-    ].map(product => ({ id: randomUUID(), storeId: store.id, slug: product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), discount: 0, images: [], thumbnail: '', tags: [], status: 'active', customProperties: [], createdAt: now, updatedAt: now, ...product }));
-    records['products.json'].push(...products);
+      { name: 'Classic Everyday Tee', price: 24, compare_price: 30, stock: 30, category_id: apparelId, sku: 'TEE-001', description: 'A soft, reliable tee made for every day.', variants: [{ name: 'Size', options: ['S', 'M', 'L', 'XL'], priceModifier: 0 }] },
+      { name: 'Canvas Weekend Tote', price: 38, compare_price: 0, stock: 15, category_id: accessoriesId, sku: 'TOT-001', description: 'A roomy canvas tote for your daily essentials.', variants: [] },
+      { name: 'Relaxed Hoodie', price: 54, compare_price: 65, stock: 20, category_id: apparelId, sku: 'HOD-001', description: 'Comfortable warmth with a relaxed fit.', variants: [{ name: 'Size', options: ['S', 'M', 'L', 'XL'], priceModifier: 0 }] },
+    ].map((product) => ({
+      id: randomUUID(), store_id: store.id,
+      slug: product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      description: '', discount: 0, images: [], thumbnail: '', tags: [], status: 'active',
+      custom_properties: [], created_at: now, updated_at: now, ...product,
+    }));
+    const { error: productError } = await supabase.from('products').insert(products);
+    failOn(productError, 'Creating demo products');
   }
-  await Promise.all(files.map(file => write(file, records[file])));
-  console.log('Seed complete. Super admin: super@platform.com / admin123; Demo admin: admin@demo.com / admin123');
+
+  console.log('Supabase seed complete.');
+  console.log('Super admin: super@platform.com / admin123');
+  console.log('Demo admin: admin@demo.com / admin123');
 }
-main().catch(error => { console.error(error); process.exit(1); });
+
+if (require.main === module) {
+  seedDatabase().catch((error) => {
+    console.error(error.message || error);
+    process.exit(1);
+  });
+}
+
+module.exports = { seedDatabase };

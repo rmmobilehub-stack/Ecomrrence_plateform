@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const categories = await readDb<Category>('categories.json');
+  const categories = await readDb<Category>('categories');
   const storeCategories = categories.filter((c) => c.storeId === session.storeId);
   return NextResponse.json({ categories: storeCategories });
 }
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     createdAt: new Date().toISOString(),
   };
 
-  await insertOne<Category>('categories.json', newCategory);
+  await insertOne<Category>('categories', newCategory);
   return NextResponse.json({ category: newCategory }, { status: 201 });
 }
 
@@ -45,7 +45,7 @@ export async function PUT(req: NextRequest) {
   }
 
   const { id, name, description } = await req.json();
-  const categories = await readDb<Category>('categories.json');
+  const categories = await readDb<Category>('categories');
   if (!categories.some((category) => category.id === id && category.storeId === session.storeId)) {
     return NextResponse.json({ error: 'Category not found' }, { status: 404 });
   }
@@ -53,7 +53,7 @@ export async function PUT(req: NextRequest) {
   if (name) { updates.name = name; updates.slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-'); }
   if (description !== undefined) updates.description = description;
 
-  const updated = await updateOne<Category>('categories.json', id, updates);
+  const updated = await updateOne<Category>('categories', id, updates);
   if (!updated) return NextResponse.json({ error: 'Category not found' }, { status: 404 });
 
   return NextResponse.json({ category: updated });
@@ -69,10 +69,10 @@ export async function DELETE(req: NextRequest) {
   const id = searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
-  const categories = await readDb<Category>('categories.json');
+  const categories = await readDb<Category>('categories');
   if (!categories.some((category) => category.id === id && category.storeId === session.storeId)) {
     return NextResponse.json({ error: 'Category not found' }, { status: 404 });
   }
-  await deleteOne<Category>('categories.json', id);
+  await deleteOne<Category>('categories', id);
   return NextResponse.json({ success: true });
 }

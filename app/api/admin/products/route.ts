@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get('status') || '';
   const categoryId = searchParams.get('categoryId') || '';
 
-  const products = await readDb<Product>('products.json');
+  const products = await readDb<Product>('products');
   let filtered = products.filter((p) => p.storeId === session.storeId);
 
   if (search) {
@@ -77,6 +77,6 @@ export async function POST(req: NextRequest) {
     updatedAt: now,
   };
 
-  await insertOne<Product>('products.json', newProduct);
+  await insertOne<Product>('products', newProduct);
   return NextResponse.json({ product: newProduct }, { status: 201 });
 }

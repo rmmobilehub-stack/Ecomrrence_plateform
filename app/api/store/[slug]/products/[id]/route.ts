@@ -6,11 +6,11 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { slug: string; id: string } }
 ) {
-  const stores = await readDb<Store>('stores.json');
+  const stores = await readDb<Store>('stores');
   const store = stores.find((s) => s.slug === params.slug && s.isActive);
   if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
 
-  const products = await readDb<Product>('products.json');
+  const products = await readDb<Product>('products');
   const product = products.find((p) => p.id === params.id && p.storeId === store.id && p.status === 'active');
   if (!product) return NextResponse.json({ error: 'Product not found' }, { status: 404 });
 

@@ -9,7 +9,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const products = await readDb<Product>('products.json');
+  const products = await readDb<Product>('products');
   const product = products.find((p) => p.id === params.id && p.storeId === session.storeId);
 
   if (!product) {
@@ -26,7 +26,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 
   // Verify ownership
-  const products = await readDb<Product>('products.json');
+  const products = await readDb<Product>('products');
   const existing = products.find((p) => p.id === params.id && p.storeId === session.storeId);
   if (!existing) {
     return NextResponse.json({ error: 'Product not found' }, { status: 404 });
@@ -51,7 +51,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
   if (updates.images && !updates.thumbnail) updates.thumbnail = updates.images[0] || '';
 
-  const updated = await updateOne<Product>('products.json', params.id, updates);
+  const updated = await updateOne<Product>('products', params.id, updates);
   return NextResponse.json({ product: updated });
 }
 
@@ -62,12 +62,12 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   }
 
   // Verify ownership
-  const products = await readDb<Product>('products.json');
+  const products = await readDb<Product>('products');
   const existing = products.find((p) => p.id === params.id && p.storeId === session.storeId);
   if (!existing) {
     return NextResponse.json({ error: 'Product not found' }, { status: 404 });
   }
 
-  await deleteOne<Product>('products.json', params.id);
+  await deleteOne<Product>('products', params.id);
   return NextResponse.json({ success: true });
 }

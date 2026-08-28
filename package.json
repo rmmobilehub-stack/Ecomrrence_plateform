@@ -3,19 +3,23 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/next-production.js dev",
     "build": "node scripts/next-production.js build",
     "start": "node scripts/next-production.js start",
     "lint": "next lint",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "db:seed": "node scripts/seed.js",
+    "db:migrate": "node scripts/migrate.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.112.4",
     "bcryptjs": "^2.4.3",
     "framer-motion": "^11.18.2",
     "jose": "^5.10.0",
     "lucide-react": "^0.408.0",
     "multer": "^1.4.5-lts.1",
     "next": "14.2.5",
+    "postgres": "^3.4.9",
     "react": "^18",
     "react-dom": "^18",
     "recharts": "^2.15.4",

@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const status = searchParams.get('status') || '';
 
-  const orders = await readDb<Order>('orders.json');
+  const orders = await readDb<Order>('orders');
   let storeOrders = orders.filter((o) => o.storeId === session.storeId);
 
   if (status) storeOrders = storeOrders.filter((o) => o.status === status);

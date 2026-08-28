@@ -3,7 +3,7 @@ import { readDb } from '@/lib/db';
 import type { Store } from '@/lib/types';
 
 export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
-  const stores = await readDb<Store>('stores.json');
+  const stores = await readDb<Store>('stores');
   const store = stores.find((s) => s.slug === params.slug && s.isActive);
 
   if (!store) {

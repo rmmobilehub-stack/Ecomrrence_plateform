@@ -19,7 +19,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (plan) updates.plan = plan;
   if (password) updates.passwordHash = await bcrypt.hash(password, 12);
 
-  const updated = await updateOne<Admin>('admins.json', params.id, updates);
+  const updated = await updateOne<Admin>('admins', params.id, updates);
   if (!updated) {
     return NextResponse.json({ error: 'Admin not found' }, { status: 404 });
   }
@@ -34,7 +34,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const deleted = await deleteOne<Admin>('admins.json', params.id);
+  const deleted = await deleteOne<Admin>('admins', params.id);
   if (!deleted) {
     return NextResponse.json({ error: 'Admin not found' }, { status: 404 });
   }

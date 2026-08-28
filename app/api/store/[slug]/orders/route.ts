@@ -6,7 +6,7 @@ import { calculateDeliveryFee, calculateProductPrice } from '@/lib/pricing';
 
 export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
   try {
-    const stores = await readDb<Store>('stores.json');
+    const stores = await readDb<Store>('stores');
     const store = stores.find((s) => s.slug === params.slug && s.isActive);
     if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
 
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
     }
 
-    const products = await readDb<Product>('products.json');
+    const products = await readDb<Product>('products');
     const orderItems: OrderItem[] = [];
     for (const rawItem of items) {
       const product = products.find((item) => item.id === rawItem.productId && item.storeId === store.id && item.status === 'active');
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
     let discountAmount = 0;
     let appliedCoupon: string | undefined;
     if (couponCode) {
-      const discounts = await readDb<Discount>('discounts.json');
+      const discounts = await readDb<Discount>('discounts');
       const coupon = discounts.find((discount) =>
         discount.storeId === store.id &&
         discount.code === String(couponCode).trim().toUpperCase() &&
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
     const total = subtotal - discountAmount + deliveryFee;
 
     // Generate order number
-    const existingOrders = await readDb<Order>('orders.json');
+    const existingOrders = await readDb<Order>('orders');
     const orderNumber = `ORD-${String(existingOrders.length + 1).padStart(4, '0')}`;
 
     const newOrder: Order = {
@@ -85,14 +85,14 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
       createdAt: new Date().toISOString(),
     };
 
-    await insertOne<Order>('orders.json', newOrder);
+    await insertOne<Order>('orders', newOrder);
     await Promise.all(orderItems.map((item) => {
       const product = products.find((entry) => entry.id === item.productId)!;
-      return updateOne<Product>('products.json', product.id, { stock: product.stock - item.qty, updatedAt: new Date().toISOString() });
+      return updateOne<Product>('products', product.id, { stock: product.stock - item.qty, updatedAt: new Date().toISOString() });
     }));
 
     // Find the store's admin and create notification
-    const admins = await readDb<Admin>('admins.json');
+    const admins = await readDb<Admin>('admins');
     const admin = admins.find((a) => a.storeId === store.id);
 
     if (admin) {
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
         isRead: false,
         createdAt: new Date().toISOString(),
       };
-      await insertOne<Notification>('notifications.json', notification);
+      await insertOne<Notification>('notifications', notification);
     }
 
     return NextResponse.json({

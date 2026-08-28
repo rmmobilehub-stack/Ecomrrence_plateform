@@ -3,15 +3,20 @@ import { readDb } from '@/lib/db';
 import type { Product, Store } from '@/lib/types';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+const defaultStoreSlug = process.env.DEFAULT_STORE_SLUG || 'demo';
+
+// The sitemap is database-backed and must be generated at request time.
+export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [stores, products] = await Promise.all([readDb<Store>('stores.json'), readDb<Product>('products.json')]);
+  const [stores, products] = await Promise.all([readDb<Store>('stores'), readDb<Product>('products')]);
   const activeStores = stores.filter(store => store.isActive);
   const activeStoreIds = new Set(activeStores.map(store => store.id));
   const entries: MetadataRoute.Sitemap = [];
 
   for (const store of activeStores) {
-    entries.push({ url: `${siteUrl}/store/${store.slug}`, lastModified: store.createdAt, changeFrequency: 'daily', priority: 0.9 });
+    const storeHome = store.slug === defaultStoreSlug ? siteUrl : `${siteUrl}/store/${store.slug}`;
+    entries.push({ url: storeHome, lastModified: store.createdAt, changeFrequency: 'daily', priority: 0.9 });
     entries.push({ url: `${siteUrl}/store/${store.slug}/products`, lastModified: store.createdAt, changeFrequency: 'daily', priority: 0.8 });
   }
   for (const product of products.filter(product => activeStoreIds.has(product.storeId) && product.status === 'active')) {

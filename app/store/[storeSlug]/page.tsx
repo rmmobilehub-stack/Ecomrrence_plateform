@@ -5,7 +5,7 @@ import ProductCard from '@/components/store/ProductCard';
 import WhatsAppButton from '@/components/store/WhatsAppButton';
 
 export default async function StoreHome({ params }: { params: { storeSlug: string } }) {
-  const [stores, products] = await Promise.all([readDb<Store>('stores.json'), readDb<Product>('products.json')]);
+  const [stores, products] = await Promise.all([readDb<Store>('stores'), readDb<Product>('products')]);
   const store = stores.find(entry => entry.slug === params.storeSlug && entry.isActive)!;
   const featured = products.filter(product => product.storeId === store.id && product.status === 'active').slice(0, 8);
   const title = store.heroTitle || `A brighter way to shop ${store.name}.`;

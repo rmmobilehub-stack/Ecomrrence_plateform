@@ -11,10 +11,10 @@ export async function GET() {
 
   let user;
   if (session.role === 'super-admin') {
-    const superAdmins = await readDb<SuperAdmin>('super-admins.json');
+    const superAdmins = await readDb<SuperAdmin>('super-admins');
     user = superAdmins.find((u) => u.id === session.id);
   } else {
-    const admins = await readDb<Admin>('admins.json');
+    const admins = await readDb<Admin>('admins');
     user = admins.find((u) => u.id === session.id);
   }
 

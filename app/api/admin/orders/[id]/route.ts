@@ -9,7 +9,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const orders = await readDb<Order>('orders.json');
+  const orders = await readDb<Order>('orders');
   const order = orders.find((o) => o.id === params.id && o.storeId === session.storeId);
 
   if (!order) return NextResponse.json({ error: 'Order not found' }, { status: 404 });
@@ -22,7 +22,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const orders = await readDb<Order>('orders.json');
+  const orders = await readDb<Order>('orders');
   const existing = orders.find((o) => o.id === params.id && o.storeId === session.storeId);
   if (!existing) return NextResponse.json({ error: 'Order not found' }, { status: 404 });
 
@@ -33,7 +33,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 
   if (existing.channel === 'whatsapp' && existing.status === 'pending' && status === 'confirmed') {
-    const products = await readDb<Product>('products.json');
+    const products = await readDb<Product>('products');
     for (const item of existing.items) {
       const product = products.find(entry => entry.id === item.productId && entry.storeId === session.storeId);
       if (!product || product.stock < item.qty) {
@@ -42,10 +42,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
     await Promise.all(existing.items.map(item => {
       const product = products.find(entry => entry.id === item.productId)!;
-      return updateOne<Product>('products.json', product.id, { stock: product.stock - item.qty, updatedAt: new Date().toISOString() });
+      return updateOne<Product>('products', product.id, { stock: product.stock - item.qty, updatedAt: new Date().toISOString() });
     }));
   }
 
-  const updated = await updateOne<Order>('orders.json', params.id, { status });
+  const updated = await updateOne<Order>('orders', params.id, { status });
   return NextResponse.json({ order: updated });
 }

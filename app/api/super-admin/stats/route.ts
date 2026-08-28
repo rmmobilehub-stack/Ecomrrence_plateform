@@ -9,10 +9,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const admins = await readDb<Admin>('admins.json');
-  const stores = await readDb<Store>('stores.json');
-  const products = await readDb<Product>('products.json');
-  const orders = await readDb<Order>('orders.json');
+  const admins = await readDb<Admin>('admins');
+  const stores = await readDb<Store>('stores');
+  const products = await readDb<Product>('products');
+  const orders = await readDb<Order>('orders');
 
   const totalRevenue = orders
     .filter((o) => o.status !== 'cancelled')

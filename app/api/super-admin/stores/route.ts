@@ -9,8 +9,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const stores = await readDb<Store>('stores.json');
-  const admins = await readDb<Admin>('admins.json');
+  const stores = await readDb<Store>('stores');
+  const admins = await readDb<Admin>('admins');
 
   const result = stores.map((store) => {
     const admin = admins.find((a) => a.id === store.adminId);

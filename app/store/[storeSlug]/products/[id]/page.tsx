@@ -8,7 +8,7 @@ import ProductCard from '@/components/store/ProductCard';
 import { calculateProductPrice, getReferencePrice } from '@/lib/pricing';
 
 export async function generateMetadata({ params }: { params: { storeSlug: string; id: string } }): Promise<Metadata> {
-  const [stores, products] = await Promise.all([readDb<Store>('stores.json'), readDb<Product>('products.json')]);
+  const [stores, products] = await Promise.all([readDb<Store>('stores'), readDb<Product>('products')]);
   const store = stores.find(entry => entry.slug === params.storeSlug && entry.isActive);
   const product = products.find(entry => entry.id === params.id && entry.storeId === store?.id && entry.status === 'active');
   if (!store || !product) return { title: 'Product not found', robots: { index: false, follow: false } };
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: { storeSlug: string
 }
 
 export default async function ProductPage({ params }: { params: { storeSlug: string; id: string } }) {
-  const [stores, products, categories] = await Promise.all([readDb<Store>('stores.json'), readDb<Product>('products.json'), readDb<Category>('categories.json')]);
+  const [stores, products, categories] = await Promise.all([readDb<Store>('stores'), readDb<Product>('products'), readDb<Category>('categories')]);
   const store = stores.find(entry => entry.slug === params.storeSlug && entry.isActive);
   const product = products.find(entry => entry.id === params.id && entry.storeId === store?.id && entry.status === 'active');
   if (!store || !product) notFound();
