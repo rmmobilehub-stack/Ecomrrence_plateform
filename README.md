@@ -15,6 +15,8 @@ SUPABASE_SECRET_KEY=sb_secret_your_server_only_key
 DATABASE_URL=postgresql://postgres:your-password@db.your-project-ref.supabase.co:5432/postgres
 JWT_SECRET=replace-with-a-long-random-secret
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+DEFAULT_STORE_SLUG=demo
+NEXT_PUBLIC_DEFAULT_STORE_SLUG=demo
 ```
 
 Never expose `SUPABASE_SECRET_KEY` or `DATABASE_URL` in client code. The app performs authorization in its server routes; both credentials are server-only. Copy `DATABASE_URL` from the project's **Connect** panel. Use the Session pooler connection string if your machine or host does not support IPv6.
@@ -34,7 +36,8 @@ Seed accounts:
 
 - Super admin: `super@platform.com` / `admin123`
 - Store admin: `admin@demo.com` / `admin123`
-- Demo storefront: `http://localhost:3000/store/demo`
+- Default storefront: `http://localhost:3000`
+- Products: `http://localhost:3000/products`
 
 `npm run dev` and `npm start` automatically apply every pending SQL file in `supabase/migrations` before starting Next.js, then run the idempotent seed. Applied filenames and checksums are tracked in `app_private.schema_migrations`; modified historical migrations are rejected. `npm run build` never connects to or mutates the database. Change the demo passwords before a public production launch.
 
@@ -48,7 +51,7 @@ Seed accounts:
 
 ## Deployment
 
-Set `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `DATABASE_URL`, `JWT_SECRET`, and `NEXT_PUBLIC_SITE_URL` in the hosting provider's environment settings. Use `npm run build` for the production compilation check and `npm start` to migrate, seed, and serve the build.
+Set `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `DATABASE_URL`, `JWT_SECRET`, `NEXT_PUBLIC_SITE_URL`, `DEFAULT_STORE_SLUG`, and `NEXT_PUBLIC_DEFAULT_STORE_SLUG` in the hosting provider's environment settings. Keep both store-slug values equal. Use `npm run build` for the production compilation check and `npm start` to migrate, seed, and serve the build.
 
 The app uses a server-side Supabase secret because it keeps its existing custom JWT login. Database tables have RLS enabled and browser roles receive no direct access.
 

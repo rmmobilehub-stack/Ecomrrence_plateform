@@ -16,6 +16,11 @@ export function getSupabaseAdmin(): SupabaseClient {
   }
 
   adminClient = createClient(url, secretKey, {
+    global: {
+      // Storefront/admin reads must reflect Supabase edits immediately instead
+      // of being persisted in Next.js' server fetch cache.
+      fetch: (input, init = {}) => fetch(input, { ...init, cache: 'no-store' }),
+    },
     auth: {
       persistSession: false,
       autoRefreshToken: false,

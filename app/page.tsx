@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import StoreHome from './store/[storeSlug]/page';
 import StoreLayout, { generateMetadata as generateStoreMetadata } from './store/[storeSlug]/layout';
+import { defaultStoreSlug } from '@/lib/storefront-paths';
 
-const storeSlug = process.env.DEFAULT_STORE_SLUG || 'demo';
+const storeSlug = defaultStoreSlug;
 
 // The homepage reads the live default store from Supabase.
 export const dynamic = 'force-dynamic';

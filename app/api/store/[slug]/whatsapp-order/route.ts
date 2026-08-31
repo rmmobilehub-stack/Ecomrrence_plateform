@@ -3,13 +3,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { insertOne, readDb } from '@/lib/db';
 import type { Admin, Notification, Order, Product, Store } from '@/lib/types';
 import { calculateDeliveryFee, calculateProductPrice } from '@/lib/pricing';
+import { isValidWhatsAppNumber } from '@/lib/whatsapp';
 
 export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
   try {
     const stores = await readDb<Store>('stores');
     const store = stores.find(entry => entry.slug === params.slug && entry.isActive);
     if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
-    if (!(store.whatsappNumber ?? '').replace(/\D/g, '')) return NextResponse.json({ error: 'WhatsApp ordering is not enabled for this store' }, { status: 400 });
+    if (!isValidWhatsAppNumber(store.whatsappNumber)) return NextResponse.json({ error: 'WhatsApp ordering is not enabled for this store' }, { status: 400 });
 
     const { productId, qty, selectedVariants = {} } = await req.json();
     const quantity = Number(qty);

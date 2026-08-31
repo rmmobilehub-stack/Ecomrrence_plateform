@@ -27,19 +27,26 @@ export interface Store {
   description: string;
   logo: string;
   banner: string;
+  heroSlides: string[];
   heroTitle?: string;
   heroCtaLabel?: string;
   announcement?: string;
+  aboutTitle?: string;
+  aboutDescription?: string;
+  aboutImage?: string;
   primaryColor: string;
   currency: string;
   contactEmail: string;
   whatsappNumber?: string;
+  contactWidgetMode?: 'chatbot' | 'whatsapp' | 'both' | 'none';
   deliveryFee?: number;
   freeDeliveryThreshold?: number;
   socialLinks: {
     instagram?: string;
     facebook?: string;
     twitter?: string;
+    tiktok?: string;
+    youtube?: string;
     website?: string;
   };
   isActive: boolean;
@@ -148,6 +155,18 @@ export interface Notification {
   message: string;
   orderId: string;
   isRead: boolean;
+  createdAt: string;
+}
+
+export interface Lead {
+  id: string;
+  storeId: string;
+  name: string;
+  contact: string;
+  interest: string;
+  source: 'chatbot';
+  status: 'new' | 'contacted' | 'qualified' | 'closed';
+  conversation: { role: 'visitor' | 'assistant'; message: string }[];
   createdAt: string;
 }
 

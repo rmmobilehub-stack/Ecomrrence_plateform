@@ -1,11 +1,11 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BarChart3, Boxes, LayoutDashboard, LogOut, Menu, Package, Settings, Store, Tags, Users, X } from 'lucide-react';
+import { BarChart3, Boxes, LayoutDashboard, LogOut, Menu, MessageCircle, Package, Settings, Store, Tags, Users, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import NotificationBell from '@/components/admin/NotificationBell';
 import BrandMark from '@/components/ui/BrandMark';
-const navigation = [['/admin', 'Dashboard', LayoutDashboard], ['/admin/brand', 'Brand', Store], ['/admin/store', 'Store settings', Settings], ['/admin/products', 'Products', Package], ['/admin/categories', 'Categories', Tags], ['/admin/orders', 'Orders', Boxes], ['/admin/customers', 'Customers', Users], ['/admin/discounts', 'Discounts', Tags], ['/admin/analytics', 'Analytics', BarChart3]] as const;
+const navigation = [['/admin', 'Dashboard', LayoutDashboard], ['/admin/brand', 'Brand', Store], ['/admin/store', 'Store settings', Settings], ['/admin/products', 'Products', Package], ['/admin/categories', 'Categories', Tags], ['/admin/orders', 'Orders', Boxes], ['/admin/leads', 'Leads', MessageCircle], ['/admin/customers', 'Customers', Users], ['/admin/discounts', 'Discounts', Tags], ['/admin/analytics', 'Analytics', BarChart3]] as const;
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname(); const router = useRouter(); const [name, setName] = useState('Store Admin'); const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => { fetch('/api/auth/me').then(response => response.ok ? response.json() : null).then(data => data?.user && setName(data.user.name)); }, []);

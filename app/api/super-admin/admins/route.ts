@@ -63,6 +63,7 @@ export async function POST(req: NextRequest) {
     description: '',
     logo: '',
     banner: '',
+    heroSlides: [],
     primaryColor: '#6c63ff',
     currency: 'USD',
     contactEmail: email,

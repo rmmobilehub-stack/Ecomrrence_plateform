@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSessionFromRequest } from '@/lib/auth';
 import { readDb, updateOne } from '@/lib/db';
 import type { Store } from '@/lib/types';
+import { isValidWhatsAppNumber, normalizeWhatsAppNumber } from '@/lib/whatsapp';
 
 export async function GET(req: NextRequest) {
   const session = await getSessionFromRequest(req);
@@ -27,8 +28,9 @@ export async function PUT(req: NextRequest) {
 
   const body = await req.json();
   const allowedFields: (keyof Store)[] = [
-    'name', 'slug', 'description', 'logo', 'banner', 'heroTitle', 'heroCtaLabel', 'announcement',
-    'primaryColor', 'currency', 'contactEmail', 'whatsappNumber', 'deliveryFee', 'freeDeliveryThreshold', 'socialLinks', 'isActive',
+    'name', 'slug', 'description', 'logo', 'banner', 'heroSlides', 'heroTitle', 'heroCtaLabel', 'announcement',
+    'aboutTitle', 'aboutDescription', 'aboutImage',
+    'primaryColor', 'currency', 'contactEmail', 'whatsappNumber', 'contactWidgetMode', 'deliveryFee', 'freeDeliveryThreshold', 'socialLinks', 'isActive',
   ];
 
   const updates: Partial<Store> = {};
@@ -36,6 +38,18 @@ export async function PUT(req: NextRequest) {
     if (body[field] !== undefined) {
       (updates as Record<string, unknown>)[field] = body[field];
     }
+  }
+
+  if (updates.whatsappNumber !== undefined) {
+    const suppliedNumber = String(updates.whatsappNumber).trim();
+    if (suppliedNumber && !isValidWhatsAppNumber(suppliedNumber)) {
+      return NextResponse.json({ error: 'Enter a valid WhatsApp number in international format, for example 923001234567' }, { status: 400 });
+    }
+    updates.whatsappNumber = suppliedNumber ? normalizeWhatsAppNumber(suppliedNumber) : '';
+  }
+
+  if (updates.contactWidgetMode && !['chatbot', 'whatsapp', 'both', 'none'].includes(updates.contactWidgetMode)) {
+    return NextResponse.json({ error: 'Choose a valid storefront contact option' }, { status: 400 });
   }
 
   // Check slug uniqueness

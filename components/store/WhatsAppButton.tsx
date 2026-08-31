@@ -1,5 +1,7 @@
 'use client';
 
+import { createWhatsAppUrl } from '@/lib/whatsapp';
+
 type Props = { number?: string; message: string; label: string; className?: string };
 
 export function WhatsAppMark() {
@@ -7,8 +9,7 @@ export function WhatsAppMark() {
 }
 
 export default function WhatsAppButton({ number, message, label, className = '' }: Props) {
-  const digits = (number ?? '').replace(/\D/g, '');
-  const phone = digits.startsWith('0') && digits.length === 11 ? `92${digits.slice(1)}` : digits;
-  if (phone.length < 8) return null;
-  return <a className={`whatsapp-btn ${className}`} href={`https://wa.me/${phone}?text=${encodeURIComponent(message)}`} target="_blank" rel="noreferrer"><WhatsAppMark/>{label}</a>;
+  const url = createWhatsAppUrl(number, message);
+  if (!url) return null;
+  return <a className={`whatsapp-btn ${className}`} href={url} target="_blank" rel="noreferrer"><WhatsAppMark/>{label}</a>;
 }
