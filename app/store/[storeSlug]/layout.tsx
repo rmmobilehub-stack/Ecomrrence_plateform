@@ -16,6 +16,7 @@ export async function generateMetadata({ params }: { params: { storeSlug: string
   return {
     title: { absolute: `${store.name} | Shop online` },
     description,
+    icons: store.logo ? { icon: store.logo, shortcut: store.logo, apple: store.logo } : undefined,
     alternates: { canonical: storeUrl },
     openGraph: {
       title: store.name,
@@ -36,11 +37,11 @@ export default async function StoreLayout({ children, params }: { children: Reac
   const productsHref = storefrontPath(store.slug, 'products');
 
   return <CartProvider slug={store.slug}>
-    <div style={{ '--store-accent': store.primaryColor } as React.CSSProperties}>
+    <div className="storefront-shell" style={{ '--store-accent': store.primaryColor } as React.CSSProperties}>
       <StoreNav slug={store.slug} homeHref={homeHref} name={store.name} logo={store.logo} announcement={store.announcement}/>
       {children}
       <footer className="store-footer">
-        <div><strong>{store.name}</strong><span>Thoughtful products, simple ordering.</span></div>
+        <div><strong>{store.name}</strong><span>Chargers, cables and Apple-compatible accessories.</span></div>
         <nav><a href={homeHref}>Home</a><a href={productsHref}>Shop</a><a href={`${homeHref}#about`}>About</a></nav>
         <small>© {new Date().getFullYear()} {store.name}</small>
       </footer>

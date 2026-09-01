@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const { randomUUID } = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 const { loadEnvironment } = require('./load-env');
+const { storeProfile, categoryProfiles, productProfiles } = require('./rm-mobile-hub-data');
 
 function failOn(error, action) {
   if (error) throw new Error(`${action}: ${error.message}`);
@@ -53,7 +54,7 @@ async function seedDatabase() {
   if (!admin) {
     ({ data: admin, error: adminError } = await supabase
       .from('admins')
-      .insert({ id: adminId, name: 'Demo Admin', email: 'admin@demo.com', password_hash: adminPasswordHash, status: 'active', plan: 'pro', store_id: storeId, created_at: now })
+      .insert({ id: adminId, name: 'RM Mobile Hub Admin', email: 'admin@demo.com', password_hash: adminPasswordHash, status: 'active', plan: 'pro', store_id: storeId, created_at: now })
       .select('*')
       .single());
     failOn(adminError, 'Creating demo admin');
@@ -74,21 +75,10 @@ async function seedDatabase() {
       .insert({
         id: storeId,
         admin_id: adminId,
-        name: 'Demo Store',
         slug: 'demo',
-        description: 'Comfort-first apparel and useful everyday accessories, selected to make shopping simple.',
-        logo: '',
-        banner: '',
-        hero_title: 'Everyday essentials, made easy.',
-        hero_cta_label: 'Shop the collection',
-        hero_slides: [],
-        about_title: 'Simple pieces for real, everyday routines.',
-        about_description: 'We focus on practical wardrobe essentials and everyday carry pieces that are easy to choose, easy to order, and made for repeat use.',
-        primary_color: '#6c63ff',
-        currency: 'USD',
+        ...storeProfile,
         contact_email: 'admin@demo.com',
         contact_widget_mode: 'both',
-        social_links: {},
         is_active: true,
         created_at: now,
       })
@@ -104,23 +94,23 @@ async function seedDatabase() {
   failOn(countError, 'Counting demo categories');
 
   if (!categoryCount) {
-    const apparelId = randomUUID();
-    const accessoriesId = randomUUID();
-    const { error: categoryError } = await supabase.from('categories').insert([
-      { id: apparelId, store_id: store.id, name: 'Apparel', slug: 'apparel', description: 'Everyday essentials', created_at: now },
-      { id: accessoriesId, store_id: store.id, name: 'Accessories', slug: 'accessories', description: 'Finishing touches', created_at: now },
-    ]);
+    const categoryIds = Object.fromEntries(categoryProfiles.map((category) => [category.slug, randomUUID()]));
+    const { error: categoryError } = await supabase.from('categories').insert(categoryProfiles.map((category) => ({
+      id: categoryIds[category.slug],
+      store_id: store.id,
+      ...category,
+      created_at: now,
+    })));
     failOn(categoryError, 'Creating demo categories');
 
-    const products = [
-      { name: 'Classic Everyday Tee', price: 24, compare_price: 30, stock: 30, category_id: apparelId, sku: 'TEE-001', description: 'A soft, reliable tee made for every day.', variants: [{ name: 'Size', options: ['S', 'M', 'L', 'XL'], priceModifier: 0 }] },
-      { name: 'Canvas Weekend Tote', price: 38, compare_price: 0, stock: 15, category_id: accessoriesId, sku: 'TOT-001', description: 'A roomy canvas tote for your daily essentials.', variants: [] },
-      { name: 'Relaxed Hoodie', price: 54, compare_price: 65, stock: 20, category_id: apparelId, sku: 'HOD-001', description: 'Comfortable warmth with a relaxed fit.', variants: [{ name: 'Size', options: ['S', 'M', 'L', 'XL'], priceModifier: 0 }] },
-    ].map((product) => ({
-      id: randomUUID(), store_id: store.id,
-      slug: product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
-      description: '', discount: 0, images: [], thumbnail: '', tags: [], status: 'active',
-      custom_properties: [], created_at: now, updated_at: now, ...product,
+    const products = productProfiles.map(({ category, ...product }) => ({
+      id: randomUUID(),
+      store_id: store.id,
+      ...product,
+      category_id: categoryIds[category],
+      status: 'active',
+      created_at: now,
+      updated_at: now,
     }));
     const { error: productError } = await supabase.from('products').insert(products);
     failOn(productError, 'Creating demo products');
@@ -128,7 +118,7 @@ async function seedDatabase() {
 
   console.log('Supabase seed complete.');
   console.log('Super admin: super@platform.com / admin123');
-  console.log('Demo admin: admin@demo.com / admin123');
+  console.log('Store admin: admin@demo.com / admin123');
 }
 
 if (require.main === module) {

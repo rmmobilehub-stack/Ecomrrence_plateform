@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Facebook, Globe2, Instagram, Music2, Twitter, Youtube } from 'lucide-react';
+import { ArrowRight, Facebook, Globe2, Instagram, MessageCircle, Music2, ShieldCheck, Sparkles, Truck, Twitter, Youtube } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { readDb } from '@/lib/db';
 import type { Product, Store } from '@/lib/types';
@@ -88,7 +88,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
 
     <section className="store-section featured-section">
       <div className="section-heading">
-        <div className="section-heading-copy"><span className="section-number">01</span><div><h2>Featured products</h2><p className="text-secondary">A quick look at what is available right now.</p></div></div>
+        <div className="section-heading-copy featured-heading-copy"><div><h2>Featured charging essentials</h2><p className="text-secondary">Fast chargers, durable cables and magnetic accessories for your Apple setup.</p></div></div>
         <Link className="collection-link" href={shopHref}>View all products <ArrowRight size={17}/></Link>
       </div>
       {featured.length
@@ -96,25 +96,54 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
         : <div className="empty-state">This store has no products yet.</div>}
     </section>
 
-    <section className="store-about" id="about">
-      <div className="store-about-heading"><span>02 / About</span><h2>{store.aboutTitle || `Meet ${store.name}.`}</h2></div>
-      <div className="store-about-layout">
-        <div className="store-about-gallery">
-          <div className="store-about-primary">{aboutImage ? <img src={aboutImage} alt={`${store.name} collection`}/> : <div className="store-about-placeholder"><span>{store.name.charAt(0)}</span></div>}</div>
-          {aboutSecondaryImage && <div className="store-about-secondary"><img src={aboutSecondaryImage} alt="A product from our collection"/></div>}
-          <span className="store-about-label">Our collection</span>
+    <section className="store-values" aria-labelledby="store-values-title">
+      <div className="store-values-intro store-values-intro-refined">
+          <p className="home-section-kicker">Built for your Apple setup</p>
+          <h2 id="store-values-title">Everyday power, without the charging hassle.</h2>
+          <p>Find the right charger, cable or magnetic accessory with clear details, reliable support and simple cash-on-delivery ordering.</p>
+      </div>
+      <div className="store-values-grid">
+        <article><span><Sparkles size={21}/></span><div><strong>Fast charging</strong><p>Practical power accessories selected for everyday performance.</p></div></article>
+        <article><span><ShieldCheck size={21}/></span><div><strong>Device-friendly picks</strong><p>Clear compatibility details help you choose with confidence.</p></div></article>
+        <article><span><Truck size={21}/></span><div><strong>Cash on delivery</strong><p>Place your order simply and pay when it reaches you.</p></div></article>
+        <article><span><MessageCircle size={21}/></span><div><strong>Direct support</strong><p>Ask about chargers or compatibility through chat and WhatsApp.</p></div></article>
+      </div>
+    </section>
+
+    <section className="store-about-modern" id="about">
+      {aboutImage ? <img className="store-about-modern-bg" src={aboutImage} alt=""/> : <div className="store-about-modern-placeholder"><span>{store.name.charAt(0)}</span></div>}
+      <div className="store-about-modern-shade"/>
+      <div className="store-about-modern-content">
+        <p className="store-about-modern-kicker"><Sparkles size={14}/> About {store.name}</p>
+        <h2>{store.aboutTitle || `Meet ${store.name}.`}</h2>
+        <p>{store.aboutDescription || store.description || `Explore ${store.name} and order directly through our simple storefront.`}</p>
+        <div className="store-about-modern-facts">
+          <div><strong>Easy</strong><span>Simple checkout</span></div>
+          <div><strong>COD</strong><span>Pay on delivery</span></div>
+          <div><strong>{store.whatsappNumber ? 'Direct' : 'Email'}</strong><span>Personal support</span></div>
         </div>
-        <div className="store-about-copy">
-          <p>{store.aboutDescription || store.description || `Explore ${store.name} and order directly through our simple storefront.`}</p>
-          <div className="store-about-facts">
-            <div><strong>Easy</strong><span>Simple checkout</span></div>
-            <div><strong>COD</strong><span>Pay on delivery</span></div>
-            <div><strong>{store.whatsappNumber ? 'Direct' : 'Email'}</strong><span>Order support</span></div>
-          </div>
+        <div className="store-about-modern-actions">
+          <Link className="btn btn-primary" href={shopHref}>Explore the collection <ArrowRight size={17}/></Link>
           {socials.length > 0 && <div className="store-socials"><span>Connect with us</span><div>{socials.map(({ key, label, Icon, href }) => <a key={key} href={href} target="_blank" rel="noreferrer" aria-label={label} title={label}><Icon size={18}/></a>)}</div></div>}
-          <Link className="about-shop-link" href={shopHref}>Explore all products <ArrowRight size={17}/></Link>
         </div>
       </div>
+      {aboutSecondaryImage && <div className="store-about-modern-product"><img src={aboutSecondaryImage} alt="A product from our collection"/><span>Part of our collection</span></div>}
+    </section>
+
+    <section className="store-journey">
+      <div className="store-journey-header">
+        <div className="store-journey-copy store-journey-copy-refined">
+          <p className="home-section-kicker">From power pick to doorstep</p>
+          <h2>The simple way to upgrade <span>your charging setup.</span></h2>
+        </div>
+        <p className="store-journey-intro">Pick the right accessory, confirm it your way and receive it at your doorstep with clear support throughout.</p>
+      </div>
+      <div className="store-journey-steps">
+        <article><div className="journey-step-meta"><span><Sparkles size={19}/></span></div><div className="journey-step-copy"><strong>Choose your accessory</strong><p>Compare ports, power and compatibility before you order.</p></div></article>
+        <article><div className="journey-step-meta"><span><MessageCircle size={19}/></span></div><div className="journey-step-copy"><strong>Confirm your order</strong><p>Checkout online or send the selected product through WhatsApp.</p></div></article>
+        <article><div className="journey-step-meta"><span><Truck size={19}/></span></div><div className="journey-step-copy"><strong>Receive and pay</strong><p>We confirm delivery details, dispatch your order and you pay on arrival.</p></div></article>
+      </div>
+      <div className="store-journey-cta"><div><span>Keep every device ready</span><strong>Find the right power accessory today.</strong><p>Chargers, cables, cases and magnetic essentials—all in one place.</p></div><Link className="btn btn-primary btn-lg" href={shopHref}>Shop all accessories <ArrowRight size={17}/></Link></div>
     </section>
 
     {(showWhatsApp || showChatbot) && <div className={`store-contact-dock ${showWhatsApp && showChatbot ? 'contact-dock-both' : 'contact-dock-single'}`}>

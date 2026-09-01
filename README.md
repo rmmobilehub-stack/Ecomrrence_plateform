@@ -35,11 +35,13 @@ Open `http://localhost:3000`.
 Seed accounts:
 
 - Super admin: `super@platform.com` / `admin123`
-- Store admin: `admin@demo.com` / `admin123`
-- Default storefront: `http://localhost:3000`
+- RM Mobile Hub store admin: `admin@demo.com` / `admin123`
+- RM Mobile Hub storefront: `http://localhost:3000`
 - Products: `http://localhost:3000/products`
 
 `npm run dev` and `npm start` automatically apply every pending SQL file in `supabase/migrations` before starting Next.js, then run the idempotent seed. Applied filenames and checksums are tracked in `app_private.schema_migrations`; modified historical migrations are rejected. `npm run build` never connects to or mutates the database. Change the demo passwords before a public production launch.
+
+Run `npm run store:rebrand:rm` to re-apply the included RM Mobile Hub storefront, categories, product catalog and generated local imagery to the configured default Supabase store.
 
 ## Features
 
