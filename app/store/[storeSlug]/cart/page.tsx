@@ -5,11 +5,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { useCart } from '@/components/store/CartProvider';
 import { calculateDeliveryFee } from '@/lib/pricing';
 import { storefrontPath } from '@/lib/storefront-paths';
+import { formatMoney } from '@/lib/currency';
 
-type DeliverySettings = { deliveryFee?: number; freeDeliveryThreshold?: number };
+type DeliverySettings = { deliveryFee?: number; freeDeliveryThreshold?: number; currency?: string };
 
 export default function CartPage({ params }: { params: { storeSlug: string } }) {
-  const { items, update, remove, subtotal } = useCart();
+  const { items, update, remove, subtotal, currency } = useCart();
+  const money = (amount: number) => formatMoney(amount, settings.currency || currency);
   const [settings, setSettings] = useState<DeliverySettings>({});
 
   useEffect(() => {
@@ -35,8 +37,8 @@ export default function CartPage({ params }: { params: { storeSlug: string } }) 
     const originalPrice = Math.max(item.price, item.originalPrice ?? item.price);
     return <article className="cart-item" key={`${item.productId}-${index}`}>
       {item.thumbnail ? <img src={item.thumbnail} className="cart-item-img" alt="" /> : <span className="cart-item-img" />}
-      <div className="cart-item-info"><div className="cart-item-name">{item.productName}</div><small>{Object.entries(item.selectedVariants).map(([key, value]) => `${key}: ${value}`).join(' · ')}</small><div className="cart-item-price">{originalPrice > item.price && <><del>${originalPrice.toFixed(2)}</del>{' '}</>}${item.price.toFixed(2)}</div><div className="qty-controls"><button className="qty-btn" onClick={() => update(index, item.qty - 1)}>−</button><span className="qty-value">{item.qty}</span><button className="qty-btn" onClick={() => update(index, item.qty + 1)}>+</button><button className="btn btn-ghost btn-sm" onClick={() => remove(index)}>Remove</button></div></div>
-      <strong>${(item.price * item.qty).toFixed(2)}</strong>
+      <div className="cart-item-info"><div className="cart-item-name">{item.productName}</div><small>{Object.entries(item.selectedVariants).map(([key, value]) => `${key}: ${value}`).join(' · ')}</small><div className="cart-item-price">{originalPrice > item.price && <><del>{money(originalPrice)}</del>{' '}</>}{money(item.price)}</div><div className="qty-controls"><button className="qty-btn" onClick={() => update(index, item.qty - 1)}>−</button><span className="qty-value">{item.qty}</span><button className="qty-btn" onClick={() => update(index, item.qty + 1)}>+</button><button className="btn btn-ghost btn-sm" onClick={() => remove(index)}>Remove</button></div></div>
+      <strong>{money(item.price * item.qty)}</strong>
     </article>;
-  })}</section><aside className="order-summary"><h2>Order summary</h2>{productDiscount > 0 && <><div className="order-summary-row"><span>Original product value</span><span>${originalSubtotal.toFixed(2)}</span></div><div className="order-summary-row text-success"><span>Product discount</span><span>−${productDiscount.toFixed(2)}</span></div></>}<div className="order-summary-row"><span>Products after discount</span><span>${subtotal.toFixed(2)}</span></div><div className="order-summary-row"><span>Delivery</span><span className={deliveryFee === 0 ? 'text-success' : ''}>{deliveryFee === 0 ? 'Free' : `$${deliveryFee.toFixed(2)}`}</span></div>{deliveryFee === 0 ? <p className="payment-note"><strong>🎁 Free delivery gift</strong><span>Your delivery is on us.</span></p> : amountToFreeDelivery > 0 ? <p className="payment-note"><strong>Free delivery offer</strong><span>Add ${amountToFreeDelivery.toFixed(2)} more to unlock free delivery.</span></p> : null}<div className="order-summary-row total"><span>Total</span><span className="amount">${total.toFixed(2)}</span></div><Link className="btn btn-primary w-full mt-4" href={storefrontPath(params.storeSlug, 'checkout')}>Proceed to checkout</Link></aside></div></main>;
+  })}</section><aside className="order-summary"><h2>Order summary</h2>{productDiscount > 0 && <><div className="order-summary-row"><span>Original product value</span><span>{money(originalSubtotal)}</span></div><div className="order-summary-row text-success"><span>Product discount</span><span>−{money(productDiscount)}</span></div></>}<div className="order-summary-row"><span>Products after discount</span><span>{money(subtotal)}</span></div><div className="order-summary-row"><span>Delivery</span><span className={deliveryFee === 0 ? 'text-success' : ''}>{deliveryFee === 0 ? 'Free' : money(deliveryFee)}</span></div>{deliveryFee === 0 ? <p className="payment-note"><strong>🎁 Free delivery gift</strong><span>Your delivery is on us.</span></p> : amountToFreeDelivery > 0 ? <p className="payment-note"><strong>Free delivery offer</strong><span>Add {money(amountToFreeDelivery)} more to unlock free delivery.</span></p> : null}<div className="order-summary-row total"><span>Total</span><span className="amount">{money(total)}</span></div><Link className="btn btn-primary w-full mt-4" href={storefrontPath(params.storeSlug, 'checkout')}>Proceed to checkout</Link></aside></div></main>;
 }

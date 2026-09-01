@@ -2126,6 +2126,28 @@ body {
   .login-logo-name { font-size: 1.2rem; }
 }
 
+.product-image-zoom .product-main-image.gallery-detail-edge {
+  transform: scale(1.4);
+  transform-origin: 70% 72%;
+}
+
+.product-image-zoom .product-main-image.gallery-detail-ports {
+  transform: scale(1.5);
+  transform-origin: 25% 55%;
+}
+
+.product-image-zoom .product-main-image.gallery-detail-body {
+  transform: scale(1.42);
+  transform-origin: 72% 50%;
+}
+
+.product-image-zoom.zoomed .product-main-image.gallery-detail-edge,
+.product-image-zoom.zoomed .product-main-image.gallery-detail-ports,
+.product-image-zoom.zoomed .product-main-image.gallery-detail-body {
+  transform: scale(2);
+  transform-origin: var(--zoom-x) var(--zoom-y);
+}
+
 @media (max-width: 340px) {
   .products-grid { grid-template-columns: 1fr; }
 }
@@ -2446,7 +2468,6 @@ body {
 
 .featured-section .section-heading { align-items: center; margin-bottom: 26px; }
 .section-heading-copy { display: flex; align-items: center; gap: 16px; }
-.section-number { width: 42px; height: 42px; display: grid; place-items: center; flex: 0 0 42px; color: #137fae; border: 1px solid #b9dfed; border-radius: 50%; background: #effaff; font-size: .69rem; font-weight: 900; }
 .collection-link { min-height: 44px; padding: 0 16px; display: inline-flex; align-items: center; gap: 9px; color: #17445d; border: 1px solid #c9e4ef; border-radius: 999px; background: #fff; box-shadow: 0 7px 20px rgba(31,102,133,.07); font-size: .78rem; font-weight: 800; transition: .2s ease; }
 .collection-link:hover { color: #fff; border-color: var(--store-accent, #0ea5e9); background: var(--store-accent, #0ea5e9); transform: translateY(-2px); }
 .collection-link svg { transition: transform .2s ease; }.collection-link:hover svg { transform: translateX(3px); }
@@ -2507,7 +2528,6 @@ body {
   .store-hero .hero-slider-ui { gap: 10px; padding-left: 11px; }
   .store-hero .hero-slider-count { display: none; }
   .section-heading-copy { align-items: flex-start; gap: 12px; }
-  .section-number { width: 36px; height: 36px; flex-basis: 36px; }
   .collection-link { margin-left: 48px; }
   .store-about { width: calc(100% - 20px); padding: 28px 14px 22px; border-radius: 26px; }
   .store-about-heading { margin: 0 6px 28px; }
@@ -3730,29 +3750,6 @@ body {
   }
 }
 
-/* Numbered homepage chapters and premium ordering journey */
-.numbered-home-heading {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
-  align-items: start;
-  gap: 18px;
-}
-
-.numbered-home-heading > .section-number {
-  margin-top: 4px;
-  box-shadow: 0 10px 28px rgba(16, 128, 168, .1);
-}
-
-.values-numbered-heading {
-  max-width: 840px;
-  margin-bottom: 38px;
-}
-
-.values-numbered-heading .store-values-intro {
-  max-width: none;
-  margin: 0;
-}
-
 .store-values-grid article {
   position: relative;
   overflow: hidden;
@@ -3768,30 +3765,6 @@ body {
   border-radius: 999px;
   background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--store-accent, #0ea5e9) 58%, #22d3ee), transparent);
   opacity: .72;
-}
-
-.journey-numbered-heading {
-  max-width: 980px;
-  margin: 0 0 42px;
-}
-
-.journey-numbered-heading .store-journey-copy {
-  max-width: none;
-  margin: 0;
-  text-align: left;
-}
-
-.journey-numbered-heading .store-journey-copy .home-section-kicker {
-  margin-bottom: 13px;
-}
-
-.journey-numbered-heading .store-journey-copy h2 {
-  max-width: 17ch;
-  font-size: clamp(2.3rem, 3.8vw, 3.85rem);
-}
-
-.journey-numbered-heading .store-journey-copy h2 span {
-  display: inline;
 }
 
 .store-journey-steps {
@@ -3923,26 +3896,6 @@ body {
 }
 
 @media (max-width: 768px) {
-  .numbered-home-heading {
-    grid-template-columns: 38px minmax(0, 1fr);
-    gap: 13px;
-  }
-
-  .numbered-home-heading > .section-number {
-    width: 38px;
-    height: 38px;
-    flex-basis: 38px;
-  }
-
-  .values-numbered-heading,
-  .journey-numbered-heading {
-    margin-bottom: 28px;
-  }
-
-  .journey-numbered-heading .store-journey-copy h2 {
-    max-width: 15ch;
-  }
-
   .store-journey-steps {
     gap: 12px;
   }
@@ -3968,24 +3921,8 @@ body {
 }
 
 @media (max-width: 480px) {
-  .numbered-home-heading {
-    grid-template-columns: 34px minmax(0, 1fr);
-    gap: 11px;
-  }
-
-  .numbered-home-heading > .section-number {
-    width: 34px;
-    height: 34px;
-    flex-basis: 34px;
-    font-size: .62rem;
-  }
-
   .store-values-intro > p:last-child {
     font-size: .9rem;
-  }
-
-  .journey-numbered-heading .store-journey-copy h2 {
-    font-size: clamp(1.9rem, 9vw, 2.55rem);
   }
 
   .journey-step-meta > span:last-child {

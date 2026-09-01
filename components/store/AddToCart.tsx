@@ -5,11 +5,12 @@ import { useCart } from './CartProvider';
 import { WhatsAppMark } from './WhatsAppButton';
 import { calculateProductPrice } from '@/lib/pricing';
 import { createWhatsAppUrl, normalizeWhatsAppNumber } from '@/lib/whatsapp';
+import { formatMoney } from '@/lib/currency';
 
 type Product = { id: string; name: string; thumbnail: string; images: string[]; price: number; discount: number; stock: number; variants: { name: string; options: string[]; priceModifier?: number }[] };
 
 export default function AddToCart({ product, storeSlug, storeName, whatsappNumber }: { product: Product; storeSlug: string; storeName: string; whatsappNumber?: string }) {
-  const { add } = useCart();
+  const { add, currency } = useCart();
   const [qty, setQty] = useState(1); const [choices, setChoices] = useState<Record<string, string>>({}); const [added, setAdded] = useState(false); const [openingWhatsApp, setOpeningWhatsApp] = useState(false); const [whatsappError, setWhatsappError] = useState('');
   const variantModifier = (product.variants ?? []).reduce((sum, variant) => sum + (choices[variant.name] ? Number(variant.priceModifier ?? 0) : 0), 0);
   const originalPrice = product.price + variantModifier;
@@ -29,7 +30,7 @@ export default function AddToCart({ product, storeSlug, storeName, whatsappNumbe
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? 'Could not start WhatsApp order');
       const itemChoices = Object.entries(choices).map(([name, value]) => `${name}: ${value}`).join(', ');
-      const message = [`*WhatsApp order request: ${data.order.orderNumber}*`, `*Store:* ${storeName}`, '', `Product: ${product.name}`, `Quantity: ${qty}`, `Price: $${data.order.total.toFixed(2)}`, itemChoices ? `Options: ${itemChoices}` : '', '', 'Please share your name, phone number and delivery address to confirm this order.'].filter(Boolean).join('\n');
+      const message = [`*WhatsApp order request: ${data.order.orderNumber}*`, `*Store:* ${storeName}`, '', `Product: ${product.name}`, `Quantity: ${qty}`, `Price: ${formatMoney(data.order.total, currency)}`, itemChoices ? `Options: ${itemChoices}` : '', '', 'Please share your name, phone number and delivery address to confirm this order.'].filter(Boolean).join('\n');
       const url = createWhatsAppUrl(whatsappPhone, message);
       if (!url) throw new Error('The store WhatsApp number is not configured correctly');
       if (popup) popup.location.href = url;

@@ -36,7 +36,7 @@ export default async function StoreLayout({ children, params }: { children: Reac
   const homeHref = storefrontPath(store.slug);
   const productsHref = storefrontPath(store.slug, 'products');
 
-  return <CartProvider slug={store.slug}>
+  return <CartProvider slug={store.slug} currency={store.currency || 'PKR'}>
     <div className="storefront-shell" style={{ '--store-accent': store.primaryColor } as React.CSSProperties}>
       <StoreNav slug={store.slug} homeHref={homeHref} name={store.name} logo={store.logo} announcement={store.announcement}/>
       {children}

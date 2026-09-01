@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { readDb, insertOne, updateOne } from '@/lib/db';
 import type { Store, Admin, Order, Notification, OrderItem, Product, Discount } from '@/lib/types';
 import { calculateDeliveryFee, calculateProductPrice } from '@/lib/pricing';
+import { formatMoney } from '@/lib/currency';
 
 export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
   try {
@@ -101,7 +102,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
         adminId: admin.id,
         type: 'new_order',
         title: '🛍️ New Order Received!',
-        message: `Order ${orderNumber} for $${total.toFixed(2)} from ${customer.name}`,
+        message: `Order ${orderNumber} for ${formatMoney(total, store.currency)} from ${customer.name}`,
         orderId: newOrder.id,
         isRead: false,
         createdAt: new Date().toISOString(),
@@ -126,6 +127,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
       },
       whatsappNumber: store.whatsappNumber ?? '',
       storeName: store.name,
+      currency: store.currency || 'PKR',
     }, { status: 201 });
   } catch (error) {
     console.error('Order error:', error);
