@@ -45,11 +45,25 @@ Run `npm run store:rebrand:rm` to re-apply the included RM Mobile Hub storefront
 
 ## Features
 
+- True multi-store management: the Super Admin creates stores independently, then assigns one or more administrator logins to each store
+- Store-level isolation: each store admin can only access their own products, categories, orders, customers, discounts, analytics, leads, and settings
+- Super Admin portfolio dashboard with per-store owner, catalogue, order, pending-order, status, and correctly separated currency/revenue details
+- Included RM Mobile Hub and Urban Carry Bags storefronts, with separate catalogues and three-image product galleries
 - Role-protected super-admin and store-admin dashboards
 - Admin/store CRUD, product catalog, categories, coupon discounts, order status updates, customer roll-up, analytics, and notification polling
 - Public store routes by slug with catalog search, filtering, product options, localStorage cart, and COD checkout
 - Server-side order validation, stock reduction, and store-admin notifications
 - Durable Postgres data and public product-image storage on Supabase
+
+## Create another store and assign admins
+
+1. Sign in at `/super-admin/login`.
+2. Open **Stores**, select **Create store**, and enter its name, unique URL, contact email, and currency.
+3. Open **Admins**, select **Create Admin**, enter the login credentials, and choose the store from the assignment list.
+4. Repeat the Admin step to give the same store additional administrator logins.
+5. Each new admin can sign in at `/login`; their dashboard and every admin API are restricted to the assigned store ID.
+
+For example, an RM Mobile Hub admin sees only its mobile catalogue and orders, while an Urban Carry Bags admin sees only the ladies and men's bags catalogue and orders. The Super Admin sees both stores separately in the platform dashboard.
 
 ## Deployment
 

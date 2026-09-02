@@ -11,23 +11,29 @@ interface Admin {
   createdAt: string;
   store: { id: string; name: string; slug: string; isActive: boolean } | null;
 }
+interface StoreOption { id: string; name: string; slug: string; isActive: boolean }
 
 export default function AdminsPage() {
   const [admins, setAdmins] = useState<Admin[]>([]);
+  const [stores, setStores] = useState<StoreOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editAdmin, setEditAdmin] = useState<Admin | null>(null);
   const [search, setSearch] = useState('');
   const [toast, setToast] = useState('');
+  const [formError, setFormError] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  const [form, setForm] = useState({ name: '', email: '', password: '', plan: 'free', status: 'active' });
+  const emptyForm = { name: '', email: '', password: '', plan: 'free', status: 'active', storeId: '' };
+  const [form, setForm] = useState(emptyForm);
 
   useEffect(() => { loadAdmins(); }, []);
 
   async function loadAdmins() {
-    const res = await fetch('/api/super-admin/admins');
-    const data = await res.json();
-    setAdmins(data.admins || []);
+    const [adminResponse, storeResponse] = await Promise.all([fetch('/api/super-admin/admins'), fetch('/api/super-admin/stores')]);
+    const [adminData, storeData] = await Promise.all([adminResponse.json(), storeResponse.json()]);
+    setAdmins(adminData.admins || []);
+    setStores(storeData.stores || []);
     setLoading(false);
   }
 
@@ -37,7 +43,7 @@ export default function AdminsPage() {
   }
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+    e.preventDefault(); setSaving(true); setFormError('');
     const url = editAdmin ? `/api/super-admin/admins/${editAdmin.id}` : '/api/super-admin/admins';
     const method = editAdmin ? 'PUT' : 'POST';
     const res = await fetch(url, {
@@ -45,17 +51,21 @@ export default function AdminsPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     });
+    const data = await res.json();
     if (res.ok) {
-      showToast(editAdmin ? 'Admin updated!' : 'Admin created!');
+      showToast(editAdmin ? 'Store admin login updated!' : 'Admin and store created!');
       setShowModal(false);
       setEditAdmin(null);
-      setForm({ name: '', email: '', password: '', plan: 'free', status: 'active' });
-      loadAdmins();
+      setForm(emptyForm);
+      await loadAdmins();
+    } else {
+      setFormError(data.error || 'Could not save this admin and store.');
     }
+    setSaving(false);
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this admin? Their store will remain.')) return;
+    if (!confirm('Delete this admin login? The assigned store and its data will remain available to its other admins.')) return;
     await fetch(`/api/super-admin/admins/${id}`, { method: 'DELETE' });
     showToast('Admin deleted');
     loadAdmins();
@@ -74,13 +84,14 @@ export default function AdminsPage() {
 
   function openCreate() {
     setEditAdmin(null);
-    setForm({ name: '', email: '', password: '', plan: 'free', status: 'active' });
+    setForm(emptyForm); setFormError('');
     setShowModal(true);
   }
 
   function openEdit(admin: Admin) {
     setEditAdmin(admin);
-    setForm({ name: admin.name, email: admin.email, password: '', plan: admin.plan, status: admin.status });
+    setForm({ ...emptyForm, name: admin.name, email: admin.email, password: '', plan: admin.plan, status: admin.status, storeId: admin.store?.id ?? '' });
+    setFormError('');
     setShowModal(true);
   }
 
@@ -93,9 +104,9 @@ export default function AdminsPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Admin Management</h1>
-          <p className="page-subtitle">Manage store admins across the platform</p>
+          <p className="page-subtitle">Assign one or more administrator logins to any existing store.</p>
         </div>
-        <button className="btn btn-primary" onClick={openCreate}>+ Create Admin</button>
+        <button className="btn btn-primary" onClick={openCreate} disabled={stores.length === 0}>+ Create Admin</button>
       </div>
 
       <div className="filter-bar">
@@ -178,22 +189,27 @@ export default function AdminsPage() {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">{editAdmin ? 'Edit Admin' : 'Create New Admin'}</h3>
+              <div><h3 className="modal-title">{editAdmin ? 'Change Store Admin Login' : 'Create New Admin'}</h3>{editAdmin && <p className="modal-subtitle">These credentials belong only to {editAdmin.store?.name ?? 'this assigned store'}.</p>}</div>
               <button className="btn btn-ghost btn-icon" onClick={() => setShowModal(false)}>✕</button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <div className="form-group">
-                  <label className="form-label">Full Name</label>
+                  <label className="form-label">Admin display name</label>
                   <input className="form-input" placeholder="John Smith" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Email</label>
+                  <label className="form-label">Login email / username</label>
                   <input type="email" className="form-input" placeholder="admin@store.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
                 </div>
+                <section className="admin-store-setup">
+                  <div className="admin-store-setup-heading"><strong>Assigned store</strong><span>This login will only manage the selected store. You can assign multiple admins to the same store.</span></div>
+                  <label className="form-group"><span className="form-label">Store</span><select className="form-select" value={form.storeId} onChange={(e) => setForm({ ...form, storeId: e.target.value })} required><option value="">Choose a store</option>{stores.map((store) => <option value={store.id} key={store.id}>{store.name} (/{store.slug})</option>)}</select></label>
+                </section>
                 <div className="form-group">
-                  <label className="form-label">{editAdmin ? 'New Password (leave blank to keep)' : 'Password'}</label>
+                  <label className="form-label">{editAdmin ? 'New login password' : 'Login password'}</label>
                   <input type="password" className="form-input" placeholder="••••••••" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required={!editAdmin} />
+                  {editAdmin && <small className="form-hint">Leave blank to keep the current password. Once changed, the new email and password will be used on the store-admin login page.</small>}
                 </div>
                 <div className="grid-2">
                   <div className="form-group">
@@ -215,9 +231,10 @@ export default function AdminsPage() {
                   )}
                 </div>
               </div>
+              {formError && <p className="form-error modal-form-error">{formError}</p>}
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">{editAdmin ? 'Update' : 'Create'}</button>
+                <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Saving…' : editAdmin ? 'Update admin' : 'Create & assign admin'}</button>
               </div>
             </form>
           </div>

@@ -10,13 +10,25 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { name, email, password, status, plan } = await req.json();
+  const { name, email, password, status, plan, storeId } = await req.json();
   const updates: Partial<Admin> = {};
 
   if (name) updates.name = name;
-  if (email) updates.email = email;
+  if (email) {
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const admins = await readDb<Admin>('admins');
+    if (admins.some((admin) => admin.id !== params.id && admin.email.toLowerCase() === normalizedEmail)) {
+      return NextResponse.json({ error: 'Email already exists' }, { status: 409 });
+    }
+    updates.email = normalizedEmail;
+  }
   if (status) updates.status = status;
   if (plan) updates.plan = plan;
+  if (storeId) {
+    const stores = await readDb<{ id: string }>('stores');
+    if (!stores.some((store) => store.id === storeId)) return NextResponse.json({ error: 'Choose a valid store' }, { status: 400 });
+    updates.storeId = storeId;
+  }
   if (password) updates.passwordHash = await bcrypt.hash(password, 12);
 
   const updated = await updateOne<Admin>('admins', params.id, updates);

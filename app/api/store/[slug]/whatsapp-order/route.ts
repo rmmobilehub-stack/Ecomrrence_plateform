@@ -40,11 +40,11 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
     await insertOne<Order>('orders', order);
 
     const admins = await readDb<Admin>('admins');
-    const admin = admins.find(entry => entry.storeId === store.id);
-    if (admin) {
+    const storeAdmins = admins.filter(entry => entry.storeId === store.id && entry.status === 'active');
+    await Promise.all(storeAdmins.map((admin) => {
       const notification: Notification = { id: uuidv4(), adminId: admin.id, type: 'new_order', title: 'WhatsApp order request', message: `${orderNumber}: ${quantity} × ${product.name} awaiting customer confirmation`, orderId: order.id, isRead: false, createdAt: new Date().toISOString() };
-      await insertOne<Notification>('notifications', notification);
-    }
+      return insertOne<Notification>('notifications', notification);
+    }));
 
     return NextResponse.json({ success: true, order: { id: order.id, orderNumber: order.orderNumber, total: order.total, status: order.status, channel: order.channel } }, { status: 201 });
   } catch (error) {

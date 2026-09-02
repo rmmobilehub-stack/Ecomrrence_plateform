@@ -15,13 +15,15 @@ export async function POST(req: NextRequest) {
     let user: (SuperAdmin | Admin) | undefined;
     let userRole: 'super-admin' | 'admin';
 
+    const normalizedEmail = String(email).trim().toLowerCase();
+
     if (role === 'super-admin') {
       const superAdmins = await readDb<SuperAdmin>('super-admins');
-      user = superAdmins.find((u) => u.email === email);
+      user = superAdmins.find((u) => u.email.toLowerCase() === normalizedEmail);
       userRole = 'super-admin';
     } else {
       const admins = await readDb<Admin>('admins');
-      user = admins.find((u) => u.email === email);
+      user = admins.find((u) => u.email.toLowerCase() === normalizedEmail);
       userRole = 'admin';
     }
 

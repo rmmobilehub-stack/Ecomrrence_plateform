@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionFromRequest } from '@/lib/auth';
 import { readDb } from '@/lib/db';
-import type { Product, Order, Category } from '@/lib/types';
+import type { Product, Order, Category, Store } from '@/lib/types';
 
 export async function GET(req: NextRequest) {
   const session = await getSessionFromRequest(req);
@@ -12,6 +12,8 @@ export async function GET(req: NextRequest) {
   const products = await readDb<Product>('products');
   const orders = await readDb<Order>('orders');
   const categories = await readDb<Category>('categories');
+  const stores = await readDb<Store>('stores');
+  const store = stores.find((entry) => entry.id === session.storeId);
 
   const storeProducts = products.filter((p) => p.storeId === session.storeId);
   const storeOrders = orders.filter((o) => o.storeId === session.storeId);
@@ -55,5 +57,6 @@ export async function GET(req: NextRequest) {
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 5),
     revenueChart,
+    store: store ? { id: store.id, name: store.name, slug: store.slug, logo: store.logo, currency: store.currency, isActive: store.isActive } : null,
   });
 }

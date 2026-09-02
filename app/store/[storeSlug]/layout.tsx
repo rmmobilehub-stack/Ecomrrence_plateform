@@ -35,13 +35,15 @@ export default async function StoreLayout({ children, params }: { children: Reac
   if (!store) notFound();
   const homeHref = storefrontPath(store.slug);
   const productsHref = storefrontPath(store.slug, 'products');
+  const storeAccent = /^#[0-9a-f]{6}$/i.test(store.primaryColor) ? store.primaryColor : '#2563eb';
+  const storeTheme = storeAccent.toLowerCase() === '#2563eb' ? 'classic-blue' : 'custom';
 
   return <CartProvider slug={store.slug} currency={store.currency || 'PKR'}>
-    <div className="storefront-shell" style={{ '--store-accent': store.primaryColor } as React.CSSProperties}>
+    <div className="storefront-shell" data-store-theme={storeTheme} style={{ '--store-accent': storeAccent } as React.CSSProperties}>
       <StoreNav slug={store.slug} homeHref={homeHref} name={store.name} logo={store.logo} announcement={store.announcement}/>
       {children}
       <footer className="store-footer">
-        <div><strong>{store.name}</strong><span>Chargers, cables and Apple-compatible accessories.</span></div>
+        <div><strong>{store.name}</strong><span>{store.description}</span></div>
         <nav><a href={homeHref}>Home</a><a href={productsHref}>Shop</a><a href={`${homeHref}#about`}>About</a></nav>
         <small>© {new Date().getFullYear()} {store.name}</small>
       </footer>

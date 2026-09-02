@@ -676,6 +676,13 @@ h5 { font-size: 0.875rem; font-weight: 600; }
   font-weight: 700;
 }
 
+.modal-subtitle {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: .74rem;
+  line-height: 1.4;
+}
+
 .modal-body {
   padding: 24px;
 }
@@ -2148,6 +2155,182 @@ body {
   transform-origin: var(--zoom-x) var(--zoom-y);
 }
 
+/* Multi-store super admin */
+.super-dashboard-heading .page-subtitle {
+  max-width: 680px;
+}
+
+.store-portfolio-section {
+  margin: 34px 0;
+}
+
+.store-portfolio-section > .section-heading {
+  margin-bottom: 18px;
+}
+
+.store-portfolio-section > .section-heading h2 {
+  margin-bottom: 5px;
+  font-size: 1.35rem;
+}
+
+.store-portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.portfolio-store-card {
+  min-width: 0;
+  padding: 22px;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--accent) 15%, var(--border));
+  background: linear-gradient(145deg, color-mix(in srgb, var(--surface) 94%, var(--accent) 6%), var(--surface));
+}
+
+.portfolio-store-card > header,
+.portfolio-store-card > footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.portfolio-store-identity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.portfolio-store-identity > img,
+.portfolio-store-identity > span {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: grid;
+  place-items: center;
+  object-fit: cover;
+  border-radius: 13px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--cyan));
+  font-weight: 900;
+}
+
+.portfolio-store-identity div,
+.portfolio-owner {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.portfolio-store-identity strong {
+  overflow: hidden;
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portfolio-store-identity small,
+.portfolio-owner small,
+.portfolio-store-card > footer > span {
+  color: var(--text-muted);
+  font-size: .72rem;
+}
+
+.portfolio-owner {
+  margin-top: 20px;
+  padding: 14px 15px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--bg) 74%, transparent);
+}
+
+.portfolio-owner > span,
+.portfolio-store-metrics span {
+  color: var(--text-muted);
+  font-size: .66rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.portfolio-store-metrics {
+  margin: 18px 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-block: 1px solid var(--border);
+}
+
+.portfolio-store-metrics > div {
+  min-width: 0;
+  padding: 14px 10px;
+  display: grid;
+  gap: 5px;
+  border-right: 1px solid var(--border);
+}
+
+.portfolio-store-metrics > div:first-child { padding-left: 0; }
+.portfolio-store-metrics > div:last-child { padding-right: 0; border-right: 0; }
+.portfolio-store-metrics strong { overflow: hidden; font-size: .9rem; text-overflow: ellipsis; white-space: nowrap; }
+.portfolio-store-metrics strong small { color: var(--text-muted); font-size: .68rem; font-weight: 600; }
+.portfolio-store-card > footer > div { display: flex; gap: 7px; }
+.portfolio-empty { grid-column: 1 / -1; }
+
+.store-table-identity {
+  min-width: 190px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.store-table-identity > img,
+.store-table-identity > span {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  display: grid;
+  place-items: center;
+  object-fit: cover;
+  border-radius: 10px;
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.store-table-identity > div { display: grid; gap: 2px; }
+.super-order-filters { grid-template-columns: repeat(2, minmax(180px, 260px)); justify-content: start; }
+
+.admin-store-setup {
+  padding: 16px;
+  display: grid;
+  gap: 15px;
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--accent-soft) 38%, var(--surface));
+}
+
+.admin-store-setup-heading { display: grid; gap: 4px; }
+.admin-store-setup-heading strong { font-size: .92rem; }
+.admin-store-setup-heading span { color: var(--text-muted); font-size: .76rem; line-height: 1.45; }
+.admin-store-setup .form-group { margin: 0; }
+.slug-input { position: relative; }
+.slug-input > span { position: absolute; z-index: 1; top: 50%; left: 13px; color: var(--text-muted); transform: translateY(-50%); }
+.slug-input .form-input { padding-left: 25px; }
+.modal-form-error { margin: 0 20px; }
+.table-inline-link { display: inline-block; margin-top: 5px; color: var(--accent); font-size: .72rem; font-weight: 800; }
+
+@media (max-width: 1080px) {
+  .store-portfolio-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .portfolio-store-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .portfolio-store-metrics > div:nth-child(2) { border-right: 0; }
+  .portfolio-store-metrics > div:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
+  .portfolio-store-metrics > div:nth-child(3) { padding-left: 0; }
+  .portfolio-store-card > footer { align-items: flex-start; flex-direction: column; }
+  .super-order-filters { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 340px) {
   .products-grid { grid-template-columns: 1fr; }
 }
@@ -2167,6 +2350,100 @@ body {
     transition-duration: .01ms !important;
   }
 }
+
+/* Final storefront theme pass. Kept last so legacy sky-blue declarations can
+   never override a store administrator's chosen brand colour. */
+.storefront-shell {
+  background:
+    radial-gradient(circle at 8% 14%, color-mix(in srgb, var(--store-accent) 12%, transparent), transparent 27rem),
+    radial-gradient(circle at 92% 31%, color-mix(in srgb, var(--store-accent) 16%, transparent), transparent 31rem),
+    radial-gradient(circle at 44% 72%, color-mix(in srgb, var(--store-accent) 10%, transparent), transparent 36rem),
+    linear-gradient(155deg, #fff 0%, var(--store-tone) 48%, color-mix(in srgb, var(--store-accent) 5%, white) 100%);
+}
+.storefront-shell::after { background: color-mix(in srgb, var(--store-accent) 12%, transparent); }
+.storefront-shell .store-navbar { border-bottom-color: var(--store-border); box-shadow: 0 8px 28px var(--store-shadow); }
+.storefront-shell .store-logo-mark,
+.storefront-shell .btn-primary,
+.storefront-shell .store-hero .btn-primary,
+.storefront-shell .hero-showcase-empty-mark,
+.storefront-shell .chat-launcher,
+.storefront-shell .chat-message.visitor,
+.storefront-shell .journey-step-meta > span:last-child {
+  background: linear-gradient(135deg, var(--store-accent), var(--accent-light));
+  box-shadow: 0 12px 28px var(--store-shadow);
+}
+.storefront-shell .cart-btn,
+.storefront-shell .nav-assurance,
+.storefront-shell .hero-kicker,
+.storefront-shell .hero-meta span:last-child,
+.storefront-shell .catalog-count,
+.storefront-shell .quick-add-btn,
+.storefront-shell .cart-delivery-note,
+.storefront-shell .chat-quick-actions button,
+.storefront-shell .store-mobile-assurance {
+  color: var(--accent-dark);
+  border-color: var(--store-border);
+  background: var(--store-tone);
+}
+.storefront-shell .cart-btn:hover,
+.storefront-shell .quick-add-btn:hover,
+.storefront-shell .chat-quick-actions button:hover,
+.storefront-shell .store-mobile-menu > a:hover,
+.storefront-shell .store-mobile-menu > a:focus-visible {
+  color: #fff;
+  border-color: var(--store-accent);
+  background: var(--store-accent);
+}
+.storefront-shell .eyebrow,
+.storefront-shell .home-section-kicker,
+.storefront-shell .catalog-search > svg,
+.storefront-shell .catalog-filter-select > svg,
+.storefront-shell .cart-item-price,
+.storefront-shell .chat-shop-link,
+.storefront-shell .journey-step-meta > span:first-child,
+.storefront-shell .store-about-heading > span,
+.storefront-shell .store-about-copy .eyebrow,
+.storefront-shell .store-journey-cta > div span { color: var(--store-accent); }
+.storefront-shell .featured-section,
+.storefront-shell > main.store-section,
+.storefront-shell .store-journey {
+  border-color: var(--store-border);
+  background: radial-gradient(circle at 96% 2%, color-mix(in srgb, var(--store-accent) 13%, transparent), transparent 24rem), linear-gradient(145deg, rgba(255,255,255,.93), color-mix(in srgb, var(--store-accent) 8%, white));
+  box-shadow: 0 24px 70px var(--store-shadow);
+}
+.storefront-shell .store-values::before { background: radial-gradient(circle, color-mix(in srgb, var(--store-accent) 18%, transparent), transparent 68%); }
+.storefront-shell .store-values-grid article,
+.storefront-shell .store-values-grid article:nth-child(2),
+.storefront-shell .store-values-grid article:nth-child(3),
+.storefront-shell .store-journey-steps article,
+.storefront-shell .store-journey-steps article:nth-child(2),
+.storefront-shell .store-journey-steps article:nth-child(3) {
+  border-color: var(--store-border);
+  background: radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--store-accent) 12%, transparent), transparent 11rem), linear-gradient(145deg, rgba(255,255,255,.96), var(--store-tone));
+  box-shadow: 0 15px 38px var(--store-shadow);
+}
+.storefront-shell .featured-section .section-heading::after,
+.storefront-shell .store-values-grid article::before { background: linear-gradient(90deg, transparent, var(--store-accent), transparent); }
+.storefront-shell .product-card,
+.storefront-shell .catalog-filter,
+.storefront-shell .product-assurance > div,
+.storefront-shell .order-summary,
+.storefront-shell .cart-item,
+.storefront-shell .form-panel { border-color: var(--store-border); box-shadow: 0 14px 36px var(--store-shadow); }
+.storefront-shell .product-card-media,
+.storefront-shell .product-card-img-placeholder,
+.storefront-shell .image-placeholder,
+.storefront-shell .cart-drawer-header,
+.storefront-shell .lead-chat-messages { background: linear-gradient(145deg, var(--store-tone), #fff); }
+.storefront-shell .lead-chat { border-color: var(--store-border); box-shadow: 0 26px 80px var(--store-shadow); }
+.storefront-shell .lead-chat-header,
+.storefront-shell .store-journey-cta,
+.storefront-shell .store-about { background: linear-gradient(135deg, var(--accent-dark), var(--store-ink)); }
+.storefront-shell .store-about-modern-shade { background: linear-gradient(90deg, color-mix(in srgb, var(--accent-dark) 91%, transparent) 0%, color-mix(in srgb, var(--accent-dark) 72%, transparent) 48%, color-mix(in srgb, var(--store-accent) 25%, transparent) 100%); }
+.storefront-shell .store-footer { border-top-color: var(--store-border); background: linear-gradient(120deg, rgba(255,255,255,.95), var(--store-tone)); box-shadow: 0 -18px 55px var(--store-shadow); }
+.storefront-shell .store-mobile-menu-btn.active,
+.storefront-shell .lead-chat-input button,
+.storefront-shell .about-shop-link span { background: var(--store-accent); }
 
 /* ============================================
    PRODUCT-LED STOREFRONT EXPERIENCE
@@ -3529,6 +3806,140 @@ body {
   }
 }
 
+/* Store-owned colour system: every storefront derives its complete visual
+   palette from the Primary Color selected by that store's administrator. */
+.storefront-shell {
+  --accent: var(--store-accent);
+  --accent-light: color-mix(in srgb, var(--store-accent) 82%, white);
+  --accent-dark: color-mix(in srgb, var(--store-accent) 76%, black);
+  --accent-glow: color-mix(in srgb, var(--store-accent) 27%, transparent);
+  --accent-glow-sm: color-mix(in srgb, var(--store-accent) 13%, transparent);
+  --cyan: color-mix(in srgb, var(--store-accent) 72%, white);
+  --cyan-glow: color-mix(in srgb, var(--store-accent) 15%, transparent);
+  --store-tone: color-mix(in srgb, var(--store-accent) 9%, white);
+  --store-tone-strong: color-mix(in srgb, var(--store-accent) 17%, white);
+  --store-border: color-mix(in srgb, var(--store-accent) 24%, white);
+  --store-ink: color-mix(in srgb, var(--store-accent) 25%, #102f46);
+  --store-shadow: color-mix(in srgb, var(--store-accent) 18%, transparent);
+  --border: var(--store-border);
+  --border-hover: color-mix(in srgb, var(--store-accent) 42%, white);
+  --surface-active: var(--store-tone);
+  background:
+    radial-gradient(circle at 8% 14%, color-mix(in srgb, var(--store-accent) 12%, transparent), transparent 27rem),
+    radial-gradient(circle at 92% 31%, color-mix(in srgb, var(--store-accent) 16%, transparent), transparent 31rem),
+    radial-gradient(circle at 44% 72%, color-mix(in srgb, var(--store-accent) 10%, transparent), transparent 36rem),
+    linear-gradient(155deg, #fff 0%, var(--store-tone) 48%, color-mix(in srgb, var(--store-accent) 5%, white) 100%);
+}
+
+.storefront-shell::before {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--store-accent) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--store-accent) 5%, transparent) 1px, transparent 1px);
+}
+.storefront-shell::after { background: color-mix(in srgb, var(--store-accent) 12%, transparent); }
+.storefront-shell .store-navbar { border-bottom-color: var(--store-border); box-shadow: 0 8px 28px var(--store-shadow); }
+.storefront-shell .store-logo-mark,
+.storefront-shell .btn-primary,
+.storefront-shell .store-hero .btn-primary,
+.storefront-shell .hero-showcase-empty-mark,
+.storefront-shell .chat-launcher,
+.storefront-shell .chat-message.visitor,
+.storefront-shell .journey-step-meta > span:last-child {
+  background: linear-gradient(135deg, var(--store-accent), var(--accent-light));
+  box-shadow: 0 12px 28px var(--store-shadow);
+}
+.storefront-shell .store-logo-mark { box-shadow: 0 5px 14px var(--store-shadow); }
+.storefront-shell .cart-btn,
+.storefront-shell .nav-assurance,
+.storefront-shell .hero-kicker,
+.storefront-shell .hero-meta span:last-child,
+.storefront-shell .catalog-count,
+.storefront-shell .quick-add-btn,
+.storefront-shell .cart-delivery-note,
+.storefront-shell .chat-quick-actions button,
+.storefront-shell .store-mobile-assurance {
+  color: var(--accent-dark);
+  border-color: var(--store-border);
+  background: var(--store-tone);
+}
+.storefront-shell .cart-btn:hover,
+.storefront-shell .quick-add-btn:hover,
+.storefront-shell .chat-quick-actions button:hover,
+.storefront-shell .store-mobile-menu > a:hover,
+.storefront-shell .store-mobile-menu > a:focus-visible {
+  color: #fff;
+  border-color: var(--store-accent);
+  background: var(--store-accent);
+}
+.storefront-shell .eyebrow,
+.storefront-shell .home-section-kicker,
+.storefront-shell .catalog-search > svg,
+.storefront-shell .catalog-filter-select > svg,
+.storefront-shell .cart-item-price,
+.storefront-shell .chat-shop-link,
+.storefront-shell .journey-step-meta > span:first-child,
+.storefront-shell .store-about-heading > span,
+.storefront-shell .store-about-copy .eyebrow,
+.storefront-shell .store-journey-cta > div span { color: var(--store-accent); }
+
+.storefront-shell .featured-section,
+.storefront-shell > main.store-section,
+.storefront-shell .store-journey {
+  border-color: var(--store-border);
+  background:
+    radial-gradient(circle at 96% 2%, color-mix(in srgb, var(--store-accent) 13%, transparent), transparent 24rem),
+    linear-gradient(145deg, rgba(255,255,255,.93), color-mix(in srgb, var(--store-accent) 8%, white));
+  box-shadow: 0 24px 70px var(--store-shadow);
+}
+.storefront-shell .featured-section .section-heading::after,
+.storefront-shell .store-values-grid article::before {
+  background: linear-gradient(90deg, transparent, var(--store-accent), transparent);
+}
+.storefront-shell .store-values::before { background: radial-gradient(circle, color-mix(in srgb, var(--store-accent) 18%, transparent), transparent 68%); }
+.storefront-shell .store-values-grid article,
+.storefront-shell .store-values-grid article:nth-child(2),
+.storefront-shell .store-values-grid article:nth-child(3),
+.storefront-shell .store-journey-steps article,
+.storefront-shell .store-journey-steps article:nth-child(2),
+.storefront-shell .store-journey-steps article:nth-child(3) {
+  border-color: var(--store-border);
+  background:
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--store-accent) 12%, transparent), transparent 11rem),
+    linear-gradient(145deg, rgba(255,255,255,.96), var(--store-tone));
+  box-shadow: 0 15px 38px var(--store-shadow);
+}
+.storefront-shell .store-journey-steps article:hover,
+.storefront-shell .product-card:hover { border-color: color-mix(in srgb, var(--store-accent) 48%, white); box-shadow: 0 22px 48px var(--store-shadow); }
+.storefront-shell .product-card,
+.storefront-shell .catalog-filter,
+.storefront-shell .product-assurance > div,
+.storefront-shell .order-summary,
+.storefront-shell .cart-item,
+.storefront-shell .form-panel { border-color: var(--store-border); box-shadow: 0 14px 36px var(--store-shadow); }
+.storefront-shell .product-card-media,
+.storefront-shell .product-card-img-placeholder,
+.storefront-shell .image-placeholder,
+.storefront-shell .cart-drawer-header,
+.storefront-shell .lead-chat-messages { background: linear-gradient(145deg, var(--store-tone), #fff); }
+.storefront-shell .form-input:focus,
+.storefront-shell .form-select:focus,
+.storefront-shell .lead-chat-input input:focus { border-color: var(--store-accent); box-shadow: 0 0 0 3px var(--accent-glow-sm); }
+.storefront-shell .lead-chat { border-color: var(--store-border); box-shadow: 0 26px 80px var(--store-shadow); }
+.storefront-shell .lead-chat-header,
+.storefront-shell .store-journey-cta,
+.storefront-shell .store-about { background: linear-gradient(135deg, var(--accent-dark), var(--store-ink)); }
+.storefront-shell .store-about-modern-shade {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent-dark) 91%, transparent) 0%, color-mix(in srgb, var(--accent-dark) 72%, transparent) 48%, color-mix(in srgb, var(--store-accent) 25%, transparent) 100%);
+}
+.storefront-shell .store-footer {
+  border-top-color: var(--store-border);
+  background: linear-gradient(120deg, rgba(255,255,255,.95), var(--store-tone));
+  box-shadow: 0 -18px 55px var(--store-shadow);
+}
+.storefront-shell .store-mobile-menu-btn.active,
+.storefront-shell .lead-chat-input button,
+.storefront-shell .about-shop-link span { background: var(--store-accent); }
+
 /* Modern pearl storefront canvas */
 .storefront-shell {
   position: relative;
@@ -4045,4 +4456,261 @@ body {
     font-size: .9rem;
     line-height: 1.65;
   }
+}
+
+/* Store theme authority — this must remain the final stylesheet block. */
+.storefront-shell {
+  --text: var(--store-ink);
+  --text-secondary: color-mix(in srgb, var(--store-accent) 16%, #596a70);
+  --text-muted: color-mix(in srgb, var(--store-accent) 13%, #829096);
+  background: radial-gradient(circle at 8% 14%, color-mix(in srgb, var(--store-accent) 12%, transparent), transparent 27rem), radial-gradient(circle at 92% 31%, color-mix(in srgb, var(--store-accent) 16%, transparent), transparent 31rem), linear-gradient(155deg, #fff, var(--store-tone) 52%, color-mix(in srgb, var(--store-accent) 5%, white));
+}
+.storefront-shell::after { background: color-mix(in srgb, var(--store-accent) 12%, transparent); }
+.storefront-shell .store-navbar { border-bottom-color: var(--store-border); box-shadow: 0 8px 28px var(--store-shadow); }
+.storefront-shell .store-logo-mark,
+.storefront-shell .btn-primary,
+.storefront-shell .store-hero .btn-primary,
+.storefront-shell .hero-showcase-empty-mark,
+.storefront-shell .chat-launcher,
+.storefront-shell .chat-message.visitor,
+.storefront-shell .journey-step-meta > span:last-child { background: linear-gradient(135deg, var(--store-accent), var(--accent-light)); box-shadow: 0 12px 28px var(--store-shadow); }
+.storefront-shell .cart-btn,
+.storefront-shell .nav-assurance,
+.storefront-shell .hero-kicker,
+.storefront-shell .hero-meta span:last-child,
+.storefront-shell .catalog-count,
+.storefront-shell .quick-add-btn,
+.storefront-shell .cart-delivery-note,
+.storefront-shell .chat-quick-actions button,
+.storefront-shell .store-mobile-assurance { color: var(--accent-dark); border-color: var(--store-border); background: var(--store-tone); }
+.storefront-shell .eyebrow,
+.storefront-shell .home-section-kicker,
+.storefront-shell .catalog-search > svg,
+.storefront-shell .catalog-filter-select > svg,
+.storefront-shell .cart-item-price,
+.storefront-shell .chat-shop-link,
+.storefront-shell .journey-step-meta > span:first-child,
+.storefront-shell .store-about-heading > span,
+.storefront-shell .store-about-copy .eyebrow,
+.storefront-shell .store-journey-cta > div span { color: var(--store-accent); }
+.storefront-shell .featured-section,
+.storefront-shell > main.store-section,
+.storefront-shell .store-journey { border-color: var(--store-border); background: radial-gradient(circle at 96% 2%, color-mix(in srgb, var(--store-accent) 13%, transparent), transparent 24rem), linear-gradient(145deg, rgba(255,255,255,.94), color-mix(in srgb, var(--store-accent) 8%, white)); box-shadow: 0 24px 70px var(--store-shadow); }
+.storefront-shell .store-values::before { background: radial-gradient(circle, color-mix(in srgb, var(--store-accent) 18%, transparent), transparent 68%); }
+.storefront-shell .store-values-grid article,
+.storefront-shell .store-values-grid article:nth-child(2),
+.storefront-shell .store-values-grid article:nth-child(3),
+.storefront-shell .store-journey-steps article,
+.storefront-shell .store-journey-steps article:nth-child(2),
+.storefront-shell .store-journey-steps article:nth-child(3) { border-color: var(--store-border); background: radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--store-accent) 12%, transparent), transparent 11rem), linear-gradient(145deg, rgba(255,255,255,.96), var(--store-tone)); box-shadow: 0 15px 38px var(--store-shadow); }
+.storefront-shell .featured-section .section-heading::after,
+.storefront-shell .store-values-grid article::before { background: linear-gradient(90deg, transparent, var(--store-accent), transparent); }
+.storefront-shell .product-card,
+.storefront-shell .catalog-filter,
+.storefront-shell .product-assurance > div,
+.storefront-shell .order-summary,
+.storefront-shell .cart-item,
+.storefront-shell .form-panel { border-color: var(--store-border); box-shadow: 0 14px 36px var(--store-shadow); }
+.storefront-shell .product-card-media,
+.storefront-shell .product-card-img-placeholder,
+.storefront-shell .image-placeholder,
+.storefront-shell .cart-drawer-header,
+.storefront-shell .lead-chat-messages { background: linear-gradient(145deg, var(--store-tone), #fff); }
+.storefront-shell .lead-chat { border-color: var(--store-border); box-shadow: 0 26px 80px var(--store-shadow); }
+.storefront-shell .lead-chat-header,
+.storefront-shell .store-journey-cta,
+.storefront-shell .store-about { background: linear-gradient(135deg, var(--accent-dark), var(--store-ink)); }
+.storefront-shell .store-about-modern-shade { background: linear-gradient(90deg, color-mix(in srgb, var(--accent-dark) 91%, transparent), color-mix(in srgb, var(--accent-dark) 72%, transparent) 48%, color-mix(in srgb, var(--store-accent) 25%, transparent)); }
+.storefront-shell .store-footer { border-top-color: var(--store-border); background: linear-gradient(120deg, rgba(255,255,255,.95), var(--store-tone)); box-shadow: 0 -18px 55px var(--store-shadow); }
+.storefront-shell .store-mobile-menu-btn.active,
+.storefront-shell .lead-chat-input button,
+.storefront-shell .about-shop-link span { background: var(--store-accent); }
+.storefront-shell .cart-btn:hover,
+.storefront-shell .quick-add-btn:hover,
+.storefront-shell .chat-quick-actions button:hover,
+.storefront-shell .store-mobile-menu > a:hover,
+.storefront-shell .store-mobile-menu > a:focus-visible { color: #fff; border-color: var(--store-accent); background: var(--store-accent); }
+.storefront-shell .store-hero {
+  background: radial-gradient(circle at 10% 12%, color-mix(in srgb, var(--store-accent) 14%, transparent), transparent 27%), linear-gradient(135deg, #fff 0%, var(--store-tone) 58%, color-mix(in srgb, var(--store-accent) 13%, white) 100%);
+}
+.storefront-shell .store-hero-bg {
+  background-image: linear-gradient(color-mix(in srgb, var(--store-accent) 6%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--store-accent) 6%, transparent) 1px, transparent 1px);
+}
+.storefront-shell .hero-showcase,
+.storefront-shell .hero-showcase-empty { background: radial-gradient(circle at 45% 30%, #fff, var(--store-tone) 50%, var(--store-tone-strong)); box-shadow: 0 34px 80px var(--store-shadow); }
+.storefront-shell .cart-drawer { background: color-mix(in srgb, var(--store-accent) 3%, white); }
+.storefront-shell .store-mobile-menu { border-color: var(--store-border); box-shadow: 0 22px 55px var(--store-shadow); }
+.storefront-shell .store-journey-intro { border-color: var(--store-border); }
+.storefront-shell .store-nav-logo,
+.storefront-shell .store-hero-title,
+.storefront-shell .section-heading h2,
+.storefront-shell .store-values-intro h2,
+.storefront-shell .store-journey-copy h2,
+.storefront-shell .product-card-name,
+.storefront-shell .product-info h1,
+.storefront-shell .store-footer strong { color: var(--store-ink); }
+.storefront-shell .store-hero-desc,
+.storefront-shell .store-values-intro > p,
+.storefront-shell .store-journey-intro,
+.storefront-shell .product-description,
+.storefront-shell .store-footer { color: var(--text-secondary); }
+.storefront-shell .store-about h2,
+.storefront-shell .store-about-modern h2,
+.storefront-shell .store-journey-cta strong { color: #fff; }
+
+/* Contrast-safe custom themes. Icon surfaces always retain a readable white
+   foreground, while their gradient remains owned by the store's chosen colour. */
+.storefront-shell {
+  --store-accent-secondary: var(--accent-light);
+  --store-icon-foreground: #fff;
+}
+
+.storefront-shell .store-logo-mark,
+.storefront-shell .btn-primary,
+.storefront-shell .hero-showcase-empty-mark,
+.storefront-shell .chat-launcher,
+.storefront-shell .chat-message.visitor,
+.storefront-shell .lead-chat-input button,
+.storefront-shell .about-shop-link span,
+.storefront-shell .journey-step-meta > span:last-child,
+.storefront-shell .store-values-grid article > span {
+  color: var(--store-icon-foreground);
+  background: linear-gradient(135deg, var(--store-accent), var(--store-accent-secondary));
+}
+
+.storefront-shell .store-logo-mark svg,
+.storefront-shell .btn-primary svg,
+.storefront-shell .hero-showcase-empty-mark svg,
+.storefront-shell .chat-launcher svg,
+.storefront-shell .lead-chat-input button svg,
+.storefront-shell .about-shop-link span svg,
+.storefront-shell .journey-step-meta > span:last-child svg,
+.storefront-shell .store-values-grid article > span svg {
+  color: inherit;
+  stroke: currentColor;
+  opacity: 1;
+}
+
+.storefront-shell .store-hero .store-hero-title {
+  color: #fff;
+  text-shadow: 0 3px 24px rgba(0, 20, 32, .2);
+}
+
+.storefront-shell .store-hero .store-hero-desc {
+  color: rgba(235, 246, 250, .84);
+}
+
+/* RM Mobile Hub's original live palette. Its primary action stays royal blue,
+   while the surrounding pearl canvas uses the earlier sky/cyan balance. */
+.storefront-shell[data-store-theme='classic-blue'] {
+  --accent: #0284c7;
+  --accent-light: #0ea5e9;
+  --accent-dark: #0369a1;
+  --accent-glow: rgba(14, 165, 233, .24);
+  --accent-glow-sm: rgba(14, 165, 233, .12);
+  --cyan: #06b6d4;
+  --store-accent-secondary: #22c7dc;
+  --store-tone: #edf8fd;
+  --store-tone-strong: #dff4fc;
+  --store-border: #d9eaf5;
+  --store-ink: #12384e;
+  --store-shadow: rgba(28, 90, 117, .1);
+  --border: #d9eaf5;
+  --border-hover: #b9dcec;
+  --surface-active: #e6f6ff;
+  --text: #12384e;
+  --text-secondary: #587185;
+  --text-muted: #88a0b3;
+  background:
+    radial-gradient(circle at 8% 14%, rgba(99, 102, 241, .11), transparent 27rem),
+    radial-gradient(circle at 92% 31%, rgba(34, 211, 238, .16), transparent 31rem),
+    radial-gradient(circle at 44% 72%, rgba(125, 211, 252, .13), transparent 36rem),
+    linear-gradient(155deg, #f8fcff 0%, #edf8fd 48%, #f7fbff 100%);
+}
+
+.storefront-shell[data-store-theme='classic-blue']::before {
+  background-image:
+    linear-gradient(rgba(27, 117, 155, .035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27, 117, 155, .035) 1px, transparent 1px);
+}
+
+.storefront-shell[data-store-theme='classic-blue']::after {
+  background: rgba(103, 232, 249, .12);
+}
+
+.storefront-shell[data-store-theme='classic-blue'] .featured-section {
+  border-color: rgba(190, 224, 238, .82);
+  background:
+    radial-gradient(circle at 92% 4%, rgba(34, 211, 238, .13), transparent 20rem),
+    linear-gradient(145deg, rgba(255, 255, 255, .9), rgba(238, 249, 253, .76));
+  box-shadow: 0 24px 70px rgba(28, 90, 117, .1);
+}
+
+.storefront-shell[data-store-theme='classic-blue'] > main.store-section {
+  border-color: rgba(188, 223, 238, .84);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(34, 211, 238, .11), transparent 24rem),
+    linear-gradient(145deg, rgba(255, 255, 255, .9), rgba(239, 249, 253, .76));
+  box-shadow: 0 26px 75px rgba(22, 82, 109, .1);
+}
+
+.storefront-shell[data-store-theme='classic-blue'] .store-values::before {
+  background: radial-gradient(circle, rgba(34, 211, 238, .17), transparent 68%);
+}
+
+.storefront-shell[data-store-theme='classic-blue'] .store-values-grid article {
+  border-color: rgba(190, 224, 238, .86);
+  background: linear-gradient(145deg, rgba(255, 255, 255, .9), rgba(235, 248, 253, .7));
+  box-shadow: 0 16px 42px rgba(20, 87, 116, .075);
+}
+
+.storefront-shell[data-store-theme='classic-blue'] .store-values-grid article:nth-child(2) {
+  background: linear-gradient(145deg, rgba(245, 247, 255, .94), rgba(235, 244, 255, .78));
+}
+
+.storefront-shell[data-store-theme='classic-blue'] .store-values-grid article:nth-child(3) {
+  background: linear-gradient(145deg, rgba(242, 253, 252, .94), rgba(229, 249, 248, .76));
+}
+
+.storefront-shell[data-store-theme='classic-blue'] .store-journey {
+  border-color: rgba(184, 221, 237, .84);
+  background:
+    radial-gradient(circle at 2% 100%, rgba(99, 102, 241, .1), transparent 24rem),
+    radial-gradient(circle at 100% 0%, rgba(34, 211, 238, .14), transparent 28rem),
+    rgba(250, 253, 255, .78);
+  box-shadow: 0 24px 70px rgba(21, 83, 110, .09);
+}
+
+.storefront-shell[data-store-theme='classic-blue'] .store-journey-steps article {
+  border-color: rgba(182, 220, 235, .9);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(34, 211, 238, .13), transparent 11rem),
+    linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(237, 249, 253, .82));
+  box-shadow: 0 15px 38px rgba(22, 88, 116, .075);
+}
+
+.storefront-shell[data-store-theme='classic-blue'] .store-journey-steps article:nth-child(2) {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(99, 102, 241, .11), transparent 11rem),
+    linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(240, 245, 255, .84));
+}
+
+.storefront-shell[data-store-theme='classic-blue'] .store-journey-steps article:nth-child(3) {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(16, 185, 129, .1), transparent 11rem),
+    linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(238, 251, 247, .82));
+}
+
+.storefront-shell[data-store-theme='classic-blue'] .store-footer {
+  border-top-color: rgba(178, 216, 232, .76);
+  background:
+    radial-gradient(circle at 12% 100%, rgba(99, 102, 241, .09), transparent 18rem),
+    linear-gradient(120deg, rgba(249, 253, 255, .94), rgba(230, 246, 252, .88));
+  box-shadow: 0 -18px 55px rgba(27, 88, 115, .055);
+}
+
+/* Shared dark-panel contrast: use a pale version of the admin colour so this
+   label remains readable for blue, brown and future store themes. */
+.storefront-shell .store-journey-cta > div > span {
+  color: color-mix(in srgb, var(--store-accent) 30%, white);
 }

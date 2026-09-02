@@ -4,6 +4,7 @@ const { randomUUID } = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 const { loadEnvironment } = require('./load-env');
 const { storeProfile, categoryProfiles, productProfiles } = require('./rm-mobile-hub-data');
+const { bagsStoreProfile, bagsCategoryProfiles, bagsProductProfiles } = require('./bags-store-data');
 
 function failOn(error, action) {
   if (error) throw new Error(`${action}: ${error.message}`);
@@ -36,9 +37,6 @@ async function seedDatabase() {
       .select('*')
       .single());
     failOn(error, 'Creating super admin');
-  } else if (!await bcrypt.compare('admin123', superAdmin.password_hash)) {
-    ({ error } = await supabase.from('super_admins').update({ password_hash: superPasswordHash }).eq('id', superAdmin.id));
-    failOn(error, 'Updating super admin password');
   }
 
   let { data: admin, error: adminError } = await supabase
@@ -48,33 +46,23 @@ async function seedDatabase() {
     .maybeSingle();
   failOn(adminError, 'Reading demo admin');
 
-  const storeId = admin?.store_id || randomUUID();
-  const adminId = admin?.id || randomUUID();
-  const adminPasswordHash = await bcrypt.hash('admin123', 12);
-  if (!admin) {
-    ({ data: admin, error: adminError } = await supabase
-      .from('admins')
-      .insert({ id: adminId, name: 'RM Mobile Hub Admin', email: 'admin@demo.com', password_hash: adminPasswordHash, status: 'active', plan: 'pro', store_id: storeId, created_at: now })
-      .select('*')
-      .single());
-    failOn(adminError, 'Creating demo admin');
-  } else if (!await bcrypt.compare('admin123', admin.password_hash)) {
-    ({ error: adminError } = await supabase.from('admins').update({ password_hash: adminPasswordHash }).eq('id', admin.id));
-    failOn(adminError, 'Updating demo admin password');
-  }
-
   let { data: store, error: storeError } = await supabase
     .from('stores')
     .select('*')
-    .eq('id', storeId)
+    .eq('slug', 'demo')
     .maybeSingle();
   failOn(storeError, 'Reading demo store');
+
+  const storeId = store?.id || admin?.store_id || randomUUID();
+  const adminId = admin?.id || randomUUID();
+  const adminPasswordHash = await bcrypt.hash('admin123', 12);
+
   if (!store) {
     ({ data: store, error: storeError } = await supabase
       .from('stores')
       .insert({
         id: storeId,
-        admin_id: adminId,
+        admin_id: null,
         slug: 'demo',
         ...storeProfile,
         contact_email: 'admin@demo.com',
@@ -86,6 +74,23 @@ async function seedDatabase() {
       .single());
     failOn(storeError, 'Creating demo store');
   }
+
+  if (!admin) {
+    ({ data: admin, error: adminError } = await supabase
+      .from('admins')
+      .insert({ id: adminId, name: 'RM Mobile Hub Admin', email: 'admin@demo.com', password_hash: adminPasswordHash, status: 'active', plan: 'pro', store_id: storeId, created_at: now })
+      .select('*')
+      .single());
+    failOn(adminError, 'Creating demo admin');
+  }
+
+  if (admin.store_id !== store.id) {
+    ({ data: admin, error: adminError } = await supabase.from('admins').update({ store_id: store.id }).eq('id', admin.id).select('*').single());
+    failOn(adminError, 'Assigning demo admin to demo store');
+  }
+
+  ({ error: storeError } = await supabase.from('stores').update({ admin_id: admin.id }).eq('id', store.id));
+  failOn(storeError, 'Linking the demo store primary administrator');
 
   const { count: categoryCount, error: countError } = await supabase
     .from('categories')
@@ -116,9 +121,29 @@ async function seedDatabase() {
     failOn(productError, 'Creating demo products');
   }
 
+  let { data: bagsStore, error: bagsStoreError } = await supabase.from('stores').select('*').eq('slug', 'bags').maybeSingle();
+  failOn(bagsStoreError, 'Reading bags store');
+  if (!bagsStore) {
+    ({ data: bagsStore, error: bagsStoreError } = await supabase.from('stores').insert({
+      id: randomUUID(), admin_id: null, slug: 'bags', ...bagsStoreProfile,
+      contact_email: 'bags@demo.com', contact_widget_mode: 'chatbot', is_active: true, created_at: now,
+    }).select('*').single());
+    failOn(bagsStoreError, 'Creating bags store');
+  }
+  const { count: bagsCategoryCount, error: bagsCountError } = await supabase.from('categories').select('id', { count: 'exact', head: true }).eq('store_id', bagsStore.id);
+  failOn(bagsCountError, 'Counting bags categories');
+  if (!bagsCategoryCount) {
+    const categoryIds = Object.fromEntries(bagsCategoryProfiles.map((category) => [category.slug, randomUUID()]));
+    const { error: categoryError } = await supabase.from('categories').insert(bagsCategoryProfiles.map((category) => ({ id: categoryIds[category.slug], store_id: bagsStore.id, ...category, created_at: now })));
+    failOn(categoryError, 'Creating bags categories');
+    const { error: productError } = await supabase.from('products').insert(bagsProductProfiles.map(({ category, ...product }) => ({ id: randomUUID(), store_id: bagsStore.id, ...product, category_id: categoryIds[category], status: 'active', created_at: now, updated_at: now })));
+    failOn(productError, 'Creating bags products');
+  }
+
   console.log('Supabase seed complete.');
   console.log('Super admin: super@platform.com / admin123');
   console.log('Store admin: admin@demo.com / admin123');
+  console.log(`Bags storefront: /store/bags (${bagsProductProfiles.length} products; assign admins in Super Admin)`);
 }
 
 if (require.main === module) {

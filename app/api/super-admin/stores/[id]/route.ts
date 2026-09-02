@@ -40,8 +40,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 
   if (updates.slug) {
+    updates.slug = String(updates.slug).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    if (!updates.slug) {
+      return NextResponse.json({ error: 'Enter a valid store URL slug' }, { status: 400 });
+    }
     const stores = await readDb<Store>('stores');
-    const duplicate = stores.find((entry) => entry.slug === updates.slug && entry.id !== params.id);
+    const duplicate = stores.find((entry) => entry.slug.toLowerCase() === updates.slug && entry.id !== params.id);
     if (duplicate) {
       return NextResponse.json({ error: 'Store slug already taken' }, { status: 409 });
     }

@@ -54,8 +54,12 @@ export async function PUT(req: NextRequest) {
 
   // Check slug uniqueness
   if (updates.slug) {
+    updates.slug = String(updates.slug).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    if (!updates.slug) {
+      return NextResponse.json({ error: 'Enter a valid store URL slug' }, { status: 400 });
+    }
     const stores = await readDb<Store>('stores');
-    const existing = stores.find((s) => s.slug === updates.slug && s.id !== session.storeId);
+    const existing = stores.find((s) => s.slug.toLowerCase() === updates.slug && s.id !== session.storeId);
     if (existing) {
       return NextResponse.json({ error: 'Store slug already taken' }, { status: 409 });
     }

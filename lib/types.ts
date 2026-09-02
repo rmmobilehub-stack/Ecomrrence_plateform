@@ -21,7 +21,7 @@ export interface Admin {
 
 export interface Store {
   id: string;
-  adminId: string;
+  adminId?: string | null;
   name: string;
   slug: string;
   description: string;

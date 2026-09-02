@@ -14,12 +14,36 @@ export async function GET(req: NextRequest) {
   const products = await readDb<Product>('products');
   const orders = await readDb<Order>('orders');
 
-  const totalRevenue = orders
-    .filter((o) => o.status !== 'cancelled')
-    .reduce((sum, o) => sum + o.total, 0);
-
   const activeAdmins = admins.filter((a) => a.status === 'active').length;
   const activeStores = stores.filter((s) => s.isActive).length;
+  const storeBreakdown = stores.map((store) => {
+    const storeProducts = products.filter((product) => product.storeId === store.id);
+    const storeOrders = orders.filter((order) => order.storeId === store.id);
+    const revenue = storeOrders.filter((order) => order.status !== 'cancelled').reduce((sum, order) => sum + order.total, 0);
+    const assignedAdmins = admins.filter((admin) => admin.storeId === store.id);
+    const lastOrder = [...storeOrders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+    return {
+      id: store.id,
+      name: store.name,
+      slug: store.slug,
+      logo: store.logo,
+      currency: store.currency,
+      isActive: store.isActive,
+      admins: assignedAdmins.map((admin) => ({ id: admin.id, name: admin.name, email: admin.email, status: admin.status })),
+      admin: assignedAdmins[0] ? { id: assignedAdmins[0].id, name: assignedAdmins[0].name, email: assignedAdmins[0].email, status: assignedAdmins[0].status } : null,
+      products: storeProducts.length,
+      activeProducts: storeProducts.filter((product) => product.status === 'active').length,
+      orders: storeOrders.length,
+      pendingOrders: storeOrders.filter((order) => order.status === 'pending').length,
+      revenue,
+      lastOrderAt: lastOrder?.createdAt ?? null,
+    };
+  });
+
+  const revenueByCurrency = Object.entries(storeBreakdown.reduce<Record<string, number>>((totals, store) => {
+    totals[store.currency] = (totals[store.currency] ?? 0) + store.revenue;
+    return totals;
+  }, {})).map(([currency, total]) => ({ currency, total }));
 
   // Orders over last 7 days
   const now = Date.now();
@@ -35,6 +59,7 @@ export async function GET(req: NextRequest) {
     totalProducts: products.length,
     totalOrders: orders.length,
     ordersLast7Days,
-    totalRevenue,
+    revenueByCurrency,
+    storeBreakdown,
   });
 }

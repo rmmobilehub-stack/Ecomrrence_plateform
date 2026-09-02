@@ -92,11 +92,10 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
       return updateOne<Product>('products', product.id, { stock: product.stock - item.qty, updatedAt: new Date().toISOString() });
     }));
 
-    // Find the store's admin and create notification
+    // Notify every administrator assigned to this store.
     const admins = await readDb<Admin>('admins');
-    const admin = admins.find((a) => a.storeId === store.id);
-
-    if (admin) {
+    const storeAdmins = admins.filter((admin) => admin.storeId === store.id && admin.status === 'active');
+    await Promise.all(storeAdmins.map((admin) => {
       const notification: Notification = {
         id: uuidv4(),
         adminId: admin.id,
@@ -107,8 +106,8 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
         isRead: false,
         createdAt: new Date().toISOString(),
       };
-      await insertOne<Notification>('notifications', notification);
-    }
+      return insertOne<Notification>('notifications', notification);
+    }));
 
     return NextResponse.json({
       success: true,
