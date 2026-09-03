@@ -1828,7 +1828,17 @@ body {
 .quick-action:hover { border-color: #a7dced; background: #f3fbff; transform: translateX(3px); }
 .quick-action > span:last-child { display: grid; gap: 2px; }.quick-action strong { color: #23465d; font-size: .86rem; }.quick-action small { color: #7894a7; font-size: .74rem; }
 .quick-action-icon { width: 34px; height: 34px; display: grid; place-items: center; flex: 0 0 34px; border-radius: 10px; color: #0787c6; background: #e8f8ff; }
-.recent-orders-card { margin-top: 20px; }.table-empty { text-align: center; color: #7b99ac !important; padding: 40px !important; }
+.recent-orders-card { margin-top: 20px; padding: 0; overflow: hidden; }
+.recent-orders-card .section-heading { padding: 20px 22px 18px; margin: 0; border-bottom: 1px solid #d7ebf5; }
+.recent-orders-card .table-container { border: 0; border-radius: 0; }
+.recent-orders-card .data-table { min-width: 780px; }
+.recent-orders-card .data-table thead th { padding-top: 14px; padding-bottom: 14px; }
+.recent-orders-card .data-table tbody td { padding-top: 16px; padding-bottom: 16px; }
+.recent-orders-card .data-table th:first-child,
+.recent-orders-card .data-table td:first-child { padding-left: 34px; }
+.recent-orders-card .data-table th:last-child,
+.recent-orders-card .data-table td:last-child { padding-right: 34px; }
+.table-empty { text-align: center; color: #7b99ac !important; padding: 40px !important; }
 
 /* Product catalogue: a compact desktop toolbar, with a graceful mobile stack. */
 .catalog-heading { align-items: flex-end; margin-bottom: 18px; }.catalog-heading .eyebrow { margin-bottom: 5px; }
