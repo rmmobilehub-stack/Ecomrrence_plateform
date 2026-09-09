@@ -1,10 +1,10 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BarChart3, Building2, LayoutDashboard, LogOut, Menu, Settings, Users, X, ClipboardList } from 'lucide-react';
+import { BarChart3, Building2, LayoutDashboard, LogOut, Menu, MessageCircle, Settings, Users, X, ClipboardList } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import BrandMark from '@/components/ui/BrandMark';
-const navItems = [{ href: '/super-admin', label: 'Dashboard', icon: LayoutDashboard, exact: true }, { href: '/super-admin/admins', label: 'Admins', icon: Users }, { href: '/super-admin/stores', label: 'Stores', icon: Building2 }, { href: '/super-admin/orders', label: 'All Orders', icon: ClipboardList }, { href: '/super-admin/analytics', label: 'Analytics', icon: BarChart3 }, { href: '/super-admin/settings', label: 'Settings', icon: Settings }];
+const navItems = [{ href: '/super-admin', label: 'Dashboard', icon: LayoutDashboard, exact: true }, { href: '/super-admin/admins', label: 'Admins', icon: Users }, { href: '/super-admin/stores', label: 'Stores', icon: Building2 }, { href: '/super-admin/orders', label: 'All Orders', icon: ClipboardList }, { href: '/super-admin/leads', label: 'Chats', icon: MessageCircle }, { href: '/super-admin/analytics', label: 'Analytics', icon: BarChart3 }, { href: '/super-admin/settings', label: 'Settings', icon: Settings }];
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname(); const router = useRouter(); const [user, setUser] = useState<{ name: string; email: string } | null>(null); const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => { fetch('/api/auth/me').then(response => response.ok ? response.json() : null).then(data => setUser(data?.user ?? null)); }, []);
