@@ -65,9 +65,8 @@ async function rebrandRmMobileHub() {
   failOn(productReadError, 'Reading products');
 
   const retainedProductIds = [];
-  for (let index = 0; index < productProfiles.length; index += 1) {
-    const profile = productProfiles[index];
-    const current = existingProducts.find((item) => item.slug === profile.slug) || existingProducts[index];
+  for (const profile of productProfiles) {
+    const current = existingProducts.find((item) => item.slug === profile.slug);
     const id = current?.id || randomUUID();
     const { category, ...product } = profile;
     const row = {

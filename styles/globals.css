@@ -4714,3 +4714,110 @@ body {
 .storefront-shell .store-journey-cta > div > span {
   color: color-mix(in srgb, var(--store-accent) 30%, white);
 }
+
+/* Store navigation identity. Product and hero images intentionally stay clean. */
+.storefront-shell .store-logo-image {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  padding: 2px;
+  object-fit: contain;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 7px 18px var(--store-shadow);
+}
+
+@media (max-width: 680px) {
+  .storefront-shell .store-logo-image {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+
+}
+
+/* A clean, high-contrast navigation mark: the square source is cropped to the
+   readable RM monogram while the adjacent text carries the full store name. */
+.storefront-shell .store-nav-logo {
+  gap: 11px;
+  color: #092f4a;
+}
+
+.storefront-shell .store-logo-frame {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(71, 197, 235, .34);
+  border-radius: 15px;
+  background: linear-gradient(145deg, #ffffff 12%, #e1f7ff 100%);
+  box-shadow: 0 9px 22px rgba(15, 126, 180, .18), inset 0 1px 0 rgba(255, 255, 255, .9);
+}
+
+.storefront-shell .store-logo-frame .store-logo-image {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  flex: none;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  object-fit: cover;
+  transform: scale(1.03);
+  transform-origin: center;
+}
+
+.storefront-shell .store-nav-name {
+  color: #103b5a;
+  font-weight: 850;
+  letter-spacing: -.025em;
+}
+
+/* The full SVG has its own wordmark for larger placements. In the 70px
+   navigation bar, show the joined RM symbol only and use the adjacent text
+   for the readable store name. */
+.storefront-shell .store-logo-frame {
+  width: 42px;
+  height: 42px;
+  flex-basis: 42px;
+  border-radius: 13px;
+}
+
+.storefront-shell .store-logo-frame .store-logo-image {
+  transform: scale(1.42);
+  transform-origin: 50% 42%;
+}
+
+.storefront-shell .store-nav-name {
+  font-size: 1.02rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.storefront-shell .store-rm-mark {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  border: 1px solid rgba(96, 225, 255, .72);
+  border-radius: 11px;
+  background: linear-gradient(145deg, #062747, #0a74c6 64%, #17c9e5);
+  box-shadow: 0 7px 17px rgba(7, 99, 167, .22), inset 0 1px 0 rgba(255,255,255,.25);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: .86rem;
+  font-weight: 900;
+  letter-spacing: -.12em;
+  text-indent: -.08em;
+}
+
+@media (max-width: 680px) {
+  .storefront-shell .store-nav-logo { gap: 9px; }
+  .storefront-shell .store-logo-frame { width: 38px; height: 38px; flex-basis: 38px; border-radius: 12px; }
+  .storefront-shell .store-nav-name { font-size: .94rem; }
+  .storefront-shell .store-rm-mark { width: 34px; height: 34px; flex-basis: 34px; font-size: .78rem; }
+}

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">RM Mobile Hub</title>
+  <desc id="desc">Joined RM monogram with RM Mobile Hub wordmark</desc>
+  <defs>
+    <linearGradient id="panel" x1="56" y1="42" x2="462" y2="474" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#061B3B"/>
+      <stop offset=".58" stop-color="#084E9C"/>
+      <stop offset="1" stop-color="#09A9D7"/>
+    </linearGradient>
+    <linearGradient id="monogram" x1="112" y1="116" x2="406" y2="320" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset=".48" stop-color="#D7F8FF"/>
+      <stop offset="1" stop-color="#5DE5FF"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect x="24" y="24" width="464" height="464" rx="126" fill="url(#panel)"/>
+  <path d="M69 177C119 86 223 51 326 88c58 21 98 61 122 117" fill="none" stroke="#67E7FF" stroke-opacity=".16" stroke-width="28" stroke-linecap="round"/>
+  <path d="M94 319V112h95c49 0 78 27 78 70 0 43-29 70-78 70H94m80 0 94 67" fill="none" stroke="url(#monogram)" stroke-width="27" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+  <path d="M268 319V112l69 119 69-119v207" fill="none" stroke="url(#monogram)" stroke-width="27" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+  <path d="M101 371h310" stroke="#6BE8FF" stroke-opacity=".72" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="256" cy="371" r="7" fill="#FFFFFF"/>
+  <text x="256" y="421" text-anchor="middle" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="800" letter-spacing="5">RM MOBILE HUB</text>
+  <text x="256" y="453" text-anchor="middle" fill="#A9F3FF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="4">MOBILE ACCESSORIES</text>
+</svg>
