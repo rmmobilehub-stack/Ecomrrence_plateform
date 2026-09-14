@@ -4378,8 +4378,10 @@ body {
 
 .store-values-intro-refined h2 {
   max-width: 16ch;
-  font-size: clamp(2.55rem, 4.15vw, 4.5rem);
-  line-height: .98;
+  font-size: clamp(2rem, 3.25vw, 3.2rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -.038em;
 }
 
 .store-values-intro-refined > p:last-child {
@@ -4408,8 +4410,10 @@ body {
 
 .store-journey-copy-refined h2 {
   max-width: 15ch;
-  font-size: clamp(2.55rem, 4.3vw, 4.4rem);
-  line-height: .98;
+  font-size: clamp(2rem, 3.35vw, 3.25rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -.038em;
 }
 
 .store-journey-copy-refined h2 span {
@@ -4425,6 +4429,24 @@ body {
   font-size: 1rem;
   line-height: 1.7;
 }
+
+/* Keep the storefront editorial and readable rather than using oversized,
+   heavy display type for every section heading. */
+.storefront-shell .store-hero-title {
+  font-size: clamp(2.7rem, 4.4vw, 4.35rem);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -.05em;
+}
+.storefront-shell .featured-section .featured-heading-copy h2,
+.storefront-shell .store-about-modern h2,
+.storefront-shell .section-heading h2,
+.storefront-shell .product-info h1 {
+  font-weight: 600;
+  letter-spacing: -.032em;
+}
+.storefront-shell .featured-section .featured-heading-copy h2 { font-size: clamp(1.7rem, 2.6vw, 2.4rem); }
+.storefront-shell .store-about-modern h2 { font-size: clamp(2.25rem, 3.3vw, 3.4rem); line-height: 1.08; }
 
 @media (max-width: 768px) {
   .featured-section .section-heading {

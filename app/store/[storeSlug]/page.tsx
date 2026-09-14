@@ -98,9 +98,9 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
 
     <section className="store-values" aria-labelledby="store-values-title">
       <div className="store-values-intro store-values-intro-refined">
-          <p className="home-section-kicker">Built for your Apple setup</p>
-          <h2 id="store-values-title">Everyday power, without the charging hassle.</h2>
-          <p>Find the right charger, cable or magnetic accessory with clear details, reliable support and simple cash-on-delivery ordering.</p>
+          <p className="home-section-kicker">Power & protection, made simple</p>
+          <h2 id="store-values-title">Everything your iPhone needs, in one place.</h2>
+          <p>Choose the right charger, cable or protection with clear details, helpful support and cash-on-delivery ordering.</p>
       </div>
       <div className="store-values-grid">
         <article><span><Sparkles size={21}/></span><div><strong>Fast charging</strong><p>Practical power accessories selected for everyday performance.</p></div></article>
@@ -134,7 +134,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
       <div className="store-journey-header">
         <div className="store-journey-copy store-journey-copy-refined">
           <p className="home-section-kicker">From power pick to doorstep</p>
-          <h2>The simple way to upgrade <span>your charging setup.</span></h2>
+          <h2>A simpler way to upgrade <span>your everyday setup.</span></h2>
         </div>
         <p className="store-journey-intro">Pick the right accessory, confirm it your way and receive it at your doorstep with clear support throughout.</p>
       </div>
