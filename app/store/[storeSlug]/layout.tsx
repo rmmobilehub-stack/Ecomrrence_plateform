@@ -40,7 +40,7 @@ export default async function StoreLayout({ children, params }: { children: Reac
 
   return <CartProvider slug={store.slug} currency={store.currency || 'PKR'}>
     <div className="storefront-shell" data-store-theme={storeTheme} style={{ '--store-accent': storeAccent } as React.CSSProperties}>
-      <StoreNav slug={store.slug} homeHref={homeHref} name={store.name} announcement={store.announcement}/>
+      <StoreNav slug={store.slug} homeHref={homeHref} name={store.name} logo={store.logo} announcement={store.announcement}/>
       {children}
       <footer className="store-footer">
         <div><strong>{store.name}</strong><span>{store.description}</span></div>

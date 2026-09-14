@@ -2,7 +2,7 @@
 const { randomUUID } = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 const { loadEnvironment } = require('./load-env');
-const { storeProfile, categoryProfiles, productProfiles } = require('./rm-mobile-hub-data');
+const { storeProfile, categoryProfiles, productProfiles, liveProductSlugs } = require('./rm-mobile-hub-data');
 
 function failOn(error, action) {
   if (error) throw new Error(`${action}: ${error.message}`);
@@ -74,7 +74,7 @@ async function rebrandRmMobileHub() {
       store_id: store.id,
       ...product,
       category_id: categoryIds[category],
-      status: 'active',
+      status: liveProductSlugs.has(profile.slug) ? 'active' : 'archived',
       created_at: current?.created_at || now,
       updated_at: now,
     };
@@ -94,7 +94,7 @@ async function rebrandRmMobileHub() {
     failOn(error, 'Archiving unrelated old products');
   }
 
-  console.log(`RM Mobile Hub rebrand complete: ${productProfiles.length} products and ${categoryProfiles.length} categories are active.`);
+  console.log(`RM Mobile Hub rebrand complete: ${liveProductSlugs.size} products are live and ${productProfiles.length - liveProductSlugs.size} are inactive.`);
 }
 
 if (require.main === module) {

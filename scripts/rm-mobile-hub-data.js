@@ -1,7 +1,7 @@
 const storeProfile = {
   name: 'RM Mobile Hub',
   description: 'Protective glass, full-body films, cases, fast chargers and dependable cables for your everyday Apple setup.',
-  logo: '/storefront/rm-mobile-hub-logo-v2.svg',
+  logo: '/storefront/rm-mobile-hub-logo-generated.png',
   banner: '/storefront/rm-mobile-hub-hero.png',
   hero_title: 'Protection and power for every iPhone.',
   hero_cta_label: 'Shop mobile accessories',
@@ -341,4 +341,18 @@ const productProfiles = [
   },
 ];
 
-module.exports = { storeProfile, categoryProfiles, productProfiles };
+// These are the products currently available for sale.  The rebrand script
+// keeps every other existing product in the admin catalogue as archived, so
+// it can be reactivated later without recreating it.
+const liveProductSlugs = new Set([
+  'protective-earbuds-case-with-clip',
+  'usb-c-to-lightning-fast-charging-cable',
+  '20w-usb-c-fast-charger-adapter',
+  'apple-20w-usb-c-adapter-cable-set',
+  'full-protected-iphone-4-piece-bundle',
+  'hd-camera-lens-protector-set',
+  '9h-tempered-glass-screen-protector',
+  'crystal-clear-back-protection-sheet',
+]);
+
+module.exports = { storeProfile, categoryProfiles, productProfiles, liveProductSlugs };

@@ -6,7 +6,7 @@ import { useCart } from './CartProvider';
 import CartDrawer from './CartDrawer';
 import { storefrontPath } from '@/lib/storefront-paths';
 
-export default function StoreNav({ slug, homeHref, name, announcement }: { slug: string; homeHref: string; name: string; announcement?: string }) {
+export default function StoreNav({ slug, homeHref, name, logo, announcement }: { slug: string; homeHref: string; name: string; logo?: string; announcement?: string }) {
   const [cartOpen, setCartOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { count } = useCart();
@@ -14,7 +14,10 @@ export default function StoreNav({ slug, homeHref, name, announcement }: { slug:
 
   return <>
     <nav className="store-navbar">
-      <Link href={homeHref} className="store-nav-logo" onClick={closeMenu}><span className="store-rm-mark" aria-label={`${name} logo`} role="img">RM</span><span className="store-nav-name">{name}</span></Link>
+      <Link href={homeHref} className="store-nav-logo" onClick={closeMenu}>
+        {logo ? <span className="store-logo-frame"><img className="store-logo-image" src={logo} alt={`${name} logo`}/></span> : <span className="store-rm-mark" aria-label={`${name} logo`} role="img">RM</span>}
+        <span className="store-nav-name">{name}</span>
+      </Link>
       <div className="store-nav-links"><Link className="store-nav-link" href={homeHref}>Home</Link><Link className="store-nav-link" href={storefrontPath(slug, 'products')}>Shop</Link><Link className="store-nav-link" href={`${homeHref}#about`}>About</Link><span className="nav-assurance">{announcement || 'Cash on delivery'}</span></div>
       <div className="store-nav-actions">
         <button className={`store-mobile-menu-btn ${menuOpen ? 'active' : ''}`} type="button" onClick={() => setMenuOpen((current) => !current)} aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="store-mobile-menu">{menuOpen ? <X size={19}/> : <Menu size={20}/>}</button>
