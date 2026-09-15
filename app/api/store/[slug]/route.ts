@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readDb } from '@/lib/db';
-import type { Store } from '@/lib/types';
+import { getActiveStoreBySlug } from '@/lib/db';
 
 export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
-  const stores = await readDb<Store>('stores');
-  const store = stores.find((s) => s.slug === params.slug && s.isActive);
+  const store = await getActiveStoreBySlug(params.slug);
 
   if (!store) {
     return NextResponse.json({ error: 'Store not found' }, { status: 404 });

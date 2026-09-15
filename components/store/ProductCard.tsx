@@ -14,7 +14,7 @@ export default function ProductCard({ product, slug }: { product: Product; slug:
     {product.discount > 0 && <span className="product-discount-badge">-{product.discount}%</span>}
     <Link href={storefrontPath(slug, `products/${product.id}`)} className="product-card-link">
       <div className="product-card-media">
-        {image ? <img className="product-card-img" src={image} alt={product.name}/> : <div className="product-card-img-placeholder">No image</div>}
+        {image ? <img className="product-card-img" src={image} alt={product.name} loading="lazy" decoding="async"/> : <div className="product-card-img-placeholder">No image</div>}
         <span className="product-card-visual-action">View product <ArrowUpRight size={15}/></span>
       </div>
       <div className="product-card-body">

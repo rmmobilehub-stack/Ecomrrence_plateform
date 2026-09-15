@@ -1,4 +1,7 @@
 import { getSupabaseAdmin } from './supabase';
+import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
+import type { Category, Product, Store } from './types';
 
 const TABLE_BY_COLLECTION = {
   'super-admins': 'super_admins',
@@ -37,7 +40,7 @@ function toDatabaseRow(value: Record<string, unknown>): Record<string, unknown> 
   );
 }
 
-function toApplicationRow<T>(value: Record<string, unknown>): T {
+export function toApplicationRow<T>(value: Record<string, unknown>): T {
   return Object.fromEntries(
     Object.entries(value).map(([key, entry]) => [snakeToCamel(key), entry])
   ) as T;
@@ -70,6 +73,77 @@ export async function readDb<T>(collection: string): Promise<T[]> {
   const rows = await readAllRows(tableFor(collection));
   return rows.map((row) => toApplicationRow<T>(row));
 }
+
+// Storefront reads use precise database filters instead of downloading every
+// row and filtering in Node. The short cache absorbs repeated page/layout/
+// metadata reads while still keeping catalogue edits visible quickly.
+export const getActiveStoreBySlug = cache(async (slug: string): Promise<Store | null> =>
+  unstable_cache(
+    async () => {
+      const { data, error } = await getSupabaseAdmin()
+        .from('stores')
+        .select('*')
+        .eq('slug', slug)
+        .eq('is_active', true)
+        .maybeSingle();
+      if (error) throw databaseError(`read store ${slug}`, error);
+      return data ? toApplicationRow<Store>(data as Record<string, unknown>) : null;
+    },
+    ['storefront-store', slug],
+    { revalidate: 60 }
+  )()
+);
+
+export const getActiveProductsForStore = cache(async (storeId: string): Promise<Product[]> =>
+  unstable_cache(
+    async () => {
+      const { data, error } = await getSupabaseAdmin()
+        .from('products')
+        .select('*')
+        .eq('store_id', storeId)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+      if (error) throw databaseError(`read active products for store ${storeId}`, error);
+      return (data ?? []).map((row) => toApplicationRow<Product>(row as Record<string, unknown>));
+    },
+    ['storefront-products', storeId],
+    { revalidate: 60 }
+  )()
+);
+
+export const getCategoriesForStore = cache(async (storeId: string): Promise<Category[]> =>
+  unstable_cache(
+    async () => {
+      const { data, error } = await getSupabaseAdmin()
+        .from('categories')
+        .select('*')
+        .eq('store_id', storeId)
+        .order('name', { ascending: true });
+      if (error) throw databaseError(`read categories for store ${storeId}`, error);
+      return (data ?? []).map((row) => toApplicationRow<Category>(row as Record<string, unknown>));
+    },
+    ['storefront-categories', storeId],
+    { revalidate: 300 }
+  )()
+);
+
+export const getActiveProductById = cache(async (storeId: string, id: string): Promise<Product | null> =>
+  unstable_cache(
+    async () => {
+      const { data, error } = await getSupabaseAdmin()
+        .from('products')
+        .select('*')
+        .eq('store_id', storeId)
+        .eq('id', id)
+        .eq('status', 'active')
+        .maybeSingle();
+      if (error) throw databaseError(`read product ${id}`, error);
+      return data ? toApplicationRow<Product>(data as Record<string, unknown>) : null;
+    },
+    ['storefront-product', storeId, id],
+    { revalidate: 60 }
+  )()
+);
 
 /**
  * Replaces a collection while preserving the old data-layer API. This is used

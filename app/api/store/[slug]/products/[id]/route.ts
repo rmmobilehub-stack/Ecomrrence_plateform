@@ -1,17 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readDb } from '@/lib/db';
-import type { Store, Product } from '@/lib/types';
+import { getActiveProductById, getActiveStoreBySlug } from '@/lib/db';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { slug: string; id: string } }
 ) {
-  const stores = await readDb<Store>('stores');
-  const store = stores.find((s) => s.slug === params.slug && s.isActive);
+  const store = await getActiveStoreBySlug(params.slug);
   if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
 
-  const products = await readDb<Product>('products');
-  const product = products.find((p) => p.id === params.id && p.storeId === store.id && p.status === 'active');
+  const product = await getActiveProductById(store.id, params.id);
   if (!product) return NextResponse.json({ error: 'Product not found' }, { status: 404 });
 
   return NextResponse.json({ product });

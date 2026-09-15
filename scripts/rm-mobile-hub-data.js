@@ -126,7 +126,6 @@ const productProfiles = [
     discount: 0,
     images: [
       '/storefront/rm-20w-usb-c-2-pin-adapter.png',
-      '/storefront/rm-20w-usb-c-2-pin-adapter-front.png',
       '/storefront/rm-20w-usb-c-2-pin-adapter-gallery.png',
     ],
     thumbnail: '/storefront/rm-20w-usb-c-2-pin-adapter.png',
@@ -365,7 +364,6 @@ const productProfiles = [
     discount: 0,
     images: [
       '/storefront/rm-20w-uk-3-pin-charger-cable-set.png',
-      '/storefront/rm-20w-uk-3-pin-charger-cable-set-lightning.png',
       '/storefront/rm-20w-2-pin-charger-cable-set-lightning.png',
     ],
     thumbnail: '/storefront/rm-20w-uk-3-pin-charger-cable-set.png',
@@ -398,4 +396,18 @@ const liveProductSlugs = new Set([
   'crystal-clear-back-protection-sheet',
 ]);
 
-module.exports = { storeProfile, categoryProfiles, productProfiles, liveProductSlugs };
+const optimizedAsset = (source) => source.replace(/\.png(?=#|$)/, '.webp');
+const optimizedStoreProfile = {
+  ...storeProfile,
+  logo: optimizedAsset(storeProfile.logo),
+  banner: optimizedAsset(storeProfile.banner),
+  hero_slides: storeProfile.hero_slides.map(optimizedAsset),
+  about_image: optimizedAsset(storeProfile.about_image),
+};
+const optimizedProductProfiles = productProfiles.map((profile) => ({
+  ...profile,
+  images: profile.images.map(optimizedAsset),
+  thumbnail: optimizedAsset(profile.thumbnail),
+}));
+
+module.exports = { storeProfile: optimizedStoreProfile, categoryProfiles, productProfiles: optimizedProductProfiles, liveProductSlugs };

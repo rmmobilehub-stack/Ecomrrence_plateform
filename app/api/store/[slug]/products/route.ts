@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readDb } from '@/lib/db';
-import type { Store, Product, Category } from '@/lib/types';
+import { getActiveProductsForStore, getActiveStoreBySlug, getCategoriesForStore } from '@/lib/db';
 
 export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
-  const stores = await readDb<Store>('stores');
-  const store = stores.find((s) => s.slug === params.slug && s.isActive);
+  const store = await getActiveStoreBySlug(params.slug);
   if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
 
   const { searchParams } = new URL(req.url);
@@ -12,10 +10,12 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
   const categoryId = searchParams.get('categoryId') || '';
   const sortBy = searchParams.get('sortBy') || 'newest';
 
-  const products = await readDb<Product>('products');
-  const categories = await readDb<Category>('categories');
+  const [products, categories] = await Promise.all([
+    getActiveProductsForStore(store.id),
+    getCategoriesForStore(store.id),
+  ]);
 
-  let storeProducts = products.filter((p) => p.storeId === store.id && p.status === 'active');
+  let storeProducts = products;
 
   if (search) {
     storeProducts = storeProducts.filter(
@@ -31,7 +31,5 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
   else if (sortBy === 'price-desc') storeProducts.sort((a, b) => b.price - a.price);
   else storeProducts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  const storeCategories = categories.filter((c) => c.storeId === store.id);
-
-  return NextResponse.json({ products: storeProducts, categories: storeCategories });
+  return NextResponse.json({ products: storeProducts, categories });
 }

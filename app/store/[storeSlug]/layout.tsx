@@ -1,14 +1,12 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { readDb } from '@/lib/db';
-import type { Store } from '@/lib/types';
+import { getActiveStoreBySlug } from '@/lib/db';
 import { CartProvider } from '@/components/store/CartProvider';
 import StoreNav from '@/components/store/StoreNav';
 import { storefrontPath } from '@/lib/storefront-paths';
 
 export async function generateMetadata({ params }: { params: { storeSlug: string } }): Promise<Metadata> {
-  const stores = await readDb<Store>('stores');
-  const store = stores.find((entry) => entry.slug === params.storeSlug && entry.isActive);
+  const store = await getActiveStoreBySlug(params.storeSlug);
   if (!store) return { title: 'Store not found' };
   const description = store.description || `Shop the latest products from ${store.name}.`;
   const storeUrl = storefrontPath(store.slug);
@@ -30,8 +28,7 @@ export async function generateMetadata({ params }: { params: { storeSlug: string
 }
 
 export default async function StoreLayout({ children, params }: { children: React.ReactNode; params: { storeSlug: string } }) {
-  const stores = await readDb<Store>('stores');
-  const store = stores.find((entry) => entry.slug === params.storeSlug && entry.isActive);
+  const store = await getActiveStoreBySlug(params.storeSlug);
   if (!store) notFound();
   const homeHref = storefrontPath(store.slug);
   const productsHref = storefrontPath(store.slug, 'products');

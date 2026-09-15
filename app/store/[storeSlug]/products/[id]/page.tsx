@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { readDb } from '@/lib/db';
-import type { Category, Product, Store } from '@/lib/types';
+import { getActiveProductById, getActiveProductsForStore, getActiveStoreBySlug, getCategoriesForStore } from '@/lib/db';
 import AddToCart from '@/components/store/AddToCart';
 import ImageGallery from '@/components/store/ImageGallery';
 import ProductCard from '@/components/store/ProductCard';
@@ -10,9 +9,8 @@ import { formatMoney } from '@/lib/currency';
 import { storefrontPath } from '@/lib/storefront-paths';
 
 export async function generateMetadata({ params }: { params: { storeSlug: string; id: string } }): Promise<Metadata> {
-  const [stores, products] = await Promise.all([readDb<Store>('stores'), readDb<Product>('products')]);
-  const store = stores.find(entry => entry.slug === params.storeSlug && entry.isActive);
-  const product = products.find(entry => entry.id === params.id && entry.storeId === store?.id && entry.status === 'active');
+  const store = await getActiveStoreBySlug(params.storeSlug);
+  const product = store ? await getActiveProductById(store.id, params.id) : null;
   if (!store || !product) return { title: 'Product not found', robots: { index: false, follow: false } };
   const description = product.description || `Buy ${product.name} from ${store.name}. Cash on delivery available.`;
   const image = product.images?.find(Boolean) || product.thumbnail || store.banner;
@@ -21,9 +19,13 @@ export async function generateMetadata({ params }: { params: { storeSlug: string
 }
 
 export default async function ProductPage({ params }: { params: { storeSlug: string; id: string } }) {
-  const [stores, products, categories] = await Promise.all([readDb<Store>('stores'), readDb<Product>('products'), readDb<Category>('categories')]);
-  const store = stores.find(entry => entry.slug === params.storeSlug && entry.isActive);
-  const product = products.find(entry => entry.id === params.id && entry.storeId === store?.id && entry.status === 'active');
+  const store = await getActiveStoreBySlug(params.storeSlug);
+  if (!store) notFound();
+  const [product, products, categories] = await Promise.all([
+    getActiveProductById(store.id, params.id),
+    getActiveProductsForStore(store.id),
+    getCategoriesForStore(store.id),
+  ]);
   if (!store || !product) notFound();
 
   const images = (product.images ?? []).filter(Boolean);

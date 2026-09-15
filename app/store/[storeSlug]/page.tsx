@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { ArrowRight, Facebook, Globe2, Instagram, MessageCircle, Music2, ShieldCheck, Sparkles, Truck, Twitter, Youtube } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { readDb } from '@/lib/db';
-import type { Product, Store } from '@/lib/types';
+import { getActiveProductsForStore, getActiveStoreBySlug } from '@/lib/db';
+import type { Store } from '@/lib/types';
 import ProductCard from '@/components/store/ProductCard';
 import HeroProductSlider, { type HeroSlide } from '@/components/store/HeroProductSlider';
 import LeadChatbot from '@/components/store/LeadChatbot';
@@ -22,9 +22,9 @@ function safePublicUrl(value?: string) {
 }
 
 export default async function StoreHome({ params }: { params: { storeSlug: string } }) {
-  const [stores, products] = await Promise.all([readDb<Store>('stores'), readDb<Product>('products')]);
-  const store = stores.find((entry) => entry.slug === params.storeSlug && entry.isActive)!;
-  const activeProducts = products.filter((product) => product.storeId === store.id && product.status === 'active');
+  const store = await getActiveStoreBySlug(params.storeSlug);
+  if (!store) return null;
+  const activeProducts = await getActiveProductsForStore(store.id);
   const featured = activeProducts.slice(0, 8);
   const shopHref = storefrontPath(store.slug, 'products');
   const title = store.heroTitle || 'Everyday pieces, picked with care.';
@@ -111,7 +111,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
     </section>
 
     <section className="store-about-modern" id="about">
-      {aboutImage ? <img className="store-about-modern-bg" src={aboutImage} alt=""/> : <div className="store-about-modern-placeholder"><span>{store.name.charAt(0)}</span></div>}
+      {aboutImage ? <img className="store-about-modern-bg" src={aboutImage} alt="" loading="lazy" decoding="async"/> : <div className="store-about-modern-placeholder"><span>{store.name.charAt(0)}</span></div>}
       <div className="store-about-modern-shade"/>
       <div className="store-about-modern-content">
         <p className="store-about-modern-kicker"><Sparkles size={14}/> About {store.name}</p>
@@ -127,7 +127,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
           {socials.length > 0 && <div className="store-socials"><span>Connect with us</span><div>{socials.map(({ key, label, Icon, href }) => <a key={key} href={href} target="_blank" rel="noreferrer" aria-label={label} title={label}><Icon size={18}/></a>)}</div></div>}
         </div>
       </div>
-      {aboutSecondaryImage && <div className="store-about-modern-product"><img src={aboutSecondaryImage} alt="A product from our collection"/><span>Part of our collection</span></div>}
+      {aboutSecondaryImage && <div className="store-about-modern-product"><img src={aboutSecondaryImage} alt="A product from our collection" loading="lazy" decoding="async"/><span>Part of our collection</span></div>}
     </section>
 
     <section className="store-journey">
