@@ -2,14 +2,10 @@
 import Link from 'next/link';
 import { Home, Info, Menu, ShoppingBag, X } from 'lucide-react';
 import { useState } from 'react';
-import { useCart } from './CartProvider';
-import CartDrawer from './CartDrawer';
 import { storefrontPath } from '@/lib/storefront-paths';
 
 export default function StoreNav({ slug, homeHref, name, logo, announcement }: { slug: string; homeHref: string; name: string; logo?: string; announcement?: string }) {
-  const [cartOpen, setCartOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { count } = useCart();
   const closeMenu = () => setMenuOpen(false);
 
   return <>
@@ -21,7 +17,6 @@ export default function StoreNav({ slug, homeHref, name, logo, announcement }: {
       <div className="store-nav-links"><Link className="store-nav-link" href={homeHref}>Home</Link><Link className="store-nav-link" href={storefrontPath(slug, 'products')}>Shop</Link><Link className="store-nav-link" href={`${homeHref}#about`}>About</Link><span className="nav-assurance">{announcement || 'Cash on delivery'}</span></div>
       <div className="store-nav-actions">
         <button className={`store-mobile-menu-btn ${menuOpen ? 'active' : ''}`} type="button" onClick={() => setMenuOpen((current) => !current)} aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="store-mobile-menu">{menuOpen ? <X size={19}/> : <Menu size={20}/>}</button>
-        <button className="cart-btn" type="button" onClick={() => { closeMenu(); setCartOpen(true); }} aria-label="Open cart"><ShoppingBag size={19}/>{count > 0 && <span className="cart-count">{count}</span>}</button>
       </div>
       {menuOpen && <>
         <button className="store-mobile-menu-backdrop" type="button" aria-label="Close navigation" onClick={closeMenu}/>
@@ -33,6 +28,5 @@ export default function StoreNav({ slug, homeHref, name, logo, announcement }: {
         </div>
       </>}
     </nav>
-    <CartDrawer slug={slug} open={cartOpen} onClose={() => setCartOpen(false)}/>
   </>;
 }

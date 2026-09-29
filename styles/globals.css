@@ -4847,6 +4847,119 @@ body {
   text-indent: -.08em;
 }
 
+/* Direct-buy guidance: disabled native buttons do not receive hover events,
+   so their wrapper explains exactly what the shopper must select first. */
+.product-purchase-row .purchase-button-wrap {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+}
+
+.product-purchase-row .purchase-button-wrap > button {
+  width: 100%;
+}
+
+.product-purchase-row .purchase-button-wrap.is-disabled::after {
+  position: absolute;
+  z-index: 12;
+  right: 0;
+  bottom: calc(100% + 10px);
+  left: 0;
+  padding: 9px 11px;
+  color: #fff;
+  border-radius: 9px;
+  background: #12384e;
+  box-shadow: 0 10px 24px rgba(9, 47, 74, .2);
+  content: attr(data-tooltip);
+  font-size: .76rem;
+  font-weight: 650;
+  line-height: 1.35;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity .16s ease, transform .16s ease;
+}
+
+.product-purchase-row .purchase-button-wrap.is-disabled:hover::after,
+.product-purchase-row .purchase-button-wrap.is-disabled:focus-within::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.product-purchase-row .purchase-button-wrap.is-disabled > button {
+  cursor: not-allowed;
+}
+
+.purchase-validation {
+  margin: -5px 0 0;
+  color: #8a5b00;
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+/* Required choices stay gently visible until the shopper completes them. */
+.storefront-shell .is-required-pending {
+  animation: required-attention 1.35s ease-in-out infinite;
+}
+
+.storefront-shell select.is-required-pending,
+.storefront-shell input.is-required-pending {
+  border-color: rgba(26, 149, 197, .72);
+  box-shadow: 0 0 0 3px rgba(34, 187, 219, .13);
+}
+
+.checkout-submit-wrap {
+  position: relative;
+  display: block;
+}
+
+.checkout-submit-wrap.is-disabled::after {
+  position: absolute;
+  z-index: 12;
+  right: 0;
+  bottom: calc(100% + 9px);
+  left: 0;
+  padding: 9px 11px;
+  color: #fff;
+  border-radius: 9px;
+  background: #12384e;
+  box-shadow: 0 10px 24px rgba(9, 47, 74, .2);
+  content: attr(data-tooltip);
+  font-size: .76rem;
+  font-weight: 650;
+  line-height: 1.35;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity .16s ease, transform .16s ease;
+}
+
+.checkout-submit-wrap.is-disabled:hover::after,
+.checkout-submit-wrap.is-disabled:focus-within::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.checkout-submit-wrap.is-disabled > button {
+  cursor: not-allowed;
+}
+
+@keyframes required-attention {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.018); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .storefront-shell .is-required-pending { animation: none; }
+}
+
+@media (max-width: 560px) {
+  .product-purchase-row .purchase-button-wrap.is-disabled::after {
+    left: auto;
+    width: min(290px, calc(100vw - 48px));
+  }
+}
+
 @media (max-width: 680px) {
   .storefront-shell .store-nav-logo { gap: 9px; }
   .storefront-shell .store-logo-frame { width: 38px; height: 38px; flex-basis: 38px; border-radius: 12px; }
