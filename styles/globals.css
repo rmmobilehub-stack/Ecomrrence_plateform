@@ -4890,6 +4890,27 @@ body {
   cursor: not-allowed;
 }
 
+.product-purchase-row .purchase-button-wrap.is-ready-attention {
+  animation: purchase-ready 1.25s ease-in-out infinite;
+}
+
+.product-detail-price.is-price-updated {
+  animation: price-updated .72s ease-out;
+}
+
+.product-detail-price.is-required-attention {
+  animation: price-ready 1.25s ease-in-out infinite;
+}
+
+.store-contact-dock .floating-whatsapp,
+.store-contact-dock .chat-launcher:not(.open) {
+  animation: contact-attention 2.2s ease-in-out infinite;
+}
+
+.store-contact-dock .chat-launcher:not(.open) {
+  animation-delay: .45s;
+}
+
 .purchase-validation {
   margin: -5px 0 0;
   color: #8a5b00;
@@ -4949,8 +4970,34 @@ body {
   50% { transform: scale(1.018); }
 }
 
+@keyframes purchase-ready {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.025); filter: brightness(1.07); }
+}
+
+@keyframes price-updated {
+  0% { transform: scale(1); color: inherit; }
+  42% { transform: scale(1.08); color: #0b8dc0; }
+  100% { transform: scale(1); color: inherit; }
+}
+
+@keyframes price-ready {
+  0%, 100% { transform: scale(1); color: inherit; }
+  50% { transform: scale(1.04); color: #0b8dc0; }
+}
+
+@keyframes contact-attention {
+  0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 14px 32px rgba(19, 137, 72, .32); }
+  50% { transform: translateY(-4px) scale(1.055); box-shadow: 0 20px 40px rgba(12, 119, 158, .38); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .storefront-shell .is-required-pending { animation: none; }
+  .storefront-shell .is-required-pending,
+  .product-purchase-row .purchase-button-wrap.is-ready-attention,
+  .product-detail-price.is-price-updated,
+  .product-detail-price.is-required-attention,
+  .store-contact-dock .floating-whatsapp,
+  .store-contact-dock .chat-launcher:not(.open) { animation: none; }
 }
 
 @media (max-width: 560px) {
