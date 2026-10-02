@@ -1,9 +1,22 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { Figtree, Outfit } from 'next/font/google';
 import { getActiveStoreBySlug } from '@/lib/db';
 import { CartProvider } from '@/components/store/CartProvider';
 import StoreNav from '@/components/store/StoreNav';
 import { storefrontPath } from '@/lib/storefront-paths';
+
+const storeDisplay = Outfit({
+  subsets: ['latin'],
+  variable: '--font-store-display',
+  display: 'swap',
+});
+
+const storeSans = Figtree({
+  subsets: ['latin'],
+  variable: '--font-store-sans',
+  display: 'swap',
+});
 
 export async function generateMetadata({ params }: { params: { storeSlug: string } }): Promise<Metadata> {
   const store = await getActiveStoreBySlug(params.storeSlug);
@@ -36,7 +49,11 @@ export default async function StoreLayout({ children, params }: { children: Reac
   const storeTheme = storeAccent.toLowerCase() === '#2563eb' ? 'classic-blue' : 'custom';
 
   return <CartProvider slug={store.slug} currency={store.currency || 'PKR'}>
-    <div className="storefront-shell" data-store-theme={storeTheme} style={{ '--store-accent': storeAccent } as React.CSSProperties}>
+    <div
+      className={`storefront-shell ${storeDisplay.variable} ${storeSans.variable}`}
+      data-store-theme={storeTheme}
+      style={{ '--store-accent': storeAccent } as React.CSSProperties}
+    >
       <StoreNav slug={store.slug} homeHref={homeHref} name={store.name} logo={store.logo} announcement={store.announcement}/>
       {children}
       <footer className="store-footer">
