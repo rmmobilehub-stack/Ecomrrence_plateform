@@ -34,6 +34,7 @@ export interface Store {
   aboutTitle?: string;
   aboutDescription?: string;
   aboutImage?: string;
+  ads?: StoreAd[];
   primaryColor: string;
   currency: string;
   contactEmail: string;
@@ -49,6 +50,16 @@ export interface Store {
     youtube?: string;
     website?: string;
   };
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface StoreAd {
+  id: string;
+  type: 'image' | 'video';
+  title: string;
+  mediaUrl: string;
+  linkUrl?: string;
   isActive: boolean;
   createdAt: string;
 }
@@ -167,6 +178,49 @@ export interface Lead {
   source: 'chatbot';
   status: 'new' | 'contacted' | 'qualified' | 'closed';
   conversation: { role: 'visitor' | 'assistant'; message: string }[];
+  createdAt: string;
+}
+
+export interface RepairBookingCustomer {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  city: string;
+  notes?: string;
+  lat?: number;
+  lng?: number;
+}
+
+export interface RepairBookingDevice {
+  modelId: string;
+  modelName: string;
+  colorId: string;
+  colorName: string;
+  colorHex: string;
+  imageUrl: string;
+  simTypeId: string;
+  simTypeName: string;
+  simTypeDescription: string;
+}
+
+export interface RepairBookingIssue {
+  issueId: string;
+  issueName: string;
+  description: string;
+  detail?: string;
+}
+
+export interface RepairBooking {
+  id: string;
+  storeId: string;
+  bookingNumber: string;
+  customer: RepairBookingCustomer;
+  device: RepairBookingDevice;
+  issue: RepairBookingIssue;
+  preferredDate?: string;
+  preferredTime?: string;
+  status: 'pending' | 'confirmed' | 'scheduled' | 'completed' | 'cancelled';
   createdAt: string;
 }
 

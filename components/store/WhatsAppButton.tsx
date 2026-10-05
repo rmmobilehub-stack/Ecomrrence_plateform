@@ -11,5 +11,6 @@ export function WhatsAppMark() {
 export default function WhatsAppButton({ number, message, label, className = '' }: Props) {
   const url = createWhatsAppUrl(number, message);
   if (!url) return null;
-  return <a className={`whatsapp-btn ${className}`} href={url} target="_blank" rel="noreferrer"><WhatsAppMark/>{label}</a>;
+  // whatsapp:// opens the installed WhatsApp app — avoid target=_blank (that pushes Web)
+  return <a className={`whatsapp-btn ${className}`} href={url} rel="noreferrer"><WhatsAppMark/>{label}</a>;
 }

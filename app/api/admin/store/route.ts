@@ -29,7 +29,7 @@ export async function PUT(req: NextRequest) {
   const body = await req.json();
   const allowedFields: (keyof Store)[] = [
     'name', 'slug', 'description', 'logo', 'banner', 'heroSlides', 'heroTitle', 'heroCtaLabel', 'announcement',
-    'aboutTitle', 'aboutDescription', 'aboutImage',
+    'aboutTitle', 'aboutDescription', 'aboutImage', 'ads',
     'primaryColor', 'currency', 'contactEmail', 'whatsappNumber', 'contactWidgetMode', 'deliveryFee', 'freeDeliveryThreshold', 'socialLinks', 'isActive',
   ];
 
@@ -38,6 +38,24 @@ export async function PUT(req: NextRequest) {
     if (body[field] !== undefined) {
       (updates as Record<string, unknown>)[field] = body[field];
     }
+  }
+
+  if (updates.ads !== undefined) {
+    if (!Array.isArray(updates.ads)) {
+      return NextResponse.json({ error: 'Ads must be a list' }, { status: 400 });
+    }
+    updates.ads = updates.ads
+      .map((ad) => ({
+        id: String(ad?.id || ''),
+        type: ad?.type === 'video' ? 'video' as const : 'image' as const,
+        title: String(ad?.title || '').trim().slice(0, 120),
+        mediaUrl: String(ad?.mediaUrl || '').trim(),
+        linkUrl: String(ad?.linkUrl || '').trim(),
+        isActive: Boolean(ad?.isActive),
+        createdAt: String(ad?.createdAt || new Date().toISOString()),
+      }))
+      .filter((ad) => ad.id && ad.mediaUrl)
+      .slice(0, 12);
   }
 
   if (updates.whatsappNumber !== undefined) {

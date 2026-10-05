@@ -45,6 +45,7 @@ export default async function StoreLayout({ children, params }: { children: Reac
   if (!store) notFound();
   const homeHref = storefrontPath(store.slug);
   const productsHref = storefrontPath(store.slug, 'products');
+  const repairHref = storefrontPath(store.slug, 'repair');
   const storeAccent = /^#[0-9a-f]{6}$/i.test(store.primaryColor) ? store.primaryColor : '#2563eb';
   const storeTheme = storeAccent.toLowerCase() === '#2563eb' ? 'classic-blue' : 'custom';
 
@@ -58,7 +59,7 @@ export default async function StoreLayout({ children, params }: { children: Reac
       {children}
       <footer className="store-footer">
         <div><strong>{store.name}</strong><span>{store.description}</span></div>
-        <nav><a href={homeHref}>Home</a><a href={productsHref}>Shop</a><a href={`${homeHref}#about`}>About</a></nav>
+        <nav><a href={homeHref}>Home</a><a href={productsHref}>Shop</a><a href={repairHref}>iPhone Repair</a><a href={`${homeHref}#about`}>About</a></nav>
         <small>© {new Date().getFullYear()} {store.name}</small>
       </footer>
     </div>

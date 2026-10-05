@@ -44,8 +44,6 @@ export default function AddToCart({ product, storeSlug, storeName, whatsappNumbe
   };
   const openWhatsAppOrder = async () => {
     if (unavailable || !whatsappPhone || openingWhatsApp) return;
-    const popup = window.open('', '_blank');
-    if (popup) popup.opener = null;
     setOpeningWhatsApp(true); setWhatsappError('');
     try {
       const response = await fetch(`/api/store/${storeSlug}/whatsapp-order`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ productId: product.id, qty, selectedVariants: choices }) });
@@ -55,10 +53,9 @@ export default function AddToCart({ product, storeSlug, storeName, whatsappNumbe
       const message = [`*WhatsApp order request: ${data.order.orderNumber}*`, `*Store:* ${storeName}`, '', `Product: ${product.name}`, `Quantity: ${qty}`, `Price: ${formatMoney(data.order.total, currency)}`, itemChoices ? `Options: ${itemChoices}` : '', '', 'Please share your name, phone number and delivery address to confirm this order.'].filter(Boolean).join('\n');
       const url = createWhatsAppUrl(whatsappPhone, message);
       if (!url) throw new Error('The store WhatsApp number is not configured correctly');
-      if (popup) popup.location.href = url;
-      else window.location.href = url;
+      window.location.href = url;
     } catch (error) {
-      popup?.close(); setWhatsappError(error instanceof Error ? error.message : 'Could not start WhatsApp order');
+      setWhatsappError(error instanceof Error ? error.message : 'Could not start WhatsApp order');
     } finally { setOpeningWhatsApp(false); }
   };
 

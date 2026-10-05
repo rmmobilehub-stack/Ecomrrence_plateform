@@ -10,7 +10,17 @@ export function isValidWhatsAppNumber(value?: string): boolean {
   return digits.length >= 8 && digits.length <= 15;
 }
 
+/** Opens the WhatsApp app (mobile / desktop), not WhatsApp Web. */
 export function createWhatsAppUrl(number: string | undefined, message: string): string {
   const phone = normalizeWhatsAppNumber(number);
-  return isValidWhatsAppNumber(phone) ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}` : '';
+  return isValidWhatsAppNumber(phone)
+    ? `whatsapp://send?phone=${phone}&text=${encodeURIComponent(message)}`
+    : '';
+}
+
+export function openWhatsAppApp(number: string | undefined, message: string): boolean {
+  const url = createWhatsAppUrl(number, message);
+  if (!url || typeof window === 'undefined') return false;
+  window.location.href = url;
+  return true;
 }

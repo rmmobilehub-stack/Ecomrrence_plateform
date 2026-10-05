@@ -13,6 +13,7 @@ const TABLE_BY_COLLECTION = {
   'notifications': 'notifications',
   'discounts': 'discounts',
   'leads': 'leads',
+  'repair-bookings': 'repair_bookings',
 } as const;
 
 type Collection = keyof typeof TABLE_BY_COLLECTION;

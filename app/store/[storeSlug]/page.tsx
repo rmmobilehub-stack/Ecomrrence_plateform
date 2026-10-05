@@ -6,6 +6,7 @@ import { getActiveProductsForStore, getActiveStoreBySlug } from '@/lib/db';
 import type { Store } from '@/lib/types';
 import ProductCard from '@/components/store/ProductCard';
 import HeroProductSlider, { type HeroSlide } from '@/components/store/HeroProductSlider';
+import AdsBanner from '@/components/store/AdsBanner';
 import LeadChatbot from '@/components/store/LeadChatbot';
 import WhatsAppButton from '@/components/store/WhatsAppButton';
 import Reveal from '@/components/store/Reveal';
@@ -122,6 +123,8 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
         </div>
       </div>
     </section>
+
+    <AdsBanner ads={store.ads} />
 
     <section className="store-section featured-section">
       <div className="section-heading">

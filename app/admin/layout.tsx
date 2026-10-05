@@ -1,11 +1,11 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BarChart3, Boxes, LayoutDashboard, LogOut, Menu, MessageCircle, Package, Settings, Store, Tags, Users, X } from 'lucide-react';
+import { BarChart3, Boxes, LayoutDashboard, LogOut, Megaphone, Menu, MessageCircle, Package, Settings, Store, Tags, Users, Wrench, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import NotificationBell from '@/components/admin/NotificationBell';
 import BrandMark from '@/components/ui/BrandMark';
-const navigation = [['/admin', 'Dashboard', LayoutDashboard], ['/admin/brand', 'Brand', Store], ['/admin/store', 'Store settings', Settings], ['/admin/products', 'Products', Package], ['/admin/categories', 'Categories', Tags], ['/admin/orders', 'Orders', Boxes], ['/admin/leads', 'Leads', MessageCircle], ['/admin/customers', 'Customers', Users], ['/admin/discounts', 'Discounts', Tags], ['/admin/analytics', 'Analytics', BarChart3]] as const;
+const navigation = [['/admin', 'Dashboard', LayoutDashboard], ['/admin/brand', 'Brand', Store], ['/admin/store', 'Store settings', Settings], ['/admin/ads', 'Ads', Megaphone], ['/admin/products', 'Products', Package], ['/admin/categories', 'Categories', Tags], ['/admin/orders', 'Orders', Boxes], ['/admin/repair', 'Repair', Wrench], ['/admin/leads', 'Leads', MessageCircle], ['/admin/customers', 'Customers', Users], ['/admin/discounts', 'Discounts', Tags], ['/admin/analytics', 'Analytics', BarChart3]] as const;
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname(); const router = useRouter(); const [name, setName] = useState('Store Admin'); const [storeName, setStoreName] = useState('Your Store'); const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => { Promise.all([fetch('/api/auth/me').then(response => response.ok ? response.json() : null), fetch('/api/admin/store').then(response => response.ok ? response.json() : null)]).then(([userData, storeData]) => { if (userData?.user) setName(userData.user.name); if (storeData?.store) setStoreName(storeData.store.name); }); }, []);
