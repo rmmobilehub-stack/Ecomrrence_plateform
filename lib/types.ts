@@ -128,6 +128,13 @@ export interface CustomerInfo {
   notes?: string;
 }
 
+export interface StatusNotifyEntry {
+  status: string;
+  note: string;
+  at: string;
+  emailSent: boolean;
+}
+
 export interface Order {
   id: string;
   storeId: string;
@@ -143,6 +150,8 @@ export interface Order {
   paymentMethod: 'COD';
   channel?: 'website' | 'whatsapp';
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  adminNote?: string;
+  statusUpdates?: StatusNotifyEntry[];
   createdAt: string;
 }
 
@@ -211,6 +220,29 @@ export interface RepairBookingIssue {
   detail?: string;
 }
 
+export interface RepairDeviceCondition {
+  screenCondition: 'all_neat' | 'some_scratches' | 'many_scratches';
+  bodyFlags: Array<'scratches' | 'side_rough' | 'body_changed' | 'back_glass_changed'>;
+  partsChanged: Array<'glass' | 'battery' | 'front_camera' | 'back_camera'>;
+  overallOutOf10: number;
+  batteryHealthPercent: number;
+  ageYears: number;
+  ownership: 'first_owner' | 'box_pack' | 'used' | 'non_active';
+  additionalNote?: string;
+}
+
+export interface RepairDeviceEstimate {
+  score: number;
+  scoreLabel: string;
+  marketValueMinPkr: number;
+  marketValueMaxPkr: number;
+  currency: 'PKR';
+  summary: string;
+  suggestions: string[];
+  buySuggestions?: string[];
+  source: 'rules';
+}
+
 export interface RepairBooking {
   id: string;
   storeId: string;
@@ -221,6 +253,10 @@ export interface RepairBooking {
   preferredDate?: string;
   preferredTime?: string;
   status: 'pending' | 'confirmed' | 'scheduled' | 'completed' | 'cancelled';
+  adminNote?: string;
+  statusUpdates?: StatusNotifyEntry[];
+  deviceCondition?: RepairDeviceCondition;
+  deviceEstimate?: RepairDeviceEstimate;
   createdAt: string;
 }
 

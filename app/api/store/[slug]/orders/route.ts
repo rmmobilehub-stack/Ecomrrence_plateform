@@ -4,6 +4,8 @@ import { readDb, insertOne, updateOne } from '@/lib/db';
 import type { Store, Admin, Order, Notification, OrderItem, Product, Discount } from '@/lib/types';
 import { calculateDeliveryFee, calculateProductPrice } from '@/lib/pricing';
 import { formatMoney } from '@/lib/currency';
+import { buildStatusNotifyMessage } from '@/lib/customer-notify';
+import { sendCustomerEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
   try {
@@ -109,6 +111,21 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
       return insertOne<Notification>('notifications', notification);
     }));
 
+    const confirmationMessage = buildStatusNotifyMessage({
+      storeName: store.name,
+      referenceLabel: 'Order',
+      referenceNumber: orderNumber,
+      customerName: customer.name,
+      status: 'received',
+      extraLines: [`Total: ${formatMoney(total, store.currency)}`, 'We will contact you to confirm delivery.'],
+    });
+    const emailResult = await sendCustomerEmail({
+      to: customer.email,
+      subject: `${store.name}: we received order ${orderNumber}`,
+      text: confirmationMessage,
+      brandName: store.name,
+    });
+
     return NextResponse.json({
       success: true,
       order: {
@@ -127,6 +144,8 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
       whatsappNumber: store.whatsappNumber ?? '',
       storeName: store.name,
       currency: store.currency || 'PKR',
+      emailSent: emailResult.sent,
+      emailReason: emailResult.reason,
     }, { status: 201 });
   } catch (error) {
     console.error('Order error:', error);

@@ -1,11 +1,19 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { CheckCircle2, Phone, ShieldCheck, Smartphone, Wrench } from 'lucide-react';
+import { CheckCircle2, Phone, ShieldCheck, Smartphone, Sparkles, Wrench } from 'lucide-react';
 import type { RepairIssue, RepairModel } from '@/lib/iphone-repair-catalog';
+import type { DeviceConditionInput, DeviceEstimate } from '@/lib/device-estimate';
+import { DEFAULT_DEVICE_CONDITION } from '@/lib/device-estimate';
 import { createWhatsAppUrl, isValidWhatsAppNumber } from '@/lib/whatsapp';
 import { WhatsAppMark } from '@/components/store/WhatsAppButton';
+import { REPAIR_BRAND_OPTIONS, RepairBrandMark } from '@/components/store/RepairBrandMarks';
+import DeviceConditionFields from '@/components/store/DeviceConditionFields';
+import DeviceEstimateCard from '@/components/store/DeviceEstimateCard';
+import PriceReassureModal from '@/components/store/PriceReassureModal';
+import { storefrontPath } from '@/lib/storefront-paths';
 
 const DoorstepLocationPicker = dynamic(() => import('@/components/store/DoorstepLocationPicker'), {
   ssr: false,
@@ -24,6 +32,16 @@ type SimOption = { id: string; name: string; description: string };
 type Preview = { modelName: string; colorName: string; colorHex: string };
 type RepairBrandId = 'apple';
 
+function formatPkr(value: number) {
+  return `PKR ${value.toLocaleString('en-PK')}`;
+}
+
+function scrollToRepairStep(stepId: string) {
+  window.setTimeout(() => {
+    document.getElementById(stepId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 90);
+}
+
 function isLightColor(hex: string) {
   const raw = hex.replace('#', '');
   const full = raw.length === 3 ? raw.split('').map((ch) => ch + ch).join('') : raw;
@@ -33,14 +51,21 @@ function isLightColor(hex: string) {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.72;
 }
 
-function AppleMark({ size = 42 }: { size?: number }) {
+function RepairHeading({ kicker, title, accent, sub }: { kicker: string; title: string; accent?: string; sub: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden focusable="false">
-      <path
-        fill="currentColor"
-        d="M16.37 12.75c-.03-2.12 1.73-3.14 1.81-3.19-1-1.45-2.54-1.65-3.08-1.67-1.31-.13-2.56.77-3.22.77-.67 0-1.7-.75-2.8-.73-1.44.02-2.77.84-3.51 2.13-1.5 2.6-.38 6.45 1.08 8.56.71 1.03 1.56 2.19 2.68 2.15 1.08-.04 1.49-.69 2.79-.69 1.3 0 1.66.69 2.8.67 1.16-.02 1.89-1.05 2.59-2.09.82-1.19 1.16-2.34 1.18-2.4-.03-.01-2.25-.86-2.28-3.41ZM14.7 6.53c.58-.71.98-1.69.87-2.67-.84.03-1.86.56-2.47 1.27-.54.62-1.02 1.62-.89 2.57.94.07 1.91-.48 2.49-1.17Z"
-      />
-    </svg>
+    <header className="repair-panel-head">
+      <p className="repair-panel-kicker">{kicker}</p>
+      <h2>
+        {title}
+        {accent ? (
+          <>
+            {' '}
+            <span className="section-title-accent">{accent}</span>
+          </>
+        ) : null}
+      </h2>
+      <p className="repair-panel-sub">{sub}</p>
+    </header>
   );
 }
 
@@ -69,10 +94,18 @@ export default function RepairBookingFlow({
   const [issueId, setIssueId] = useState('');
   const [preview, setPreview] = useState<Preview | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showProceedModal, setShowProceedModal] = useState(false);
+  const [showPriceReassure, setShowPriceReassure] = useState(false);
+  const [priceReassureSeen, setPriceReassureSeen] = useState(false);
   const [error, setError] = useState('');
   const [done, setDone] = useState<{ bookingNumber: string } | null>(null);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [issueDetails, setIssueDetails] = useState<Record<string, string>>({});
+  const [condition, setCondition] = useState<DeviceConditionInput>(DEFAULT_DEVICE_CONDITION);
+  const [estimate, setEstimate] = useState<DeviceEstimate | null>(null);
+  const [estimating, setEstimating] = useState(false);
+  const [estimateError, setEstimateError] = useState('');
+  const [editCondition, setEditCondition] = useState(false);
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -99,6 +132,9 @@ export default function RepairBookingFlow({
       selectedSim ? `SIM: ${selectedSim.name}` : '',
       selectedIssue ? `Issue: ${selectedIssue.name}` : '',
       selectedIssueDetail ? `Issue detail: ${selectedIssueDetail}` : '',
+      estimate
+        ? `Device score: ${estimate.score}/100 · Market worth ~ ${formatPkr(estimate.marketValueMinPkr)}–${formatPkr(estimate.marketValueMaxPkr)}`
+        : '',
       form.name ? `Name: ${form.name}` : '',
       form.phone ? `Phone: ${form.phone}` : '',
       form.address || form.city ? `Address: ${[form.address, form.city].filter(Boolean).join(', ')}` : '',
@@ -111,10 +147,37 @@ export default function RepairBookingFlow({
       'Please confirm doorstep repair availability.',
     ].filter((line) => line !== '');
     return lines.join('\n');
-  }, [storeName, selectedModel, selectedColor, selectedSim, selectedIssue, selectedIssueDetail, form, coords]);
+  }, [storeName, selectedModel, selectedColor, selectedSim, selectedIssue, selectedIssueDetail, estimate, form, coords]);
 
   const whatsappHref = hasWhatsApp ? createWhatsAppUrl(whatsappNumber, repairWhatsAppMessage) : '';
 
+  useEffect(() => {
+    setEstimate(null);
+    setEstimateError('');
+  }, [
+    modelId,
+    colorId,
+    issueId,
+    condition.screenCondition,
+    condition.bodyFlags,
+    condition.partsChanged,
+    condition.overallOutOf10,
+    condition.batteryHealthPercent,
+    condition.ageYears,
+    condition.ownership,
+    condition.additionalNote,
+    selectedIssueDetail,
+  ]);
+
+  const selectIssue = (nextIssueId: string, options?: { skipScroll?: boolean }) => {
+    setError('');
+    setIssueId(nextIssueId);
+    if (!priceReassureSeen) {
+      setShowPriceReassure(true);
+      return;
+    }
+    if (!options?.skipScroll) scrollToRepairStep('repair-step-confirm');
+  };
   useEffect(() => {
     if (!modelId || !colorId) return void setPreview(null);
     let cancelled = false;
@@ -128,11 +191,65 @@ export default function RepairBookingFlow({
     };
   }, [slug, modelId, colorId]);
 
-  const submit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setError('');
+  const validateBeforeBooking = () => {
     if (!modelId || !colorId || !simTypeId || !issueId) {
-      return setError('Complete your phone, colour, SIM configuration and repair issue first.');
+      setError('Complete your phone, colour, SIM configuration and repair issue first.');
+      return false;
+    }
+    if (!estimate) {
+      setError('Check your phone score and market worth before placing the repair order.');
+      return false;
+    }
+    if (!form.name.trim() || !form.phone.trim() || !form.city.trim() || !form.address.trim()) {
+      setError('Please fill in your name, phone, city and doorstep address.');
+      return false;
+    }
+    setError('');
+    return true;
+  };
+
+  const runDeviceEstimate = async () => {
+    if (!modelId || !colorId || !issueId) {
+      setEstimateError('Select model, colour and issue first.');
+      return;
+    }
+    setEstimating(true);
+    setEstimateError('');
+    try {
+      const response = await fetch(`/api/store/${slug}/repair/estimate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          modelId,
+          colorId,
+          issueId,
+          issueDetail: selectedIssueDetail,
+          condition,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.estimate) throw new Error(data.error || 'Could not estimate device value');
+      setEstimate(data.estimate as DeviceEstimate);
+      setEditCondition(false);
+      scrollToRepairStep('repair-step-score');
+    } catch (err) {
+      setEstimate(null);
+      setEstimateError(err instanceof Error ? err.message : 'Could not estimate device value');
+    } finally {
+      setEstimating(false);
+    }
+  };
+
+  const requestPlaceOrder = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!validateBeforeBooking()) return;
+    setShowProceedModal(true);
+  };
+
+  const placeRepairOrder = async () => {
+    if (!validateBeforeBooking()) {
+      setShowProceedModal(false);
+      return;
     }
     setSubmitting(true);
     try {
@@ -146,53 +263,36 @@ export default function RepairBookingFlow({
           simTypeId,
           issueId,
           issueDetail: selectedIssueDetail,
+          deviceCondition: condition,
+          deviceEstimate: estimate,
           ...(coords ? { lat: coords.lat, lng: coords.lng } : {}),
         }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Could not place repair order');
+      setShowProceedModal(false);
       setDone({ bookingNumber: data.booking?.bookingNumber || 'REP' });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not place repair order');
+      setShowProceedModal(false);
     } finally {
       setSubmitting(false);
     }
   };
 
   if (done) {
-    const successMessage = [
-      `*Repair order placed: ${done.bookingNumber}*`,
-      `*Store:* ${storeName}`,
-      `Name: ${form.name}`,
-      `Phone: ${form.phone}`,
-      `Address: ${form.address}, ${form.city}`,
-      coords ? `Map: https://maps.google.com/?q=${coords.lat},${coords.lng}` : '',
-      selectedModel ? `Model: ${selectedModel.name}` : '',
-      selectedColor ? `Colour: ${selectedColor.name}` : '',
-      selectedIssue ? `Issue: ${selectedIssue.name}` : '',
-      selectedIssueDetail ? `Issue detail: ${selectedIssueDetail}` : '',
-      '',
-      'Please confirm this doorstep repair.',
-    ]
-      .filter(Boolean)
-      .join('\n');
-    const successWhatsApp = hasWhatsApp ? createWhatsAppUrl(whatsappNumber, successMessage) : '';
-
     return (
       <section className="repair-page">
         <div className="repair-success glass-card">
           <CheckCircle2 size={34} />
-          <h2>Repair order placed</h2>
+          <h2>Repair request received</h2>
           <p>
-            Order <strong>{done.bookingNumber}</strong> is saved. {storeName} will call <strong>{form.phone}</strong> to
-            confirm the visit.
+            Booking <strong>{done.bookingNumber}</strong> is saved. Our inspection team will contact you on{' '}
+            <strong>{form.phone}</strong>
+            {form.email ? <> or <strong>{form.email}</strong></> : null} to guide you on your device and share the
+            final repair estimate. <strong>No payment is due now.</strong>
           </p>
-          {successWhatsApp ? (
-            <a className="whatsapp-btn repair-whatsapp-btn" href={successWhatsApp} rel="noreferrer">
-              <WhatsAppMark />
-              WhatsApp
-            </a>
-          ) : null}
+          <Link className="btn btn-primary" href={storefrontPath(slug, 'products')}>Continue shopping</Link>
         </div>
       </section>
     );
@@ -224,32 +324,57 @@ export default function RepairBookingFlow({
         </div>
       </div>
 
-      <form className="repair-one-page-form" onSubmit={(event) => void submit(event)}>
-        <div className="repair-panel">
-          <h2>Choose brand</h2>
-          <p className="repair-panel-sub">Select the brand of the phone you want repaired.</p>
+      <form className="repair-one-page-form" onSubmit={requestPlaceOrder}>
+        <div className="repair-panel" id="repair-step-brand">
+          <RepairHeading
+            kicker="Brand"
+            title="Choose your"
+            accent="brand"
+            sub="Apple is available now. More brands open soon."
+          />
           <div className="repair-brand-grid">
-            <button
-              type="button"
-              className={`repair-brand-card ${brandId === 'apple' ? 'is-selected' : ''}`}
-              onClick={() => {
-                setError('');
-                setBrandId('apple');
-              }}
-            >
-              <span className="repair-brand-logo" aria-hidden>
-                <AppleMark />
-              </span>
-              <strong>Apple</strong>
-              <small>iPhone doorstep repair</small>
-            </button>
+            {REPAIR_BRAND_OPTIONS.map((brand) =>
+              brand.available ? (
+                <button
+                  key={brand.id}
+                  type="button"
+                  className={`repair-brand-card ${brandId === brand.id ? 'is-selected' : ''}`}
+                  onClick={() => {
+                    setError('');
+                    setBrandId(brand.id as RepairBrandId);
+                    scrollToRepairStep('repair-step-model');
+                  }}
+                >
+                  <span className={`repair-brand-logo repair-brand-logo--${brand.id}`} aria-hidden>
+                    <RepairBrandMark id={brand.id} />
+                  </span>
+                  <strong>{brand.name}</strong>
+                  <small>{brand.blurb}</small>
+                </button>
+              ) : (
+                <div key={brand.id} className="repair-brand-card is-coming-soon" aria-disabled="true">
+                  <span className={`repair-brand-logo repair-brand-logo--${brand.id}`} aria-hidden>
+                    <RepairBrandMark id={brand.id} />
+                  </span>
+                  <strong>{brand.name}</strong>
+                  <small>{brand.blurb}</small>
+                  <span className="repair-brand-soon" aria-hidden="true">
+                    <span className="repair-brand-soon-badge">Coming soon</span>
+                  </span>
+                </div>
+              )
+            )}
           </div>
         </div>
 
         {brandId === 'apple' && (
-          <div className="repair-panel">
-            <h2>Choose your iPhone</h2>
-            <p className="repair-panel-sub">Select the exact model you want repaired.</p>
+          <div className="repair-panel" id="repair-step-model">
+            <RepairHeading
+              kicker="Model"
+              title="Choose your"
+              accent="iPhone"
+              sub="Select the exact model you want repaired."
+            />
             <div className="repair-model-grid">
               {models.map((model) => (
                 <button
@@ -260,6 +385,7 @@ export default function RepairBookingFlow({
                     setError('');
                     setModelId(model.id);
                     setColorId('');
+                    scrollToRepairStep('repair-step-colour');
                   }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -283,9 +409,13 @@ export default function RepairBookingFlow({
         )}
 
         {brandId === 'apple' && selectedModel && (
-          <div className="repair-panel">
-            <h2>Choose the exact colour</h2>
-            <p className="repair-panel-sub">Select the colour currently on your {selectedModel.name}.</p>
+          <div className="repair-panel" id="repair-step-colour">
+            <RepairHeading
+              kicker="Colour"
+              title="Choose the exact"
+              accent="colour"
+              sub={`Select the colour currently on your ${selectedModel.name}.`}
+            />
             <div className="repair-color-grid">
               {selectedModel.colors.map((color) => (
                 <button
@@ -295,6 +425,7 @@ export default function RepairBookingFlow({
                   onClick={() => {
                     setError('');
                     setColorId(color.id);
+                    scrollToRepairStep('repair-step-sim');
                   }}
                 >
                   <span
@@ -310,9 +441,13 @@ export default function RepairBookingFlow({
         )}
 
         {selectedModel && selectedColor && (
-          <div className="repair-panel">
-            <h2>SIM configuration</h2>
-            <p className="repair-panel-sub">Choose the SIM setup in this phone so the technician can protect your connection.</p>
+          <div className="repair-panel" id="repair-step-sim">
+            <RepairHeading
+              kicker="SIM"
+              title="SIM"
+              accent="configuration"
+              sub="Choose the SIM setup in this phone so the technician can protect your connection."
+            />
             <div className="repair-sim-grid">
               {simOptions.map((option) => (
                 <button
@@ -322,6 +457,7 @@ export default function RepairBookingFlow({
                   onClick={() => {
                     setError('');
                     setSimTypeId(option.id);
+                    scrollToRepairStep('repair-step-issue');
                   }}
                 >
                   <Smartphone size={19} />
@@ -334,17 +470,19 @@ export default function RepairBookingFlow({
         )}
 
         {selectedModel && selectedColor && simTypeId && (
-          <div className="repair-panel">
-            <h2>What needs repair?</h2>
+          <div className="repair-panel" id="repair-step-issue">
+            <RepairHeading
+              kicker="Issue"
+              title="What needs"
+              accent="repair?"
+              sub="Tell us what’s wrong so we bring the right parts."
+            />
             <div className="repair-issue-list">
               {issues.map((issue) => (
                 <div
                   key={issue.id}
                   className={`repair-issue-card ${issueId === issue.id ? 'is-selected' : ''}`}
-                  onClick={() => {
-                    setError('');
-                    setIssueId(issue.id);
-                  }}
+                  onClick={() => selectIssue(issue.id)}
                 >
                   <strong>{issue.name}</strong>
                   <span>{issue.description}</span>
@@ -355,14 +493,11 @@ export default function RepairBookingFlow({
                     placeholder="Explain your issue briefly…"
                     value={issueDetails[issue.id] || ''}
                     onClick={(event) => event.stopPropagation()}
-                    onFocus={() => {
-                      setError('');
-                      setIssueId(issue.id);
-                    }}
+                    onFocus={() => selectIssue(issue.id, { skipScroll: true })}
                     onKeyDown={(event) => event.stopPropagation()}
                     onChange={(event) => {
                       const value = event.target.value;
-                      setIssueId(issue.id);
+                      selectIssue(issue.id, { skipScroll: true });
                       setIssueDetails((prev) => ({ ...prev, [issue.id]: value }));
                     }}
                   />
@@ -373,123 +508,259 @@ export default function RepairBookingFlow({
         )}
 
         {selectedModel && selectedColor && selectedSim && selectedIssue && (
-          <>
-            <div className="repair-panel">
-              <h2>Confirm your device</h2>
-              <p className="repair-panel-sub">The technician will receive these exact details.</p>
-              <div className="repair-preview-card repair-preview-colorful">
+          <div className="repair-panel repair-panel-compact" id="repair-step-confirm">
+            <RepairHeading
+              kicker="Confirm"
+              title="Confirm your"
+              accent="device"
+              sub="The technician will receive these exact details."
+            />
+            <div className={`repair-confirm-score-row${estimate ? ' has-score' : ''}`}>
+              <div className="repair-preview-card repair-preview-colorful repair-preview-compact repair-device-summary">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img className="repair-preview-model-img" src={selectedModel.imageUrl} alt={selectedModel.name} />
                 <div className="repair-preview-meta">
                   <strong>{preview?.modelName || selectedModel.name}</strong>
-                  <span>Colour: {preview?.colorName || selectedColor.name}</span>
-                  <span>SIM: {selectedSim.name}</span>
-                  <span>Issue: {selectedIssue.name}</span>
-                  {selectedIssueDetail ? <span>Detail: {selectedIssueDetail}</span> : null}
-                  <span className="repair-preview-swatch" style={{ background: preview?.colorHex || selectedColor.hex }} />
+                  <div className="repair-device-facts">
+                    <div className="repair-device-fact">
+                      <span>Colour</span>
+                      <strong>
+                        <span className="repair-preview-swatch" style={{ background: preview?.colorHex || selectedColor.hex }} />
+                        {preview?.colorName || selectedColor.name}
+                      </strong>
+                    </div>
+                    <div className="repair-device-fact">
+                      <span>SIM</span>
+                      <strong>{selectedSim.name}</strong>
+                    </div>
+                    <div className="repair-device-fact">
+                      <span>Issue</span>
+                      <strong>{selectedIssue.name}</strong>
+                    </div>
+                    {selectedIssueDetail ? (
+                      <div className="repair-device-fact">
+                        <span>Detail</span>
+                        <strong>{selectedIssueDetail}</strong>
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
               </div>
+
+              {estimate ? (
+                <div id="repair-step-score" className="repair-confirm-score-side">
+                  <DeviceEstimateCard estimate={estimate} compact />
+                </div>
+              ) : null}
             </div>
 
-            <div className="repair-panel">
-              <h2>Doorstep details</h2>
-              <p className="repair-panel-sub">Where should we come for the repair?</p>
-              <div className="repair-form-grid">
-                <label>
-                  <span>Full name</span>
-                  <input
-                    className="form-input"
-                    required
-                    value={form.name}
-                    onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-                  />
-                </label>
-                <label>
-                  <span>Phone</span>
-                  <input
-                    className="form-input"
-                    required
-                    value={form.phone}
-                    onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))}
-                  />
-                </label>
-                <label>
-                  <span>Email (optional)</span>
-                  <input
-                    className="form-input"
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
-                  />
-                </label>
-                <label>
-                  <span>City</span>
-                  <input
-                    className="form-input"
-                    required
-                    value={form.city}
-                    onChange={(e) => setForm((prev) => ({ ...prev, city: e.target.value }))}
-                  />
-                </label>
-
-                <div className="repair-span">
-                  <DoorstepLocationPicker
-                    address={form.address}
-                    city={form.city}
-                    onAddressChange={(address) => setForm((prev) => ({ ...prev, address }))}
-                    onCityChange={(city) => setForm((prev) => ({ ...prev, city }))}
-                    onLocationChange={setCoords}
-                  />
+            {!estimate || editCondition ? (
+              <div className="repair-score-inputs">
+                <p className="device-condition-label">Condition for score</p>
+                <DeviceConditionFields
+                  value={condition}
+                  onChange={setCondition}
+                  hideHero
+                />
+                <div className="repair-estimate-actions">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={estimating}
+                    onClick={() => void runDeviceEstimate()}
+                  >
+                    <Sparkles size={16} />
+                    {estimating ? 'Calculating…' : estimate ? 'Update score' : 'Get score & market worth'}
+                  </button>
+                  {estimate && editCondition ? (
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setEditCondition(false)}
+                    >
+                      Cancel
+                    </button>
+                  ) : null}
                 </div>
-
-                <label>
-                  <span>Preferred date</span>
-                  <input
-                    className="form-input"
-                    type="date"
-                    value={form.preferredDate}
-                    onChange={(e) => setForm((prev) => ({ ...prev, preferredDate: e.target.value }))}
-                  />
-                </label>
-                <label>
-                  <span>Preferred time</span>
-                  <input
-                    className="form-input"
-                    type="time"
-                    value={form.preferredTime}
-                    onChange={(e) => setForm((prev) => ({ ...prev, preferredTime: e.target.value }))}
-                  />
-                </label>
-                <label className="repair-span">
-                  <span>Notes</span>
-                  <textarea
-                    className="form-input"
-                    rows={2}
-                    placeholder="Gate code, landmark, extra details…"
-                    value={form.notes}
-                    onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}
-                  />
-                </label>
+                {estimateError ? <p className="form-error repair-error">{estimateError}</p> : null}
               </div>
-
-              <div className="repair-submit-row">
-                <button className="btn btn-primary btn-lg" disabled={submitting} type="submit">
-                  <Phone size={16} />
-                  {submitting ? 'Placing order…' : 'Place repair order'}
+            ) : (
+              <div className="repair-score-inputs is-collapsed">
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => setEditCondition(true)}
+                >
+                  Edit condition & recalculate
                 </button>
-                {whatsappHref ? (
-                  <a className="whatsapp-btn repair-whatsapp-btn" href={whatsappHref} rel="noreferrer">
-                    <WhatsAppMark />
-                    WhatsApp
-                  </a>
-                ) : null}
               </div>
+            )}
+          </div>
+        )}
+
+        {selectedModel && selectedColor && selectedSim && selectedIssue && estimate && (
+          <div className="repair-panel repair-panel-compact" id="repair-step-visit">
+            <RepairHeading
+              kicker="Visit"
+              title="Doorstep"
+              accent="details"
+              sub="Where should we come for the repair?"
+            />
+            <div className="repair-form-grid">
+              <label>
+                <span>Full name</span>
+                <input
+                  className="form-input"
+                  required
+                  value={form.name}
+                  onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+                />
+              </label>
+              <label>
+                <span>Phone</span>
+                <input
+                  className="form-input"
+                  required
+                  value={form.phone}
+                  onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))}
+                />
+              </label>
+              <label>
+                <span>Email (for booking confirmation)</span>
+                <input
+                  className="form-input"
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+                />
+              </label>
+              <label>
+                <span>City</span>
+                <input
+                  className="form-input"
+                  required
+                  value={form.city}
+                  onChange={(e) => setForm((prev) => ({ ...prev, city: e.target.value }))}
+                />
+              </label>
+
+              <div className="repair-span">
+                <DoorstepLocationPicker
+                  address={form.address}
+                  city={form.city}
+                  onAddressChange={(address) => setForm((prev) => ({ ...prev, address }))}
+                  onCityChange={(city) => setForm((prev) => ({ ...prev, city }))}
+                  onLocationChange={setCoords}
+                />
+              </div>
+
+              <label>
+                <span>Preferred date</span>
+                <input
+                  className="form-input"
+                  type="date"
+                  value={form.preferredDate}
+                  onChange={(e) => setForm((prev) => ({ ...prev, preferredDate: e.target.value }))}
+                />
+              </label>
+              <label>
+                <span>Preferred time</span>
+                <input
+                  className="form-input"
+                  type="time"
+                  value={form.preferredTime}
+                  onChange={(e) => setForm((prev) => ({ ...prev, preferredTime: e.target.value }))}
+                />
+              </label>
+              <label className="repair-span">
+                <span>Notes</span>
+                <textarea
+                  className="form-input"
+                  rows={2}
+                  placeholder="Gate code, landmark, extra details…"
+                  value={form.notes}
+                  onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}
+                />
+              </label>
             </div>
-          </>
+
+            <div className="repair-submit-row">
+              <button className="btn btn-primary btn-lg" disabled={submitting} type="submit">
+                <Phone size={16} />
+                {submitting ? 'Placing order…' : 'Place repair order'}
+              </button>
+              {whatsappHref ? (
+                <a className="whatsapp-btn repair-whatsapp-btn" href={whatsappHref} rel="noreferrer">
+                  <WhatsAppMark />
+                  WhatsApp
+                </a>
+              ) : null}
+            </div>
+          </div>
         )}
 
         {error && <p className="form-error repair-error">{error}</p>}
       </form>
+
+      {showProceedModal ? (
+        <div
+          className="repair-confirm-overlay"
+          role="presentation"
+          onClick={() => !submitting && setShowProceedModal(false)}
+        >
+          <div
+            className="repair-confirm-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="repair-proceed-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="repair-confirm-icon" aria-hidden>
+              <ShieldCheck size={28} />
+            </div>
+            <h2 id="repair-proceed-title" className="repair-confirm-title">
+              Price is confirmed later
+            </h2>
+            <p className="repair-confirm-lead">
+              Your booking will be placed now. Our inspection team will contact you, guide you based on the device and
+              issue, and share the <strong>final estimate</strong>.
+            </p>
+            <ul className="repair-confirm-list">
+              <li>This is only a repair request — no payment is due now.</li>
+              <li>The team will share next steps by call or WhatsApp.</li>
+              <li>After the estimate, you can approve and continue with the repair.</li>
+            </ul>
+            <div className="repair-confirm-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                disabled={submitting}
+                onClick={() => setShowProceedModal(false)}
+              >
+                Go back
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary btn-lg"
+                disabled={submitting}
+                onClick={() => void placeRepairOrder()}
+              >
+                {submitting ? 'Placing…' : 'Got it — place order'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <PriceReassureModal
+        open={showPriceReassure}
+        onContinue={() => {
+          setShowPriceReassure(false);
+          setPriceReassureSeen(true);
+          scrollToRepairStep('repair-step-confirm');
+        }}
+      />
     </section>
   );
 }

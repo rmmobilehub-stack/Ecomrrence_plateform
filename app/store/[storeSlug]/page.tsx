@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Facebook, Globe2, Instagram, MessageCircle, Music2, ShieldCheck, Sparkles, Truck, Twitter, Youtube } from 'lucide-react';
+import { ArrowRight, Facebook, Globe2, HeartPulse, Instagram, MessageCircle, Music2, ShieldCheck, Sparkles, Truck, Twitter, Youtube } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { getActiveProductsForStore, getActiveStoreBySlug } from '@/lib/db';
@@ -55,6 +55,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
   const activeProducts = await getActiveProductsForStore(store.id);
   const featured = activeProducts.slice(0, 8);
   const shopHref = storefrontPath(store.slug, 'products');
+  const phoneCheckHref = storefrontPath(store.slug, 'phone-check');
   const title = store.heroTitle || 'Everyday pieces, picked with care.';
   const chatMessage = `Hello ${store.name}, I would like to know more about your products.`;
   const contactWidgetMode = store.contactWidgetMode ?? 'both';
@@ -113,7 +114,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
           {store.description && <p className="store-hero-desc">{store.description}</p>}
           <div className="hero-actions">
             <Link className="btn btn-primary btn-lg" href={shopHref}>{store.heroCtaLabel || 'Shop collection'} <ArrowRight size={17}/></Link>
-            <Link className="hero-story-link" href="#about">Meet {store.name} <ArrowRight size={16}/></Link>
+            <Link className="hero-phone-check-link" href={phoneCheckHref}><HeartPulse size={17}/><span>Free phone check</span><ArrowRight size={16}/></Link>
           </div>
           <ul className="hero-trust-row">
             <li><Truck size={15}/><span>Cash on delivery</span></li>

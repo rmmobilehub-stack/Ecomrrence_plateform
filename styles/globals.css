@@ -6834,6 +6834,7 @@ body {
 }
 
 .repair-one-page .repair-panel {
+  scroll-margin-top: 96px;
   padding: 20px;
   border-radius: 20px;
   border: 1px solid #d7ebf5;
@@ -7329,67 +7330,254 @@ body {
   border-color: transparent;
 }
 
+.repair-panel-head {
+  margin-bottom: 4px;
+}
+
+.repair-panel-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  color: color-mix(in srgb, var(--store-accent, #0284c7) 78%, #123247);
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .repair-panel h2 {
-  color: #123247;
-  font-size: clamp(1.4rem, 3vw, 1.85rem);
-  letter-spacing: -0.03em;
+  color: #0f2a3c;
+  font-family: var(--font-store-display, inherit);
+  font-size: clamp(1.55rem, 3.4vw, 2.05rem);
+  font-weight: 750;
+  letter-spacing: -0.045em;
+  line-height: 1.12;
+  margin: 0;
+}
+
+.repair-panel h2 .section-title-accent {
+  background: linear-gradient(120deg, var(--store-accent, #0284c7), #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .repair-panel-sub {
   color: #5d7a8e;
-  margin: 6px 0 18px;
+  margin: 10px 0 20px;
+  max-width: 46ch;
+  line-height: 1.55;
+  font-size: 0.95rem;
 }
 
 .repair-brand-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
   gap: 14px;
-  max-width: 420px;
 }
 
 .repair-brand-card {
+  position: relative;
   display: grid;
   justify-items: center;
-  gap: 8px;
+  align-content: start;
+  gap: 10px;
+  min-height: 168px;
   text-align: center;
-  padding: 22px 16px;
-  border-radius: 20px;
-  border: 1px solid #d7ebf5;
-  background: linear-gradient(160deg, #fff, #f3fbff);
+  padding: 18px 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 183, 204, 0.35);
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(20, 56, 79, 0.04);
   transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
   color: #14384f;
+  overflow: hidden;
 }
 
-.repair-brand-card:hover {
+.repair-brand-card:not(.is-coming-soon):hover {
   transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--store-accent, #0ea5e9) 45%, #d7ebf5);
+  border-color: color-mix(in srgb, var(--store-accent, #0ea5e9) 42%, #d7ebf5);
+  box-shadow: 0 10px 22px rgba(20, 56, 79, 0.08);
 }
 
 .repair-brand-card.is-selected {
   border-color: var(--store-accent, #0ea5e9);
-  box-shadow: 0 10px 24px color-mix(in srgb, var(--store-accent, #0ea5e9) 18%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--store-accent, #0ea5e9) 35%, transparent),
+    0 12px 28px color-mix(in srgb, var(--store-accent, #0ea5e9) 16%, transparent);
   background: #fff;
 }
 
+.repair-brand-card.is-coming-soon {
+  cursor: not-allowed;
+  pointer-events: none;
+  user-select: none;
+  background: #fafcfd;
+  border-color: rgba(148, 183, 204, 0.28);
+  box-shadow: none;
+}
+
 .repair-brand-logo {
-  width: 72px;
-  height: 72px;
-  border-radius: 20px;
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
   display: grid;
   place-items: center;
   color: #111;
-  background: linear-gradient(160deg, #f7f7f8, #ebebed);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  background: linear-gradient(165deg, #f8f9fa, #eceef1);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.repair-brand-svg {
+  width: 34px;
+  height: 34px;
+}
+
+.repair-brand-word {
+  display: block;
+  max-width: 90%;
+  text-align: center;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.repair-brand-word.is-samsung {
+  font-size: 0.52rem;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.repair-brand-word.is-google {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #4285f4 0%, #ea4335 42%, #fbbc05 68%, #34a853 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.repair-brand-word.is-xiaomi {
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-style: italic;
+  color: #fff;
+  letter-spacing: -0.06em;
+}
+
+.repair-brand-word.is-oneplus {
+  font-size: 1.25rem;
+  color: #fff;
+}
+
+.repair-brand-word.is-oppo {
+  font-size: 0.88rem;
+  text-transform: lowercase;
+  color: #fff;
+  font-weight: 700;
+}
+
+.repair-brand-word.is-infinix {
+  font-size: 0.66rem;
+  font-weight: 800;
+  color: #0d2818;
+  letter-spacing: 0.01em;
+}
+
+.repair-brand-word.is-vivo {
+  font-size: 0.98rem;
+  font-weight: 700;
+  text-transform: lowercase;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.repair-brand-logo--apple {
+  background: linear-gradient(165deg, #fafafa, #ececee);
+  color: #111;
+}
+
+.repair-brand-logo--samsung {
+  background: linear-gradient(165deg, #0b4bb4, #034ea2);
+}
+
+.repair-brand-logo--google {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.repair-brand-logo--xiaomi {
+  background: linear-gradient(165deg, #ff8533, #ff6900);
+}
+
+.repair-brand-logo--oneplus {
+  background: linear-gradient(165deg, #ff1a1a, #eb0028);
+}
+
+.repair-brand-logo--oppo {
+  background: linear-gradient(165deg, #00a862, #028348);
+}
+
+.repair-brand-logo--infinix {
+  background: linear-gradient(165deg, #f4fce8, #d4f5a8);
+  box-shadow: inset 0 0 0 1px rgba(0, 180, 80, 0.15);
+}
+
+.repair-brand-logo--vivo {
+  background: linear-gradient(165deg, #5a73ff, #415fff);
+}
+
+.repair-brand-soon {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.48);
+  backdrop-filter: blur(2.5px);
+  -webkit-backdrop-filter: blur(2.5px);
+  pointer-events: none;
+}
+
+.repair-brand-soon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(20, 56, 79, 0.08);
+  box-shadow: 0 6px 18px rgba(20, 56, 79, 0.1);
+  color: #3a5568;
+  font-size: 0.6rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .repair-brand-card strong {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
+  font-weight: 700;
   color: #123247;
+  letter-spacing: -0.01em;
 }
 
 .repair-brand-card small {
   color: #6d8a9d;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.repair-brand-card.is-coming-soon strong,
+.repair-brand-card.is-coming-soon small {
+  color: #7a93a4;
 }
 
 .repair-model-grid {
@@ -7741,6 +7929,866 @@ body {
   pointer-events: none;
 }
 
+.device-condition-hero {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 183, 204, 0.35);
+  background: linear-gradient(145deg, #f7fcff, #eef7fc);
+  margin-bottom: 4px;
+}
+
+.device-condition-hero img {
+  width: 64px;
+  height: 88px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 18px rgba(20, 56, 79, 0.08);
+}
+
+.device-condition-hero strong {
+  display: block;
+  margin-top: 2px;
+  color: #123247;
+  font-size: 1.05rem;
+}
+
+.device-condition-hero small {
+  display: block;
+  margin-top: 4px;
+  color: #6d8a9d;
+  font-size: 0.78rem;
+}
+
+.device-choice-row.is-four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.device-check-row.is-parts {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.device-note-field {
+  margin-top: 4px;
+}
+
+@media (max-width: 900px) {
+  .device-choice-row.is-four,
+  .device-check-row.is-parts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.device-condition-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.device-condition-block {
+  display: grid;
+  gap: 8px;
+}
+
+.device-condition-label {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #5a7a8f;
+}
+
+.device-choice-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.device-choice-chip {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  text-align: left;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 183, 204, 0.4);
+  background: #fff;
+  color: #123247;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.device-choice-chip strong {
+  font-size: 0.86rem;
+}
+
+.device-choice-chip small {
+  color: #6d8a9d;
+  font-size: 0.72rem;
+}
+
+.device-choice-chip.is-selected {
+  border-color: var(--store-accent, #0ea5e9);
+  background: color-mix(in srgb, var(--store-accent, #0ea5e9) 8%, #fff);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--store-accent, #0ea5e9) 25%, transparent);
+}
+
+.device-check-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.device-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 183, 204, 0.35);
+  background: #fbfefe;
+  color: #123247;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.device-check span {
+  display: grid;
+  gap: 2px;
+}
+
+.device-check small {
+  color: #6d8a9d;
+  font-weight: 500;
+  font-size: 0.72rem;
+}
+
+.device-condition-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.device-condition-field {
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  color: #3d5a6e;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.repair-panel-compact {
+  padding: 16px !important;
+}
+
+.repair-confirm-score-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  align-items: stretch;
+  margin-bottom: 4px;
+}
+
+.repair-confirm-score-row .repair-preview-card {
+  margin-bottom: 0;
+  height: 100%;
+}
+
+.repair-confirm-score-side {
+  min-width: 0;
+  display: flex;
+}
+
+.repair-confirm-score-side .device-estimate-card {
+  margin-top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@media (min-width: 900px) {
+  .repair-confirm-score-row.has-score {
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  }
+
+  .repair-confirm-score-row.has-score .repair-device-summary {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    padding: 18px 16px !important;
+    gap: 14px !important;
+  }
+
+  .repair-confirm-score-row.has-score .repair-preview-model-img {
+    width: 120px;
+    height: 150px;
+  }
+
+  .repair-confirm-score-row.has-score .repair-preview-meta {
+    width: 100%;
+    justify-items: center;
+    gap: 10px;
+  }
+
+  .repair-confirm-score-row.has-score .repair-device-facts {
+    width: 100%;
+  }
+}
+
+.repair-device-facts {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+
+.repair-device-fact {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(148, 183, 204, 0.28);
+  text-align: left;
+}
+
+.repair-device-fact > span {
+  font-size: 0.68rem !important;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6d8a9d !important;
+}
+
+.repair-device-fact > strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #123247;
+  line-height: 1.3;
+}
+
+.repair-device-fact .repair-preview-swatch {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
+.repair-score-inputs {
+  margin-top: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.repair-score-inputs.is-collapsed {
+  margin-top: 10px;
+  justify-items: start;
+}
+
+.repair-preview-compact {
+  gap: 12px !important;
+  padding: 12px !important;
+}
+
+.repair-preview-compact .repair-preview-meta {
+  gap: 8px;
+}
+
+.repair-preview-compact .repair-preview-meta > span {
+  line-height: 1.25;
+  font-size: 0.86rem;
+}
+
+.device-estimate-card.is-compact {
+  grid-template-columns: minmax(120px, 150px) 1fr;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(20, 56, 79, 0.06);
+}
+
+.device-estimate-card.is-compact .device-estimate-ring {
+  width: 112px;
+  height: 112px;
+}
+
+.device-estimate-card.is-compact .device-estimate-ring-label strong {
+  font-size: 1.7rem;
+}
+
+.device-estimate-card.is-compact .device-estimate-score-wrap {
+  gap: 6px;
+  padding: 2px;
+}
+
+.device-estimate-card.is-compact .device-estimate-body {
+  gap: 8px;
+}
+
+.device-estimate-card.is-compact .device-estimate-worth-row {
+  padding: 10px 12px;
+}
+
+.device-estimate-card.is-compact .device-estimate-worth-row p {
+  font-size: 1rem;
+}
+
+.device-estimate-card.is-compact .device-estimate-section ul {
+  gap: 4px;
+  font-size: 0.82rem;
+}
+
+.device-estimate-card.is-compact .device-estimate-chips span {
+  padding: 6px 10px;
+  font-size: 0.74rem;
+}
+
+.device-estimate-card {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: minmax(150px, 190px) 1fr;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(148, 183, 204, 0.38);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(14, 165, 233, 0.12), transparent 42%),
+    linear-gradient(155deg, #ffffff 0%, #f3fbff 58%, #eef7fc 100%);
+  box-shadow: 0 14px 32px rgba(20, 56, 79, 0.07);
+  overflow: hidden;
+}
+
+.device-estimate-body {
+  gap: 10px;
+}
+
+.device-estimate-summary {
+  font-size: 0.88rem;
+}
+
+.device-estimate-section ul {
+  gap: 4px;
+}
+
+.device-estimate-score-wrap {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 10px;
+  padding: 8px 4px 4px;
+}
+
+.device-estimate-ring {
+  position: relative;
+  width: 140px;
+  height: 140px;
+}
+
+.device-estimate-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.device-estimate-ring-track,
+.device-estimate-ring-value {
+  fill: none;
+  stroke-width: 10;
+}
+
+.device-estimate-ring-track {
+  stroke: rgba(148, 183, 204, 0.28);
+}
+
+.device-estimate-ring-value {
+  stroke: var(--store-accent, #0ea5e9);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.7s ease;
+}
+
+.device-estimate-card.is-strong .device-estimate-ring-value { stroke: #059669; }
+.device-estimate-card.is-good .device-estimate-ring-value { stroke: #0ea5e9; }
+.device-estimate-card.is-fair .device-estimate-ring-value { stroke: #f59e0b; }
+.device-estimate-card.is-weak .device-estimate-ring-value { stroke: #ef4444; }
+
+.device-estimate-ring-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0;
+  color: #123247;
+}
+
+.device-estimate-ring-label strong {
+  font-size: 2.1rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.device-estimate-ring-label span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #6d8a9d;
+}
+
+.device-estimate-score-label {
+  margin: 0;
+  text-align: center;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #3d5a6e;
+  line-height: 1.35;
+  max-width: 16ch;
+}
+
+.device-estimate-badge {
+  display: inline-flex;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(148, 183, 204, 0.4);
+  color: #4a6578;
+  font-size: 0.66rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.device-estimate-body {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+}
+
+.device-estimate-worth-row {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(148, 183, 204, 0.35);
+}
+
+.device-estimate-kicker {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6d8a9d;
+}
+
+.device-estimate-worth-row p {
+  margin: 0;
+  color: #123247;
+  font-size: 1.15rem;
+  line-height: 1.3;
+}
+
+.device-estimate-summary {
+  margin: 0;
+  color: #3d5a6e;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.device-estimate-section h3 {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #5a7a8f;
+}
+
+.device-estimate-section ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  color: #3d5a6e;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.device-estimate-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.device-estimate-chips span {
+  display: inline-flex;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--store-accent, #0ea5e9) 12%, #fff);
+  border: 1px solid color-mix(in srgb, var(--store-accent, #0ea5e9) 22%, #d7ebf5);
+  color: #0b4a66;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.device-estimate-footnote {
+  margin: 2px 0 0;
+  color: #7a93a4;
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 800px) {
+  .device-estimate-card {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .device-estimate-body {
+    width: 100%;
+  }
+}
+
+.repair-estimate-buy-label {
+  margin: 8px 0 0;
+  font-weight: 750;
+  color: #123247;
+  font-size: 0.84rem;
+}
+
+.phone-check-hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(250px, .75fr);
+  gap: 24px;
+  align-items: center;
+  min-height: 300px;
+  margin: 8px 0 20px;
+  padding: clamp(28px, 4vw, 48px);
+  overflow: hidden;
+  border: 1px solid #cceaf8;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 86% 12%, rgba(34, 211, 238, .28), transparent 28%),
+    radial-gradient(circle at 72% 92%, rgba(37, 99, 235, .16), transparent 38%),
+    linear-gradient(135deg, #fafdff 0%, #eefaff 54%, #dff7ff 100%);
+  box-shadow: 0 18px 44px rgba(28, 108, 149, .09);
+}
+
+.phone-check-home-prompt {
+  width: min(1180px, calc(100% - 48px));
+  margin: 20px auto 8px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 24px;
+  border: 1px solid color-mix(in srgb, var(--store-accent, #0ea5e9) 28%, #cfe8f4);
+  border-radius: 22px;
+  background: radial-gradient(circle at 100% 0, color-mix(in srgb, var(--store-accent, #0ea5e9) 17%, transparent), transparent 15rem), linear-gradient(135deg, #ffffff, #eefaff);
+  box-shadow: 0 14px 36px rgba(23, 96, 132, .08);
+}
+
+.hero-phone-check-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 17px;
+  border: 1px solid rgba(184, 230, 255, .46);
+  border-radius: 999px;
+  color: #ebfaff;
+  background: rgba(10, 59, 99, .48);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.11);
+  font-size: .9rem;
+  font-weight: 750;
+  transition: transform .2s ease, background .2s ease;
+}
+.hero-phone-check-link svg:first-child { color: #43d4f2; }
+.hero-phone-check-link:hover { color: #fff; background: rgba(16, 140, 191, .55); transform: translateY(-2px); }
+.phone-check-home-icon { width: 50px; height: 50px; display: grid; place-items: center; color: #087ec4; border-radius: 16px; background: linear-gradient(145deg, #e4f7ff, #b9eafa); }
+.phone-check-home-copy { display: grid; gap: 3px; }.phone-check-home-copy span { color: #087ec4; font-size: .7rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }.phone-check-home-copy strong { color: #14384f; font-size: 1.08rem; }.phone-check-home-copy p { margin: 0; color: #638095; font-size: .84rem; line-height: 1.45; }
+
+.phone-check-hero h1 {
+  margin: 8px 0 10px;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  color: #123247;
+}
+
+.phone-check-hero p {
+  margin: 0;
+  color: #5a7a8f;
+  line-height: 1.55;
+  max-width: 52ch;
+}
+
+.phone-check-hero-copy { position: relative; z-index: 2; }
+.phone-check-hero .home-section-kicker { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; margin: 0; border: 1px solid #b9dcff; border-radius: 999px; background: rgba(237, 247, 255, .92); color: #0569a9; font-size: .72rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.phone-check-hero h1 { max-width: 16ch; }
+.phone-check-hero-trust { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.phone-check-hero-trust span { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border: 1px solid rgba(14, 116, 184, .15); border-radius: 999px; background: rgba(255,255,255,.7); color: #28617f; font-size: .74rem; font-weight: 700; }
+.phone-check-hero-trust svg { color: #147fd1; }
+.phone-check-hero-art { position: relative; min-height: 220px; display: grid; place-items: center; }
+.phone-check-hero-orbit { position: absolute; width: 215px; height: 215px; border-radius: 50%; border: 1px solid rgba(18, 166, 215, .22); box-shadow: inset 0 0 0 24px rgba(255,255,255,.25), 0 0 0 22px rgba(123, 222, 251, .12); }
+.phone-check-hero-device { position: relative; z-index: 1; width: 112px; height: 202px; padding-top: 42px; display: grid; justify-items: center; align-content: start; border: 5px solid #173f5c; border-radius: 25px; background: linear-gradient(155deg, #e9fbff, #7fdaef 55%, #2a9ece); box-shadow: 0 20px 30px rgba(27, 113, 151, .24), inset 0 0 0 2px rgba(255,255,255,.45); transform: rotate(8deg); }
+.phone-check-hero-island { position: absolute; top: 8px; width: 46px; height: 10px; border-radius: 999px; background: #123249; }
+.phone-check-hero-heart { color: #08364f; font-size: 2rem; font-weight: 850; line-height: 1; letter-spacing: -.08em; }
+.phone-check-hero-device small { color: #17628a; margin-top: 4px; font-size: .52rem; font-weight: 850; letter-spacing: .12em; }
+.phone-check-hero-device i { width: 58px; height: 5px; margin-top: 9px; border-radius: 999px; background: rgba(10, 80, 110, .24); }
+.phone-check-score-card { position: absolute; z-index: 2; right: -3px; bottom: 24px; display: grid; gap: 2px; min-width: 132px; padding: 12px 14px; border: 1px solid rgba(255,255,255,.82); border-radius: 16px; background: rgba(255,255,255,.88); box-shadow: 0 14px 26px rgba(18, 94, 130, .16); backdrop-filter: blur(10px); }
+.phone-check-score-card span { color: #618296; font-size: .68rem; font-weight: 700; }.phone-check-score-card strong { color: #087fbb; font-size: 1.4rem; line-height: 1; }.phone-check-score-card strong span { font-size: .68rem; }.phone-check-score-card em { color: #178158; font-size: .68rem; font-style: normal; font-weight: 700; }
+
+.phone-check-selects {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.phone-check-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.repair-one-page .repair-panel,
+.phone-check-page .repair-panel,
+.repair-confirm-score-row,
+.device-estimate-card,
+.repair-device-summary {
+  min-width: 0;
+}
+
+.phone-check-page .repair-panel {
+  scroll-margin-top: 96px;
+}
+
+.repair-condition-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.repair-condition-field {
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  color: #3d5a6e;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.repair-condition-check {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  color: #3d5a6e;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.repair-estimate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.repair-estimate-actions small {
+  color: #6d8a9d;
+  font-size: 0.76rem;
+  max-width: 42ch;
+  line-height: 1.4;
+}
+
+.repair-estimate-card {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 183, 204, 0.4);
+  background: linear-gradient(160deg, #fff, #f3fbff);
+}
+
+.repair-estimate-score {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 2px;
+  padding: 14px 10px;
+  border-radius: 16px;
+  background: linear-gradient(165deg, #e8f7ff, #d7effc);
+  color: #0b4a66;
+}
+
+.repair-estimate-score strong {
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.repair-estimate-score span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.repair-estimate-score small {
+  margin-top: 6px;
+  font-size: 0.68rem;
+  text-align: center;
+  line-height: 1.3;
+  color: #3d5a6e;
+}
+
+.repair-estimate-meta {
+  display: grid;
+  gap: 8px;
+  text-align: left;
+  color: #3d5a6e;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.repair-estimate-worth {
+  margin: 0;
+  color: #123247;
+}
+
+.repair-estimate-meta ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+.repair-estimate-source {
+  color: #7a93a4;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 800px) {
+  .repair-condition-grid,
+  .repair-estimate-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+.repair-submit-hint {
+  margin: 16px 0 0;
+  max-width: 52ch;
+  color: #5a7a8f;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.repair-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(18, 50, 71, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: fadeIn 0.15s ease;
+}
+
+.repair-confirm-dialog {
+  width: min(100%, 440px);
+  max-height: min(90dvh, 560px);
+  overflow-y: auto;
+  padding: 28px 26px 24px;
+  border-radius: 22px;
+  border: 1px solid rgba(148, 183, 204, 0.45);
+  background: linear-gradient(165deg, #fff 0%, #f4fbff 100%);
+  box-shadow: 0 24px 60px rgba(20, 56, 79, 0.18);
+  color: #123247;
+  text-align: center;
+  animation: slideUp 0.2s ease;
+}
+
+.repair-confirm-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 14px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--store-accent, #0ea5e9) 14%, #fff);
+  color: var(--store-accent, #0ea5e9);
+}
+
+.repair-confirm-title {
+  margin: 0 0 10px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.repair-confirm-lead {
+  margin: 0 0 16px;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #3d5a6e;
+  text-align: left;
+}
+
+.repair-confirm-list {
+  margin: 0 0 22px;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  display: grid;
+  gap: 10px;
+}
+
+.repair-confirm-list li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: #4a6578;
+}
+
+.repair-confirm-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--store-accent, #0ea5e9);
+  opacity: 0.85;
+}
+
+.repair-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: stretch;
+}
+
+.repair-confirm-actions .btn {
+  flex: 1 1 140px;
+  justify-content: center;
+}
+
 .repair-submit-row {
   display: flex;
   flex-wrap: wrap;
@@ -7814,19 +8862,337 @@ body {
     border-radius: 20px;
   }
 
-  .repair-form-grid,
-  .repair-preview-card,
-  .repair-address-map {
+  .repair-one-page-form {
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .repair-one-page .repair-panel,
+  .phone-check-page .repair-panel {
+    padding: 14px;
+    border-radius: 16px;
+    scroll-margin-top: 80px;
+  }
+
+  .repair-panel-compact {
+    padding: 14px !important;
+  }
+
+  .repair-panel h2 {
+    font-size: clamp(1.35rem, 6vw, 1.7rem);
+  }
+
+  .repair-panel-sub {
+    font-size: 0.88rem;
+    max-width: none;
+  }
+
+  .repair-brand-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .repair-brand-card {
+    min-height: 148px;
+    padding: 14px 10px 12px;
+    gap: 8px;
+  }
+
+  .repair-brand-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+  }
+
+  .repair-model-grid,
+  .repair-color-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .repair-sim-grid {
     grid-template-columns: 1fr;
   }
 
-  .repair-model-grid {
+  .repair-form-grid,
+  .repair-address-map,
+  .phone-check-selects,
+  .repair-condition-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .repair-preview-card,
+  .repair-preview-colorful,
+  .repair-device-summary {
+    grid-template-columns: 92px 1fr !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    align-items: start;
+  }
+
+  .repair-preview-model-img {
+    width: 84px;
+    height: 110px;
+    padding: 8px 6px;
+  }
+
+  .repair-confirm-score-row {
+    gap: 10px;
+  }
+
+  .repair-confirm-score-row.has-score .repair-device-summary {
+    grid-template-columns: 92px 1fr !important;
+    justify-items: stretch;
+    text-align: left;
+    padding: 12px !important;
+  }
+
+  .repair-confirm-score-row.has-score .repair-preview-model-img {
+    width: 84px;
+    height: 110px;
+  }
+
+  .repair-confirm-score-row.has-score .repair-preview-meta {
+    justify-items: stretch;
+    width: 100%;
+  }
+
+  .repair-device-fact {
+    grid-template-columns: 58px 1fr;
+    padding: 7px 8px;
+    gap: 6px;
+  }
+
+  .repair-device-fact > strong {
+    font-size: 0.82rem;
+  }
+
+  .device-estimate-card,
+  .device-estimate-card.is-compact,
+  .repair-estimate-card {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .device-estimate-card.is-compact .device-estimate-ring {
+    width: 120px;
+    height: 120px;
+  }
+
+  .device-estimate-body,
+  .repair-estimate-meta {
+    width: 100%;
+  }
+
+  .device-choice-row,
+  .device-choice-row.is-four {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .device-check-row,
+  .device-check-row.is-parts,
+  .device-condition-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .device-choice-chip,
+  .device-check {
+    padding: 11px 12px;
+  }
+
+  .phone-check-hero {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 28px 22px 14px;
+  }
+
+  .phone-check-hero-art { min-height: 190px; }
+  .phone-check-score-card { right: 8px; bottom: 8px; }
+
+  .phone-check-home-prompt { width: calc(100% - 28px); grid-template-columns: auto 1fr; padding: 18px; gap: 12px; }
+  .phone-check-home-prompt .btn { grid-column: 1 / -1; width: 100%; justify-content: center; }
+
+  .phone-check-ctas {
+    flex-direction: column;
+  }
+
+  .phone-check-ctas .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .repair-estimate-actions {
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 12px;
+  }
+
+  .repair-estimate-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .repair-estimate-actions small {
+    max-width: none;
+  }
+
+  .repair-submit-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .repair-submit-row .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .repair-confirm-overlay {
+    padding: 12px;
+    align-items: end;
+  }
+
+  .repair-confirm-dialog {
+    width: 100%;
+    max-height: min(88dvh, 640px);
+    padding: 22px 18px 18px;
+    border-radius: 18px 18px 14px 14px;
+  }
+
+  .repair-confirm-actions {
+    flex-direction: column;
+  }
+
+  .repair-confirm-actions .btn {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .repair-score-inputs.is-collapsed {
+    width: 100%;
+  }
+
+  .repair-score-inputs.is-collapsed .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .repair-flow-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .repair-map-pane {
+    height: 200px;
+  }
+
+  .repair-locate-btn {
+    width: 100%;
+    justify-content: center;
+    border-radius: 12px;
+    min-height: 42px;
+  }
+
+  .repair-address-actions {
+    width: 100%;
   }
 }
 
 @media (max-width: 640px) {
   .repair-page {
     width: var(--store-rail, calc(100% - 16px));
+    margin-bottom: 36px;
+  }
+
+  .repair-hero-branded {
+    min-height: 280px;
+    border-radius: 18px;
+  }
+
+  .repair-brand-card strong {
+    font-size: 0.86rem;
+  }
+
+  .repair-brand-card small {
+    font-size: 0.68rem;
+  }
+
+  .repair-model-card {
+    padding: 12px 8px;
+  }
+
+  .repair-model-card strong {
+    font-size: 0.8rem;
+  }
+
+  .repair-issue-card {
+    padding: 12px 14px;
+  }
+
+  .device-choice-row {
+    grid-template-columns: 1fr;
+  }
+
+  .device-choice-row.is-four {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .repair-preview-card,
+  .repair-preview-colorful,
+  .repair-device-summary,
+  .repair-confirm-score-row.has-score .repair-device-summary {
+    grid-template-columns: 76px 1fr !important;
+  }
+
+  .repair-preview-model-img,
+  .repair-confirm-score-row.has-score .repair-preview-model-img {
+    width: 70px;
+    height: 94px;
+  }
+
+  .device-estimate-worth-row p {
+    font-size: 0.98rem;
+    word-break: break-word;
+  }
+
+  .device-estimate-chips span {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .repair-brand-grid,
+  .repair-model-grid,
+  .repair-color-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .repair-brand-card {
+    min-height: 136px;
+    padding: 12px 8px 10px;
+  }
+
+  .repair-brand-logo {
+    width: 48px;
+    height: 48px;
+  }
+
+  .repair-brand-svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .device-choice-row.is-four {
+    grid-template-columns: 1fr;
+  }
+
+  .repair-panel h2 {
+    font-size: 1.28rem;
+  }
+
+  .device-estimate-ring-label strong {
+    font-size: 1.8rem;
   }
 }

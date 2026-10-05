@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Home, Info, Menu, ShoppingBag, Wrench, X } from 'lucide-react';
+import { Activity, Home, Info, Menu, ShoppingBag, Wrench, X } from 'lucide-react';
 import { useState } from 'react';
 import { storefrontPath } from '@/lib/storefront-paths';
 
@@ -17,6 +17,7 @@ export default function StoreNav({ slug, homeHref, name, logo, announcement }: S
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
   const repairHref = storefrontPath(slug, 'repair');
+  const phoneCheckHref = storefrontPath(slug, 'phone-check');
   const shopHref = storefrontPath(slug, 'products');
   const aboutHref = `${homeHref}#about`;
   const assurance = announcement || 'Cash on delivery';
@@ -38,10 +39,21 @@ export default function StoreNav({ slug, homeHref, name, logo, announcement }: S
       </Link>
 
       <div className="store-nav-links">
-        <Link className="store-nav-link" href={homeHref}>Home</Link>
-        <Link className="store-nav-link" href={shopHref}>Shop</Link>
-        <Link className="store-nav-link" href={repairHref}>iPhone Repair</Link>
-        <Link className="store-nav-link" href={aboutHref}>About</Link>
+        <Link className="store-nav-link" href={homeHref}>
+          Home
+        </Link>
+        <Link className="store-nav-link" href={shopHref}>
+          Shop
+        </Link>
+        <Link className="store-nav-link" href={repairHref}>
+          iPhone Repair
+        </Link>
+        <Link className="store-nav-link" href={phoneCheckHref}>
+          Phone Check
+        </Link>
+        <Link className="store-nav-link" href={aboutHref}>
+          About
+        </Link>
         <span className="nav-assurance">{assurance}</span>
       </div>
 
@@ -69,19 +81,33 @@ export default function StoreNav({ slug, homeHref, name, logo, announcement }: S
           <div className="store-mobile-menu" id="store-mobile-menu">
             <Link href={homeHref} onClick={closeMenu}>
               <Home size={18} />
-              <span>Home<small>Back to the storefront</small></span>
+              <span>
+                Home<small>Back to the storefront</small>
+              </span>
             </Link>
             <Link href={shopHref} onClick={closeMenu}>
               <ShoppingBag size={18} />
-              <span>Shop<small>Browse all products</small></span>
+              <span>
+                Shop<small>Browse all products</small>
+              </span>
             </Link>
             <Link href={repairHref} onClick={closeMenu}>
               <Wrench size={18} />
-              <span>iPhone Repair<small>Doorstep repair booking</small></span>
+              <span>
+                iPhone Repair<small>Doorstep repair booking</small>
+              </span>
+            </Link>
+            <Link href={phoneCheckHref} onClick={closeMenu}>
+              <Activity size={18} />
+              <span>
+                Phone Check<small>Score, worth & suggestions</small>
+              </span>
             </Link>
             <Link href={aboutHref} onClick={closeMenu}>
               <Info size={18} />
-              <span>About<small>Learn about {name}</small></span>
+              <span>
+                About<small>Learn about {name}</small>
+              </span>
             </Link>
             <div className="store-mobile-assurance">
               <span />

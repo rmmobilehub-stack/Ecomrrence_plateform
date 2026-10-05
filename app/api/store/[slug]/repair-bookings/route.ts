@@ -1,8 +1,37 @@
 import { randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { findRepairIssue, findRepairSimOption, getDevicePreview } from '@/lib/iphone-repair-catalog';
+import { parseConditionPayload, type DeviceEstimate } from '@/lib/device-estimate';
 import { insertOne, readDb } from '@/lib/db';
+import { buildStatusNotifyMessage } from '@/lib/customer-notify';
+import { sendCustomerEmail } from '@/lib/email';
 import type { RepairBooking, Store } from '@/lib/types';
+
+function parseEstimatePayload(value: unknown): DeviceEstimate | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const raw = value as Record<string, unknown>;
+  const score = Number(raw.score);
+  const min = Number(raw.marketValueMinPkr);
+  const max = Number(raw.marketValueMaxPkr);
+  if (!Number.isFinite(score) || !Number.isFinite(min) || !Number.isFinite(max)) return undefined;
+  const suggestions = Array.isArray(raw.suggestions)
+    ? raw.suggestions.map((entry) => String(entry).trim()).filter(Boolean).slice(0, 5)
+    : [];
+  const buySuggestions = Array.isArray(raw.buySuggestions)
+    ? raw.buySuggestions.map((entry) => String(entry).trim()).filter(Boolean).slice(0, 5)
+    : [];
+  return {
+    score: Math.round(Math.min(100, Math.max(1, score))),
+    scoreLabel: String(raw.scoreLabel || '').slice(0, 80) || 'Estimated',
+    marketValueMinPkr: Math.max(0, Math.round(min)),
+    marketValueMaxPkr: Math.max(0, Math.round(max)),
+    currency: 'PKR',
+    summary: String(raw.summary || '').slice(0, 320),
+    suggestions,
+    buySuggestions,
+    source: 'rules',
+  };
+}
 
 export async function POST(request: NextRequest, { params }: { params: { slug: string } }) {
   try {
@@ -27,9 +56,11 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
     const lat = Number(body.lat);
     const lng = Number(body.lng);
     const hasCoords = Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
+    const deviceCondition = parseConditionPayload(body.deviceCondition);
+    const deviceEstimate = parseEstimatePayload(body.deviceEstimate);
 
-    if (name.length < 2 || phone.length < 7 || !address || !city) {
-      return NextResponse.json({ error: 'Name, phone, address and city are required' }, { status: 400 });
+    if (name.length < 2 || phone.length < 7 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !address || !city) {
+      return NextResponse.json({ error: 'Name, phone, a valid email, address and city are required' }, { status: 400 });
     }
 
     const preview = getDevicePreview(modelId, colorId);
@@ -75,11 +106,32 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
       },
       preferredDate: preferredDate || undefined,
       preferredTime: preferredTime || undefined,
+      ...(deviceCondition ? { deviceCondition } : {}),
+      ...(deviceEstimate ? { deviceEstimate } : {}),
       status: 'pending',
       createdAt: new Date().toISOString(),
     });
 
-    return NextResponse.json({ success: true, booking }, { status: 201 });
+    const confirmationMessage = buildStatusNotifyMessage({
+      storeName: store.name,
+      referenceLabel: 'Repair booking',
+      referenceNumber: bookingNumber,
+      customerName: name,
+      status: 'received',
+      extraLines: [
+        `Device: ${preview.modelName} · ${preview.colorName}`,
+        `Issue: ${issue.name}`,
+        'We will contact you to confirm the doorstep visit.',
+      ],
+    });
+    const emailResult = await sendCustomerEmail({
+      to: email,
+      subject: `${store.name}: we received repair booking ${bookingNumber}`,
+      text: confirmationMessage,
+      brandName: store.name,
+    });
+
+    return NextResponse.json({ success: true, booking, emailSent: emailResult.sent, emailReason: emailResult.reason }, { status: 201 });
   } catch (error) {
     console.error('Repair booking error:', error);
     return NextResponse.json({ error: 'Could not save repair booking' }, { status: 500 });
