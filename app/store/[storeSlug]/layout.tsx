@@ -27,7 +27,11 @@ export async function generateMetadata({ params }: { params: { storeSlug: string
   return {
     title: { absolute: `${store.name} | Shop online` },
     description,
-    icons: store.logo ? { icon: store.logo, shortcut: store.logo, apple: store.logo } : undefined,
+    icons: {
+      icon: [{ url: store.logo || '/storefront/rm-mobile-hub-logo-generated.png', type: 'image/png' }],
+      shortcut: [store.logo || '/storefront/rm-mobile-hub-logo-generated.png'],
+      apple: [{ url: store.logo || '/storefront/rm-mobile-hub-logo-generated.png', type: 'image/png' }],
+    },
     alternates: { canonical: storeUrl },
     openGraph: {
       title: store.name,
