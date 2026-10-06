@@ -10,7 +10,10 @@
     "seed": "node scripts/seed.js",
     "db:seed": "node scripts/seed.js",
     "db:migrate": "node scripts/migrate.js",
-    "store:rebrand:rm": "node scripts/rebrand-rm-mobile-hub.js"
+    "store:rebrand:rm": "node scripts/rebrand-rm-mobile-hub.js",
+    "mobile:start": "yarn --cwd mobile start",
+    "mobile:android": "yarn --cwd mobile android",
+    "android": "yarn --cwd mobile android"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.4",
