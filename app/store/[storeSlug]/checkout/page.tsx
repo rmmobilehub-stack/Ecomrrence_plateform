@@ -19,6 +19,21 @@ export default function CheckoutPage({ params }: { params: { storeSlug: string }
   const [couponInput, setCouponInput] = useState(''); const [coupon, setCoupon] = useState<Coupon | null>(null); const [couponError, setCouponError] = useState(''); const [error, setError] = useState(''); const [saving, setSaving] = useState(false);
 
   useEffect(() => { fetch(`/api/store/${params.storeSlug}`).then(response => response.ok ? response.json() : null).then(data => { if (data?.store) setSettings(data.store); }).catch(() => undefined); }, [params.storeSlug]);
+  useEffect(() => {
+    fetch('/api/customer/me', { credentials: 'same-origin' })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        const customer = data?.customer;
+        if (!customer) return;
+        setForm((prev) => ({
+          ...prev,
+          name: prev.name || customer.name || '',
+          email: prev.email || customer.email || '',
+          phone: prev.phone || customer.phone || '',
+        }));
+      })
+      .catch(() => undefined);
+  }, []);
   const productDiscount = useMemo(() => items.reduce((total, item) => total + (Math.max(item.price, item.originalPrice ?? item.price) - item.price) * item.qty, 0), [items]);
   const discount = coupon && subtotal >= coupon.minOrderAmount ? Math.min(coupon.type === 'percentage' ? subtotal * coupon.value / 100 : coupon.value, subtotal) : 0;
   const amountAfterCoupon = subtotal - discount;

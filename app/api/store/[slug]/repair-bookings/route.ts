@@ -5,6 +5,7 @@ import { parseConditionPayload, type DeviceEstimate } from '@/lib/device-estimat
 import { insertOne, readDb } from '@/lib/db';
 import { buildStatusNotifyMessage } from '@/lib/customer-notify';
 import { sendCustomerEmail } from '@/lib/email';
+import { getCustomerSessionFromRequest } from '@/lib/customer-auth';
 import type { RepairBooking, Store } from '@/lib/types';
 
 function parseEstimatePayload(value: unknown): DeviceEstimate | undefined {
@@ -74,10 +75,17 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
     const storeCount = existing.filter((entry) => entry.storeId === store.id).length;
     const bookingNumber = `REP-${String(storeCount + 1).padStart(4, '0')}`;
 
+    const customerSession = await getCustomerSessionFromRequest(request);
+    if (!customerSession || customerSession.storeId !== store.id) {
+      return NextResponse.json({ error: 'Login required to book a repair' }, { status: 401 });
+    }
+    const linkedCustomerId = customerSession.id;
+
     const booking = await insertOne<RepairBooking>('repair-bookings', {
       id: randomUUID(),
       storeId: store.id,
       bookingNumber,
+      customerId: linkedCustomerId,
       customer: {
         name,
         phone,

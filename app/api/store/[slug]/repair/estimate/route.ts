@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { estimateDeviceWorth, parseConditionPayload } from '@/lib/device-estimate';
 import { findRepairIssue, getDevicePreview, getRepairCatalog } from '@/lib/iphone-repair-catalog';
 import { readDb } from '@/lib/db';
+import { getCustomerSessionFromRequest } from '@/lib/customer-auth';
 import type { Store } from '@/lib/types';
 
 export async function POST(request: NextRequest, { params }: { params: { slug: string } }) {
@@ -9,6 +10,11 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
     const stores = await readDb<Store>('stores');
     const store = stores.find((entry) => entry.slug === params.slug && entry.isActive);
     if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
+
+    const customerSession = await getCustomerSessionFromRequest(request);
+    if (!customerSession || customerSession.storeId !== store.id) {
+      return NextResponse.json({ error: 'Login required for phone check' }, { status: 401 });
+    }
 
     const body = await request.json();
     const modelId = String(body.modelId ?? '').trim();

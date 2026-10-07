@@ -6,6 +6,7 @@ import { calculateDeliveryFee, calculateProductPrice } from '@/lib/pricing';
 import { formatMoney } from '@/lib/currency';
 import { buildStatusNotifyMessage } from '@/lib/customer-notify';
 import { sendCustomerEmail } from '@/lib/email';
+import { getCustomerSessionFromRequest } from '@/lib/customer-auth';
 
 export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
   try {
@@ -66,6 +67,12 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
     const deliveryFee = calculateDeliveryFee(store.deliveryFee, store.freeDeliveryThreshold, subtotal - discountAmount);
     const total = subtotal - discountAmount + deliveryFee;
 
+    const customerSession = await getCustomerSessionFromRequest(req);
+    if (!customerSession || customerSession.storeId !== store.id) {
+      return NextResponse.json({ error: 'Login required to place an order' }, { status: 401 });
+    }
+    const linkedCustomerId = customerSession.id;
+
     // Generate order number
     const existingOrders = await readDb<Order>('orders');
     const orderNumber = `ORD-${String(existingOrders.length + 1).padStart(4, '0')}`;
@@ -74,6 +81,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
       id: uuidv4(),
       storeId: store.id,
       orderNumber,
+      customerId: linkedCustomerId,
       customer,
       items: orderItems,
       subtotal,

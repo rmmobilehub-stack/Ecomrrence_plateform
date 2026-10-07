@@ -124,11 +124,8 @@ const productProfiles = [
     price: 3999,
     compare_price: 4999,
     discount: 0,
-    images: [
-      '/storefront/rm-20w-usb-c-2-pin-adapter.png',
-      '/storefront/rm-20w-usb-c-2-pin-adapter-gallery.png',
-    ],
-    thumbnail: '/storefront/rm-20w-usb-c-2-pin-adapter.png',
+    images: ['/storefront/rm-20w-usb-c-2-pin-adapter-product.png'],
+    thumbnail: '/storefront/rm-20w-usb-c-2-pin-adapter-product.png',
     category: 'chargers',
     tags: ['20W', 'USB-C', 'fast charger', '2-pin adapter', 'iPhone compatible'],
     stock: 30,

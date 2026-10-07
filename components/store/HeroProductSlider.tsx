@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 
 export type HeroSlide = { src: string; label: string; href: string; mode?: 'product' | 'campaign' };
 
@@ -16,19 +16,16 @@ function resolveHeroSrc(src: string) {
 
 export default function HeroProductSlider({ slides, storeName }: { slides: HeroSlide[]; storeName: string }) {
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const reduceMotion = useRef(false);
 
   useEffect(() => {
-    reduceMotion.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setActive((current) => Math.min(current, Math.max(slides.length - 1, 0)));
   }, [slides.length]);
 
   useEffect(() => {
-    if (slides.length < 2 || paused || reduceMotion.current) return;
+    if (slides.length < 2) return;
     const timer = window.setInterval(() => setActive((current) => (current + 1) % slides.length), AUTOPLAY_MS);
     return () => window.clearInterval(timer);
-  }, [slides.length, paused, active]);
+  }, [slides.length]);
 
   if (!slides.length) {
     return (
@@ -45,12 +42,6 @@ export default function HeroProductSlider({ slides, storeName }: { slides: HeroS
       className="hero-showcase"
       aria-roledescription="carousel"
       aria-label={`${storeName} featured products`}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocusCapture={() => setPaused(true)}
-      onBlurCapture={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setPaused(false);
-      }}
     >
       {slides.map((slide, index) => (
         <Link
