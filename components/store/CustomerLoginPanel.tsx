@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ShieldCheck } from 'lucide-react';
+import { HeartPulse, LockKeyhole, Package, ShieldCheck, Wrench } from 'lucide-react';
 import { storefrontPath } from '@/lib/storefront-paths';
 import { clearCustomerSessionCache } from '@/components/store/ensureCustomerLogin';
 
@@ -53,7 +53,6 @@ export default function CustomerLoginPanel({
         returnTo && returnTo.startsWith('/')
           ? returnTo
           : storefrontPath(storeSlug, 'account');
-      // Full navigation so the auth cookie is applied before protected pages load.
       window.location.assign(next);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -62,122 +61,159 @@ export default function CustomerLoginPanel({
   };
 
   return (
-    <div className="customer-login-card">
-      <p className="customer-login-kicker">
-        <ShieldCheck size={14} /> Track your purchases
-      </p>
-      <h1>{mode === 'login' ? 'Login' : 'Create account'}</h1>
-      <p className="customer-login-lead">
-        {mode === 'login'
-          ? `Sign in to ${storeName} to continue buying, phone check, or repair. Your login stays saved.`
-          : `Create an account once — then Buy now, Phone Check and Repair stay trackable under your login.`}
-      </p>
+    <div className="customer-auth-layout">
+      <aside className="customer-auth-aside" aria-hidden={false}>
+        <p className="customer-login-kicker">
+          <LockKeyhole size={14} /> Secure account
+        </p>
+        <h2 className="customer-auth-aside-title">
+          Your orders & repairs, <span className="section-title-accent">in one place</span>
+        </h2>
+        <p className="customer-auth-aside-lead">
+          Sign in to {storeName} so every purchase, phone check and doorstep repair stays trackable.
+        </p>
+        <ul className="customer-auth-benefits">
+          <li>
+            <span className="customer-auth-benefit-icon"><Package size={16} /></span>
+            <div>
+              <strong>Order history</strong>
+              <small>See what you bought and when</small>
+            </div>
+          </li>
+          <li>
+            <span className="customer-auth-benefit-icon"><Wrench size={16} /></span>
+            <div>
+              <strong>Repair status</strong>
+              <small>Follow doorstep booking updates</small>
+            </div>
+          </li>
+          <li>
+            <span className="customer-auth-benefit-icon"><HeartPulse size={16} /></span>
+            <div>
+              <strong>Phone check</strong>
+              <small>Saved score journeys under your login</small>
+            </div>
+          </li>
+        </ul>
+      </aside>
 
-      <div className="customer-auth-tabs" role="tablist">
-        <button
-          type="button"
-          role="tab"
-          className={mode === 'login' ? 'is-active' : undefined}
-          aria-selected={mode === 'login'}
-          onClick={() => {
-            setMode('login');
-            setError('');
-          }}
-        >
-          Login
-        </button>
-        <button
-          type="button"
-          role="tab"
-          className={mode === 'register' ? 'is-active' : undefined}
-          aria-selected={mode === 'register'}
-          onClick={() => {
-            setMode('register');
-            setError('');
-          }}
-        >
-          Register
-        </button>
-      </div>
+      <div className="customer-login-card">
+        <p className="customer-login-kicker">
+          <ShieldCheck size={14} /> {mode === 'login' ? 'Welcome back' : 'Join now'}
+        </p>
+        <h1>{mode === 'login' ? 'Login' : 'Create account'}</h1>
+        <p className="customer-login-lead">
+          {mode === 'login'
+            ? 'Use your email and password. Your session stays saved on this device.'
+            : 'Register once — then Buy now, Phone Check and Repair stay linked to you.'}
+        </p>
 
-      {error ? <p className="form-error customer-login-error">{error}</p> : null}
+        <div className="customer-auth-tabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            className={mode === 'login' ? 'is-active' : undefined}
+            aria-selected={mode === 'login'}
+            onClick={() => {
+              setMode('login');
+              setError('');
+            }}
+          >
+            Login
+          </button>
+          <button
+            type="button"
+            role="tab"
+            className={mode === 'register' ? 'is-active' : undefined}
+            aria-selected={mode === 'register'}
+            onClick={() => {
+              setMode('register');
+              setError('');
+            }}
+          >
+            Register
+          </button>
+        </div>
 
-      <form className="customer-auth-form" onSubmit={(event) => void submit(event)}>
-        {mode === 'register' ? (
-          <>
-            <label className="form-group">
-              <span className="form-label">Full name</span>
-              <input
-                className="form-input"
-                required
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                placeholder="Your name"
-                autoComplete="name"
-              />
-            </label>
-            <label className="form-group">
-              <span className="form-label">Phone (optional)</span>
-              <input
-                className="form-input"
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-                placeholder="03XXXXXXXXX"
-                autoComplete="tel"
-              />
-            </label>
-          </>
-        ) : null}
+        {error ? <p className="form-error customer-login-error">{error}</p> : null}
 
-        <label className="form-group">
-          <span className="form-label">Email</span>
-          <input
-            className="form-input"
-            type="email"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="you@email.com"
-            autoComplete="email"
-          />
-        </label>
-        <label className="form-group">
-          <span className="form-label">Password</span>
-          <input
-            className="form-input"
-            type="password"
-            required
-            minLength={6}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder={mode === 'register' ? 'At least 6 characters' : 'Your password'}
-            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-          />
-        </label>
-        {mode === 'register' ? (
+        <form className="customer-auth-form" onSubmit={(event) => void submit(event)}>
+          {mode === 'register' ? (
+            <div className="customer-auth-grid">
+              <label className="form-group">
+                <span className="form-label">Full name</span>
+                <input
+                  className="form-input"
+                  required
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder="Your name"
+                  autoComplete="name"
+                />
+              </label>
+              <label className="form-group">
+                <span className="form-label">Phone (optional)</span>
+                <input
+                  className="form-input"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  placeholder="03XXXXXXXXX"
+                  autoComplete="tel"
+                />
+              </label>
+            </div>
+          ) : null}
+
           <label className="form-group">
-            <span className="form-label">Confirm password</span>
+            <span className="form-label">Email</span>
+            <input
+              className="form-input"
+              type="email"
+              required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="you@email.com"
+              autoComplete="email"
+            />
+          </label>
+          <label className="form-group">
+            <span className="form-label">Password</span>
             <input
               className="form-input"
               type="password"
               required
               minLength={6}
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              placeholder="Re-enter password"
-              autoComplete="new-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder={mode === 'register' ? 'At least 6 characters' : 'Your password'}
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
             />
           </label>
-        ) : null}
+          {mode === 'register' ? (
+            <label className="form-group">
+              <span className="form-label">Confirm password</span>
+              <input
+                className="form-input"
+                type="password"
+                required
+                minLength={6}
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                placeholder="Re-enter password"
+                autoComplete="new-password"
+              />
+            </label>
+          ) : null}
 
-        <button type="submit" className="btn btn-primary btn-lg customer-auth-submit" disabled={saving}>
-          {saving ? 'Please wait…' : mode === 'login' ? 'Login' : 'Create account'}
-        </button>
-      </form>
+          <button type="submit" className="btn btn-primary btn-lg customer-auth-submit" disabled={saving}>
+            {saving ? 'Please wait…' : mode === 'login' ? 'Login & continue' : 'Create account'}
+          </button>
+        </form>
 
-      <p className="customer-login-hint">
-        After login, open <strong>My account</strong> anytime to see what you bought, when, and repair status.
-      </p>
+        <p className="customer-login-hint">
+          After login, open <strong>My account</strong> anytime for personal order and repair history.
+        </p>
+      </div>
     </div>
   );
 }
