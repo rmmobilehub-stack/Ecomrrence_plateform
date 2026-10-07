@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { Activity, Home, Info, Menu, ShoppingBag, Wrench, X } from 'lucide-react';
+import { Activity, Home, Info, Menu, ShoppingBag, UserRound, Wrench, X } from 'lucide-react';
 import { useState } from 'react';
 import { storefrontPath } from '@/lib/storefront-paths';
+import CustomerAccountMenu from '@/components/store/CustomerAccountMenu';
 
 type StoreNavProps = {
   slug: string;
@@ -19,6 +20,7 @@ export default function StoreNav({ slug, homeHref, name, logo, announcement }: S
   const repairHref = storefrontPath(slug, 'repair');
   const phoneCheckHref = storefrontPath(slug, 'phone-check');
   const shopHref = storefrontPath(slug, 'products');
+  const accountHref = storefrontPath(slug, 'account');
   const aboutHref = `${homeHref}#about`;
   const assurance = announcement || 'Cash on delivery';
 
@@ -58,6 +60,7 @@ export default function StoreNav({ slug, homeHref, name, logo, announcement }: S
       </div>
 
       <div className="store-nav-actions">
+        <CustomerAccountMenu slug={slug} />
         <button
           className={`store-mobile-menu-btn ${menuOpen ? 'active' : ''}`}
           type="button"
@@ -107,6 +110,12 @@ export default function StoreNav({ slug, homeHref, name, logo, announcement }: S
               <Info size={18} />
               <span>
                 About<small>Learn about {name}</small>
+              </span>
+            </Link>
+            <Link href={accountHref} onClick={closeMenu}>
+              <UserRound size={18} />
+              <span>
+                My account<small>Login, orders & repair history</small>
               </span>
             </Link>
             <div className="store-mobile-assurance">

@@ -1,11 +1,13 @@
-import { getActiveStoreBySlug } from '@/lib/db';
-import RepairBookingFlow from '@/components/store/RepairBookingFlow';
 import { getRepairCatalog } from '@/lib/iphone-repair-catalog';
-import { notFound } from 'next/navigation';
+import RepairBookingFlow from '@/components/store/RepairBookingFlow';
+import { requireStorefrontCustomer } from '@/lib/require-storefront-customer';
+import { storefrontPath } from '@/lib/storefront-paths';
 
 export default async function RepairPage({ params }: { params: { storeSlug: string } }) {
-  const store = await getActiveStoreBySlug(params.storeSlug);
-  if (!store) notFound();
+  const { store } = await requireStorefrontCustomer(
+    params.storeSlug,
+    storefrontPath(params.storeSlug, 'repair')
+  );
   const catalog = getRepairCatalog();
 
   return (

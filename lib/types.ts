@@ -135,10 +135,25 @@ export interface StatusNotifyEntry {
   emailSent: boolean;
 }
 
+export interface CustomerAccount {
+  id: string;
+  storeId: string;
+  email: string;
+  name: string;
+  phone: string;
+  avatarUrl?: string;
+  passwordHash?: string;
+  googleId?: string | null;
+  facebookId?: string | null;
+  createdAt: string;
+  lastLoginAt?: string | null;
+}
+
 export interface Order {
   id: string;
   storeId: string;
   orderNumber: string;
+  customerId?: string | null;
   customer: CustomerInfo;
   items: OrderItem[];
   subtotal: number;
@@ -247,6 +262,7 @@ export interface RepairBooking {
   id: string;
   storeId: string;
   bookingNumber: string;
+  customerId?: string | null;
   customer: RepairBookingCustomer;
   device: RepairBookingDevice;
   issue: RepairBookingIssue;
@@ -270,11 +286,20 @@ export interface CartItem {
   selectedVariants: Record<string, string>;
 }
 
-export type UserRole = 'super-admin' | 'admin';
+export type UserRole = 'super-admin' | 'admin' | 'customer';
 
 export interface AuthPayload {
   id: string;
   email: string;
   role: UserRole;
   storeId?: string;
+}
+
+export interface CustomerAuthPayload {
+  id: string;
+  email: string;
+  name: string;
+  role: 'customer';
+  storeId: string;
+  avatarUrl?: string;
 }

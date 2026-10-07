@@ -1,11 +1,13 @@
-import { getActiveStoreBySlug } from '@/lib/db';
 import PhoneCheckFlow from '@/components/store/PhoneCheckFlow';
 import { getRepairCatalog } from '@/lib/iphone-repair-catalog';
-import { notFound } from 'next/navigation';
+import { requireStorefrontCustomer } from '@/lib/require-storefront-customer';
+import { storefrontPath } from '@/lib/storefront-paths';
 
 export default async function PhoneCheckPage({ params }: { params: { storeSlug: string } }) {
-  const store = await getActiveStoreBySlug(params.storeSlug);
-  if (!store) notFound();
+  const { store } = await requireStorefrontCustomer(
+    params.storeSlug,
+    storefrontPath(params.storeSlug, 'phone-check')
+  );
   const catalog = getRepairCatalog();
 
   return (

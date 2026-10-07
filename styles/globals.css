@@ -9218,3 +9218,206 @@ body {
     font-size: 1.8rem;
   }
 }
+
+/* ============================================
+   CUSTOMER ACCOUNT / LOGIN
+============================================ */
+.store-account-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid #c9e4ef;
+  background: #f4fbff;
+  color: #17445d;
+  font-size: 0.82rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+.store-account-btn.is-loading {
+  width: 40px;
+  padding: 0;
+  opacity: 0.45;
+}
+.store-account-btn.is-user img {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  object-fit: cover;
+}
+.store-account-label { white-space: nowrap; }
+
+.customer-auth-page {
+  display: grid;
+  justify-items: center;
+  padding-block: 36px 56px;
+}
+
+.customer-login-card,
+.customer-account-shell {
+  width: min(100%, 720px);
+  padding: 28px 24px;
+  border-radius: 22px;
+  border: 1px solid #d7ebf5;
+  background: linear-gradient(165deg, #fff, #f3fbff);
+  box-shadow: 0 14px 36px rgba(20, 56, 79, 0.07);
+}
+
+.customer-login-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+  color: #049ac2;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.customer-login-card h1,
+.customer-account-head h1 {
+  margin: 0;
+  color: #123247;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  letter-spacing: -0.03em;
+}
+
+.customer-login-lead,
+.customer-account-muted,
+.customer-login-hint {
+  color: #5a7a8f;
+  line-height: 1.55;
+}
+
+.customer-auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 18px 0 8px;
+  padding: 5px;
+  border-radius: 14px;
+  background: #eaf6fb;
+}
+
+.customer-auth-tabs button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #4f7186;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.customer-auth-tabs button.is-active {
+  background: #fff;
+  color: #123247;
+  box-shadow: 0 4px 14px rgba(20, 56, 79, 0.08);
+}
+
+.customer-auth-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.customer-auth-submit {
+  width: 100%;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.customer-login-error { margin-top: 14px; }
+.customer-login-hint { margin-top: 16px; font-size: 0.84rem; }
+
+.customer-account-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+
+.customer-history-block {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.customer-history-block h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #123247;
+  font-size: 1.05rem;
+}
+
+.customer-history-list {
+  display: grid;
+  gap: 12px;
+}
+
+.customer-history-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid #d7ebf5;
+  background: #fff;
+}
+
+.customer-history-card > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.customer-history-card > div:first-child strong { color: #123247; }
+.customer-history-card > div:first-child span,
+.customer-history-card p {
+  color: #5a7a8f;
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+.customer-history-card footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.customer-status-updates {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.customer-status-updates li {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f4fbff;
+  color: #3d5a6e;
+  font-size: 0.8rem;
+}
+
+.customer-status-updates small { color: #7a93a4; }
+
+@media (max-width: 640px) {
+  .store-account-label { display: none; }
+  .store-account-btn { width: 40px; padding: 0; justify-content: center; }
+  .customer-login-card,
+  .customer-account-shell { padding: 20px 16px; border-radius: 18px; }
+  .customer-account-head { flex-direction: column; }
+  .customer-account-head .btn { width: 100%; justify-content: center; }
+}

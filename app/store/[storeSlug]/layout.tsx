@@ -64,7 +64,7 @@ export default async function StoreLayout({ children, params }: { children: Reac
       {children}
       <footer className="store-footer">
         <div><strong>{store.name}</strong><span>{store.description}</span></div>
-        <nav><a href={homeHref}>Home</a><a href={productsHref}>Shop</a><a href={repairHref}>iPhone Repair</a><a href={phoneCheckHref}>Phone Check</a><a href={`${homeHref}#about`}>About</a></nav>
+        <nav><a href={homeHref}>Home</a><a href={productsHref}>Shop</a><a href={repairHref}>iPhone Repair</a><a href={phoneCheckHref}>Phone Check</a><a href={storefrontPath(store.slug, 'account')}>My account</a><a href={`${homeHref}#about`}>About</a></nav>
         <small>© {new Date().getFullYear()} {store.name}</small>
       </footer>
     </div>
