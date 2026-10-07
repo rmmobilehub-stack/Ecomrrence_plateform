@@ -12,17 +12,17 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { fetchCoupon, placeOrder } from '../api';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
-import { useAuthGate } from '../navigation/useAuthGate';
+import { useAuth } from '../context/AuthContext';
 import { formatMoney } from '../money';
 import { calculateDeliveryFee } from '../pricing';
 import { colors, space } from '../theme';
 import type { Coupon } from '../types';
-import { Card, ErrorText, Field, LoadingBlock, Muted, PrimaryButton, ScreenWrap, SecondaryButton, Title } from '../ui';
+import { Card, ErrorText, Field, Muted, PrimaryButton, ScreenWrap, SecondaryButton, Title } from '../ui';
 import type { RootStackParamList } from '../navigation/types';
 
 export function CheckoutScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { customer, ready } = useAuthGate('Checkout');
+  const { customer } = useAuth();
   const { items, subtotal, clear } = useCart();
   const { store, accent, currency } = useStore();
   const [form, setForm] = useState({
@@ -108,14 +108,6 @@ export function CheckoutScreen() {
       setSaving(false);
     }
   };
-
-  if (!ready) {
-    return (
-      <ScreenWrap>
-        <LoadingBlock />
-      </ScreenWrap>
-    );
-  }
 
   if (!items.length) {
     return (

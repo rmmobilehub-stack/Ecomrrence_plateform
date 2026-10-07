@@ -1,7 +1,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Text } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
+import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
 import { AccountScreen } from '../screens/AccountScreen';
@@ -17,9 +18,10 @@ import { ProductScreen } from '../screens/ProductScreen';
 import { RepairDoneScreen, RepairScreen } from '../screens/RepairScreen';
 import { ShopScreen } from '../screens/ShopScreen';
 import { colors } from '../theme';
-import type { RootStackParamList, TabParamList } from './types';
+import type { AuthStackParamList, RootStackParamList, TabParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const AuthStackNav = createNativeStackNavigator<AuthStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
 function TabIcon({ label, focused }: { label: string; focused: boolean }) {
@@ -71,38 +73,68 @@ function Tabs() {
   );
 }
 
+function AuthStack() {
+  return (
+    <AuthStackNav.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#F7FCFF' } }}>
+      <AuthStackNav.Screen name="Auth" component={AuthScreen} />
+    </AuthStackNav.Navigator>
+  );
+}
+
+function AppStack({ storeName }: { storeName?: string }) {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShadowVisible: false,
+        headerStyle: { backgroundColor: colors.bg },
+        contentStyle: { backgroundColor: colors.bg },
+      }}>
+      <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
+      <Stack.Screen name="Product" component={ProductScreen} options={{ title: 'Product' }} />
+      <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ title: 'Checkout' }} />
+      <Stack.Screen
+        name="OrderConfirmed"
+        component={OrderConfirmedScreen}
+        options={{ title: 'Confirmed', headerBackVisible: false }}
+      />
+      <Stack.Screen name="Repair" component={RepairScreen} options={{ title: 'Repair' }} />
+      <Stack.Screen
+        name="RepairDone"
+        component={RepairDoneScreen}
+        options={{ title: 'Booked', headerBackVisible: false }}
+      />
+      <Stack.Screen name="PhoneCheck" component={PhoneCheckScreen} options={{ title: 'Phone check' }} />
+      <Stack.Screen name="Contact" component={ContactScreen} options={{ title: storeName || 'Contact' }} />
+    </Stack.Navigator>
+  );
+}
+
 export function RootNavigator() {
   const { store } = useStore();
+  const { customer, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F7FCFF' }}>
+        <ActivityIndicator color="#2F6BFF" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer
       theme={{
         ...DefaultTheme,
-        colors: { ...DefaultTheme.colors, background: colors.bg, card: colors.card, primary: colors.ink, text: colors.ink, border: colors.line },
+        colors: {
+          ...DefaultTheme.colors,
+          background: customer ? colors.bg : '#F7FCFF',
+          card: colors.card,
+          primary: colors.ink,
+          text: colors.ink,
+          border: colors.line,
+        },
       }}>
-      <Stack.Navigator
-        screenOptions={{
-          headerShadowVisible: false,
-          headerStyle: { backgroundColor: colors.bg },
-          contentStyle: { backgroundColor: colors.bg },
-        }}>
-        <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
-        <Stack.Screen name="Auth" component={AuthScreen} options={{ title: 'Login' }} />
-        <Stack.Screen name="Product" component={ProductScreen} options={{ title: 'Product' }} />
-        <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ title: 'Checkout' }} />
-        <Stack.Screen
-          name="OrderConfirmed"
-          component={OrderConfirmedScreen}
-          options={{ title: 'Confirmed', headerBackVisible: false }}
-        />
-        <Stack.Screen name="Repair" component={RepairScreen} options={{ title: 'Repair' }} />
-        <Stack.Screen
-          name="RepairDone"
-          component={RepairDoneScreen}
-          options={{ title: 'Booked', headerBackVisible: false }}
-        />
-        <Stack.Screen name="PhoneCheck" component={PhoneCheckScreen} options={{ title: 'Phone check' }} />
-        <Stack.Screen name="Contact" component={ContactScreen} options={{ title: store?.name || 'Contact' }} />
-      </Stack.Navigator>
+      {customer ? <AppStack storeName={store?.name} /> : <AuthStack />}
     </NavigationContainer>
   );
 }

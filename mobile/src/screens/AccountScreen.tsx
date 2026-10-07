@@ -9,7 +9,6 @@ import { formatMoney } from '../money';
 import { colors, space } from '../theme';
 import type { HistoryOrder, HistoryRepair } from '../types';
 import { Card, ErrorText, LoadingBlock, Muted, PrimaryButton, ScreenWrap, SecondaryButton, Title } from '../ui';
-import { AuthForm } from './AuthScreen';
 import type { RootStackParamList } from '../navigation/types';
 
 function formatDate(value: string) {
@@ -69,21 +68,10 @@ export function AccountScreen() {
     }, [load]),
   );
 
-  if (authLoading) {
+  if (authLoading || !customer) {
     return (
       <ScreenWrap>
         <LoadingBlock />
-      </ScreenWrap>
-    );
-  }
-
-  if (!customer) {
-    return (
-      <ScreenWrap>
-        <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled">
-          <Title>Login</Title>
-          <AuthForm compact={false} />
-        </ScrollView>
       </ScreenWrap>
     );
   }

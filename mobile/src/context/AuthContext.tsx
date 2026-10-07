@@ -61,7 +61,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!data.token) throw new Error('Login did not return a session token');
         await persist(data.token, data.customer);
       },
-      register: async payload => {
+      register: async (payload: {
+        name: string;
+        phone?: string;
+        email: string;
+        password: string;
+        confirmPassword: string;
+      }) => {
         const data = await registerCustomer(payload);
         if (!data.token) throw new Error('Register did not return a session token');
         await persist(data.token, data.customer);

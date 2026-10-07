@@ -1,23 +1,26 @@
-import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useState, type ComponentProps } from 'react';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { useAuth } from '../context/AuthContext';
-import { useStore } from '../context/StoreContext';
-import { colors, space } from '../theme';
-import { Chip, ErrorText, Field, Muted, PrimaryButton, ScreenWrap, Title } from '../ui';
-import type { AuthReturnTo, RootStackParamList } from '../navigation/types';
-import { continueAfterAuth } from '../navigation/continueAfterAuth';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ErrorText } from '../ui';
 
-export function AuthForm({
-  onSuccess,
-  compact,
-}: {
-  onSuccess?: () => void;
-  compact?: boolean;
-}) {
+const ink = '#123247';
+const muted = '#5A7A8F';
+const line = '#D0E6F1';
+const blue = '#2F6BFF';
+const kicker = '#0284C7';
+
+export function AuthScreen() {
   const { login, register } = useAuth();
-  const { store, accent } = useStore();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -37,7 +40,6 @@ export function AuthForm({
       } else {
         await login(email, password);
       }
-      onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -46,90 +48,174 @@ export function AuthForm({
   };
 
   return (
-    <View style={{ gap: 10 }}>
-      {!compact && (
-        <>
-          <Muted>Sign in to {store?.name || 'the store'} so orders, phone checks and repairs stay with you.</Muted>
-          <View style={styles.benefits}>
-            <Text style={styles.benefit}>Order history — see what you bought</Text>
-            <Text style={styles.benefit}>Repair status — follow doorstep bookings</Text>
-            <Text style={styles.benefit}>Phone check — saved under your login</Text>
+    <SafeAreaView style={styles.page} edges={['top', 'left', 'right']}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <View style={styles.card}>
+          <Text style={styles.kicker}>{mode === 'login' ? 'WELCOME BACK' : 'JOIN NOW'}</Text>
+          <Text style={styles.title}>{mode === 'login' ? 'Login' : 'Create account'}</Text>
+          <Text style={styles.lead}>
+            {mode === 'login'
+              ? 'Use your email and password. Your session stays saved on this device.'
+              : 'Register once — then Buy now, Phone Check and Repair stay linked to you.'}
+          </Text>
+
+          <View style={styles.tabs}>
+            <Pressable
+              style={[styles.tab, mode === 'login' && styles.tabActive]}
+              onPress={() => {
+                setMode('login');
+                setError('');
+              }}>
+              <Text style={[styles.tabText, mode === 'login' && styles.tabTextActive]}>Login</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.tab, mode === 'register' && styles.tabActive]}
+              onPress={() => {
+                setMode('register');
+                setError('');
+              }}>
+              <Text style={[styles.tabText, mode === 'register' && styles.tabTextActive]}>Register</Text>
+            </Pressable>
           </View>
-        </>
-      )}
-      <View style={styles.tabs}>
-        <Chip label="Login" selected={mode === 'login'} onPress={() => { setMode('login'); setError(''); }} />
-        <Chip label="Register" selected={mode === 'register'} onPress={() => { setMode('register'); setError(''); }} />
-      </View>
-      {mode === 'register' && (
-        <>
-          <Field label="Full name" value={name} onChangeText={setName} placeholder="Your name" />
-          <Field label="Phone (optional)" value={phone} onChangeText={setPhone} placeholder="03XXXXXXXXX" keyboardType="phone-pad" />
-        </>
-      )}
-      <Field
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
-        placeholder="you@email.com"
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <Field
-        label="Password"
-        value={password}
-        onChangeText={setPassword}
-        placeholder={mode === 'register' ? 'At least 6 characters' : 'Your password'}
-        secureTextEntry
-      />
-      {mode === 'register' && (
-        <Field
-          label="Confirm password"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          placeholder="Re-enter password"
-          secureTextEntry
-        />
-      )}
-      <ErrorText>{error}</ErrorText>
-      <PrimaryButton
-        label={saving ? 'Please wait…' : mode === 'login' ? 'Login & continue' : 'Create account'}
-        onPress={submit}
-        disabled={saving}
-        color={accent}
-      />
+
+          {mode === 'register' && (
+            <View style={styles.row}>
+              <AuthField label="Full name" value={name} onChangeText={setName} placeholder="Your name" />
+              <AuthField
+                label="Phone (optional)"
+                value={phone}
+                onChangeText={setPhone}
+                placeholder="03XXXXXXXXX"
+                keyboardType="phone-pad"
+              />
+            </View>
+          )}
+
+          <AuthField
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="you@email.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <AuthField
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            placeholder={mode === 'register' ? 'At least 6 characters' : 'Your password'}
+            secureTextEntry
+          />
+          {mode === 'register' && (
+            <AuthField
+              label="Confirm password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="Re-enter password"
+              secureTextEntry
+            />
+          )}
+
+          <ErrorText>{error}</ErrorText>
+
+          <Pressable style={[styles.submit, saving && { opacity: 0.55 }]} onPress={submit} disabled={saving}>
+            <Text style={styles.submitText}>
+              {saving ? 'Please wait…' : mode === 'login' ? 'Login & continue' : 'Create account'}
+            </Text>
+          </Pressable>
+
+          {mode === 'login' ? (
+            <Text style={styles.hint}>
+              After login, open <Text style={styles.hintStrong}>My account</Text> anytime for personal order and repair
+              history.
+            </Text>
+          ) : null}
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+function AuthField({
+  label,
+  ...rest
+}: { label: string } & ComponentProps<typeof TextInput>) {
+  return (
+    <View style={styles.field}>
+      <Text style={styles.label}>{label}</Text>
+      <TextInput placeholderTextColor="#8AA4B5" style={styles.input} {...rest} />
     </View>
   );
 }
 
-export function AuthScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const route = useRoute<RouteProp<RootStackParamList, 'Auth'>>();
-  const { store } = useStore();
-
-  return (
-    <ScreenWrap>
-      <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled">
-        <Title>{store?.name || 'Account'}</Title>
-        <AuthForm
-          onSuccess={() => continueAfterAuth(navigation, route.params?.returnTo, route.params?.productId)}
-        />
-      </ScrollView>
-    </ScreenWrap>
-  );
-}
-
-export function goToAuth(
-  navigation: NativeStackNavigationProp<RootStackParamList>,
-  returnTo: AuthReturnTo = 'Account',
-  productId?: string,
-) {
-  navigation.navigate('Auth', { returnTo, productId });
-}
-
 const styles = StyleSheet.create({
-  pad: { padding: space, paddingBottom: 40, gap: 12 },
-  tabs: { flexDirection: 'row', gap: 8 },
-  benefits: { gap: 6, marginBottom: 4 },
-  benefit: { color: colors.ink, fontSize: 14 },
+  page: { flex: 1, backgroundColor: '#F7FCFF' },
+  scroll: { flexGrow: 1, justifyContent: 'center', padding: 18, paddingBottom: 36 },
+  card: {
+    backgroundColor: '#F8FCFE',
+    borderRadius: 24,
+    padding: 22,
+    borderWidth: 1,
+    borderColor: 'rgba(148, 183, 204, 0.38)',
+    shadowColor: '#14384F',
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 4,
+  },
+  kicker: {
+    color: kicker,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+    marginBottom: 8,
+  },
+  title: { color: ink, fontSize: 32, fontWeight: '800', letterSpacing: -0.8 },
+  lead: { color: muted, marginTop: 8, marginBottom: 16, lineHeight: 22, fontSize: 15 },
+  tabs: {
+    flexDirection: 'row',
+    backgroundColor: '#EAF6FB',
+    borderRadius: 14,
+    padding: 5,
+    borderWidth: 1,
+    borderColor: '#D7EBF5',
+    marginBottom: 16,
+  },
+  tab: { flex: 1, minHeight: 42, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  tabActive: {
+    backgroundColor: '#fff',
+    shadowColor: '#0EA5E9',
+    shadowOpacity: 0.16,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  },
+  tabText: { color: '#4F7186', fontWeight: '800' },
+  tabTextActive: { color: ink },
+  row: { flexDirection: 'row', gap: 12 },
+  field: { flex: 1, marginBottom: 12 },
+  label: { color: muted, fontSize: 12, fontWeight: '800', letterSpacing: 0.4, marginBottom: 6 },
+  input: {
+    minHeight: 46,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: line,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    paddingHorizontal: 14,
+    color: ink,
+    fontSize: 16,
+  },
+  submit: {
+    marginTop: 8,
+    minHeight: 50,
+    borderRadius: 14,
+    backgroundColor: blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  submitText: { color: '#fff', fontWeight: '800', fontSize: 16 },
+  hint: { marginTop: 16, color: muted, fontSize: 13, lineHeight: 20, textAlign: 'center' },
+  hintStrong: { fontWeight: '800', color: ink },
 });
