@@ -3,8 +3,10 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { createWhatsAppOrder, fetchProduct } from '../api';
+import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
+import { goToAuth } from './AuthScreen';
 import { formatMoney } from '../money';
 import { calculateProductPrice, getReferencePrice } from '../pricing';
 import { colors, space } from '../theme';
@@ -29,6 +31,7 @@ export function ProductScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { add, buyNow } = useCart();
   const { store, accent, currency } = useStore();
+  const { customer } = useAuth();
   const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState('');
   const [qty, setQty] = useState(1);
@@ -75,10 +78,18 @@ export function ProductScreen() {
   const onBuy = () => {
     if (!cartItem || unavailable) return;
     buyNow(cartItem);
+    if (!customer) {
+      goToAuth(navigation, 'Checkout');
+      return;
+    }
     navigation.navigate('Checkout');
   };
   const onWhatsApp = async () => {
     if (!cartItem || unavailable || !store) return;
+    if (!customer) {
+      goToAuth(navigation, 'Product', product!.id);
+      return;
+    }
     setBusy(true);
     setError('');
     try {

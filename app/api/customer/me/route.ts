@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
-import { getCustomerSession } from '@/lib/customer-auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { getCustomerSession, getCustomerSessionFromRequest } from '@/lib/customer-auth';
 import { getCustomerById } from '@/lib/customers';
 
-export async function GET() {
-  const session = await getCustomerSession();
+export async function GET(req: NextRequest) {
+  const session = (await getCustomerSessionFromRequest(req)) || (await getCustomerSession());
   if (!session) return NextResponse.json({ customer: null });
 
   const customer = await getCustomerById(session.id);

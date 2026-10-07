@@ -1,17 +1,22 @@
 import { API_BASE_URL, STORE_SLUG } from './config';
+import { getAuthToken } from './session';
 import type {
   CartItem,
   Category,
   Coupon,
   CustomerInfo,
+  CustomerProfile,
   DeviceConditionInput,
   DeviceEstimate,
+  HistoryOrder,
+  HistoryRepair,
   Product,
   RepairCatalog,
   Store,
 } from './types';
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = getAuthToken();
   let response: Response;
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
@@ -19,12 +24,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(init?.headers || {}),
       },
     });
   } catch {
     throw new Error(
-      'Could not reach the web API. Start the website with npm run dev, then retry. Android emulator uses 10.0.2.2:3001.',
+      'Could not reach the web API. Start the website with yarn dev, then retry. Android emulator uses 10.0.2.2:3001.',
     );
   }
 
@@ -123,4 +129,48 @@ export function createLead(payload: { name: string; contact: string; interest: s
     method: 'POST',
     body: JSON.stringify({ ...payload, source: 'chatbot' }),
   });
+}
+
+type AuthCustomer = {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  storeId?: string;
+};
+
+export function loginCustomer(email: string, password: string) {
+  return request<{ success: boolean; token: string; customer: AuthCustomer }>('/api/customer/login', {
+    method: 'POST',
+    body: JSON.stringify({ storeSlug: STORE_SLUG, email, password }),
+  });
+}
+
+export function registerCustomer(payload: {
+  name: string;
+  phone?: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}) {
+  return request<{ success: boolean; token: string; customer: AuthCustomer }>('/api/customer/register', {
+    method: 'POST',
+    body: JSON.stringify({ storeSlug: STORE_SLUG, ...payload }),
+  });
+}
+
+export function fetchCustomerMe() {
+  return request<{ customer: CustomerProfile | null }>('/api/customer/me');
+}
+
+export function fetchCustomerHistory() {
+  return request<{
+    customer: CustomerProfile;
+    orders: HistoryOrder[];
+    repairs: HistoryRepair[];
+  }>(`/api/customer/history?storeSlug=${encodeURIComponent(STORE_SLUG)}`);
+}
+
+export function logoutCustomer() {
+  return request<{ ok?: boolean }>('/api/customer/logout', { method: 'POST' });
 }

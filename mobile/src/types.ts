@@ -90,6 +90,42 @@ export interface CustomerInfo {
   notes?: string;
 }
 
+export interface CustomerProfile {
+  id: string;
+  storeId?: string;
+  name: string;
+  email: string;
+  phone?: string;
+  avatarUrl?: string;
+}
+
+export interface HistoryStatusUpdate {
+  status: string;
+  note?: string;
+  at: string;
+}
+
+export interface HistoryOrder {
+  id: string;
+  orderNumber: string;
+  items: { qty: number; productName: string }[];
+  total: number;
+  status: string;
+  createdAt: string;
+  statusUpdates?: HistoryStatusUpdate[];
+}
+
+export interface HistoryRepair {
+  id: string;
+  bookingNumber: string;
+  device: { modelName: string };
+  issue: { issueName: string };
+  status: string;
+  createdAt: string;
+  deviceEstimate?: { score: number };
+  statusUpdates?: HistoryStatusUpdate[];
+}
+
 export interface PlacedOrder {
   id: string;
   orderNumber: string;

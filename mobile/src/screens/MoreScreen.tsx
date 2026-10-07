@@ -1,13 +1,16 @@
 import { ScrollView, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useStore } from '../context/StoreContext';
 import { space } from '../theme';
 import { Card, Muted, PrimaryButton, ScreenWrap, Title } from '../ui';
-import type { RootStackParamList } from '../navigation/types';
+import type { RootStackParamList, TabParamList } from '../navigation/types';
 
 export function MoreScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<
+    CompositeNavigationProp<BottomTabNavigationProp<TabParamList, 'More'>, NativeStackNavigationProp<RootStackParamList>>
+  >();
   const { store, accent } = useStore();
 
   return (
@@ -23,6 +26,9 @@ export function MoreScreen() {
         </Card>
         <Card>
           <PrimaryButton label="Contact store" onPress={() => navigation.navigate('Contact')} color={accent} />
+        </Card>
+        <Card>
+          <PrimaryButton label="My account" onPress={() => navigation.navigate('Account')} color={accent} />
         </Card>
         {!!store?.contactEmail && <Muted>Email {store.contactEmail}</Muted>}
       </ScrollView>

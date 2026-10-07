@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -12,15 +12,17 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { fetchCoupon, placeOrder } from '../api';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
+import { useAuthGate } from '../navigation/useAuthGate';
 import { formatMoney } from '../money';
 import { calculateDeliveryFee } from '../pricing';
 import { colors, space } from '../theme';
 import type { Coupon } from '../types';
-import { Card, ErrorText, Field, Muted, PrimaryButton, ScreenWrap, SecondaryButton, Title } from '../ui';
+import { Card, ErrorText, Field, LoadingBlock, Muted, PrimaryButton, ScreenWrap, SecondaryButton, Title } from '../ui';
 import type { RootStackParamList } from '../navigation/types';
 
 export function CheckoutScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { customer, ready } = useAuthGate('Checkout');
   const { items, subtotal, clear } = useCart();
   const { store, accent, currency } = useStore();
   const [form, setForm] = useState({
@@ -39,6 +41,16 @@ export function CheckoutScreen() {
   const [saving, setSaving] = useState(false);
 
   const setField = (key: keyof typeof form, value: string) => setForm(current => ({ ...current, [key]: value }));
+
+  useEffect(() => {
+    if (!customer) return;
+    setForm(prev => ({
+      ...prev,
+      name: prev.name || customer.name || '',
+      email: prev.email || customer.email || '',
+      phone: prev.phone || customer.phone || '',
+    }));
+  }, [customer]);
 
   const productDiscount = useMemo(
     () => items.reduce((total, item) => total + (Math.max(item.price, item.originalPrice ?? item.price) - item.price) * item.qty, 0),
@@ -96,6 +108,14 @@ export function CheckoutScreen() {
       setSaving(false);
     }
   };
+
+  if (!ready) {
+    return (
+      <ScreenWrap>
+        <LoadingBlock />
+      </ScreenWrap>
+    );
+  }
 
   if (!items.length) {
     return (

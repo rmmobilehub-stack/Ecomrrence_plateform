@@ -4,6 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Text } from 'react-native';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
+import { AccountScreen } from '../screens/AccountScreen';
+import { AuthScreen } from '../screens/AuthScreen';
 import { CartScreen } from '../screens/CartScreen';
 import { CheckoutScreen } from '../screens/CheckoutScreen';
 import { ContactScreen } from '../screens/ContactScreen';
@@ -56,6 +58,11 @@ function Tabs() {
         }}
       />
       <Tab.Screen
+        name="Account"
+        component={AccountScreen}
+        options={{ tabBarIcon: ({ focused }) => <TabIcon label="Account" focused={focused} /> }}
+      />
+      <Tab.Screen
         name="More"
         component={MoreScreen}
         options={{ tabBarIcon: ({ focused }) => <TabIcon label="More" focused={focused} /> }}
@@ -79,6 +86,7 @@ export function RootNavigator() {
           contentStyle: { backgroundColor: colors.bg },
         }}>
         <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
+        <Stack.Screen name="Auth" component={AuthScreen} options={{ title: 'Login' }} />
         <Stack.Screen name="Product" component={ProductScreen} options={{ title: 'Product' }} />
         <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ title: 'Checkout' }} />
         <Stack.Screen

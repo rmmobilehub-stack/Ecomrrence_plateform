@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { fetchDeviceEstimate, fetchRepairCatalog } from '../api';
 import { useStore } from '../context/StoreContext';
+import { useAuthGate } from '../navigation/useAuthGate';
 import { formatMoney } from '../money';
 import { colors, space } from '../theme';
 import {
@@ -34,6 +35,7 @@ function toggle<T extends string>(list: T[], value: T): T[] {
 
 export function PhoneCheckScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { ready } = useAuthGate('PhoneCheck');
   const { accent } = useStore();
   const [models, setModels] = useState<RepairModel[]>([]);
   const [brandId, setBrandId] = useState('');
@@ -74,7 +76,7 @@ export function PhoneCheckScreen() {
     }
   };
 
-  if (loading) {
+  if (!ready || loading) {
     return (
       <ScreenWrap>
         <LoadingBlock />

@@ -4,6 +4,7 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { createRepairBooking, fetchDeviceEstimate, fetchRepairCatalog } from '../api';
 import { useStore } from '../context/StoreContext';
+import { useAuthGate } from '../navigation/useAuthGate';
 import { colors, space } from '../theme';
 import {
   DEFAULT_DEVICE_CONDITION,
@@ -17,6 +18,7 @@ import { ConditionFields } from './PhoneCheckScreen';
 
 export function RepairScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { customer, ready } = useAuthGate('Repair');
   const { accent } = useStore();
   const [catalog, setCatalog] = useState<RepairCatalog | null>(null);
   const [modelId, setModelId] = useState('');
@@ -36,6 +38,16 @@ export function RepairScreen() {
     preferredDate: '',
     preferredTime: '',
   });
+
+  useEffect(() => {
+    if (!customer) return;
+    setForm(prev => ({
+      ...prev,
+      name: prev.name || customer.name || '',
+      email: prev.email || customer.email || '',
+      phone: prev.phone || customer.phone || '',
+    }));
+  }, [customer]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -97,7 +109,7 @@ export function RepairScreen() {
     }
   };
 
-  if (loading) {
+  if (!ready || loading) {
     return (
       <ScreenWrap>
         <LoadingBlock />

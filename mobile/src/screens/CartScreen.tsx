@@ -2,8 +2,10 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
+import { goToAuth } from './AuthScreen';
 import { formatMoney } from '../money';
 import { colors, space } from '../theme';
 import { Card, Chip, Muted, PrimaryButton, RemoteImage, ScreenWrap, Title } from '../ui';
@@ -15,6 +17,7 @@ export function CartScreen() {
   >();
   const { items, update, remove, subtotal, count } = useCart();
   const { accent, currency } = useStore();
+  const { customer } = useAuth();
 
   if (!items.length) {
     return (
@@ -56,7 +59,11 @@ export function CartScreen() {
           </Card>
         ))}
         <Text style={styles.total}>Subtotal {formatMoney(subtotal, currency)}</Text>
-        <PrimaryButton label="Checkout" onPress={() => navigation.navigate('Checkout')} color={accent} />
+        <PrimaryButton
+          label="Checkout"
+          onPress={() => (customer ? navigation.navigate('Checkout') : goToAuth(navigation, 'Checkout'))}
+          color={accent}
+        />
       </ScrollView>
     </ScreenWrap>
   );
