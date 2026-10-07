@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { StoreAd } from '@/lib/types';
 
 function safeHttpUrl(value?: string) {
@@ -83,23 +83,11 @@ export default function AdsBanner({ ads }: { ads?: StoreAd[] }) {
     () => (ads ?? []).filter((ad) => ad.isActive && safeHttpUrl(ad.mediaUrl)),
     [ads]
   );
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    if (activeAds.length <= 1) return;
-    const timer = window.setInterval(() => {
-      setIndex((current) => (current + 1) % activeAds.length);
-    }, 6500);
-    return () => window.clearInterval(timer);
-  }, [activeAds.length]);
-
-  useEffect(() => {
-    if (index >= activeAds.length) setIndex(0);
-  }, [activeAds.length, index]);
 
   if (!activeAds.length) return null;
 
-  const current = activeAds[Math.min(index, activeAds.length - 1)];
+  // Show first active ad only — no auto-rotate.
+  const current = activeAds[0];
   const link = safeHttpUrl(current.linkUrl);
   const mediaUrl = safeHttpUrl(current.mediaUrl);
   const isVideo = current.type === 'video' || isDirectVideo(mediaUrl) || Boolean(embedSrc(mediaUrl));
@@ -127,21 +115,6 @@ export default function AdsBanner({ ads }: { ads?: StoreAd[] }) {
             </div>
           )}
         </div>
-        {activeAds.length > 1 && (
-          <div className="store-ads-dots" role="tablist" aria-label="Ad slides">
-            {activeAds.map((ad, adIndex) => (
-              <button
-                key={ad.id}
-                type="button"
-                role="tab"
-                aria-selected={adIndex === index}
-                aria-label={`Show ad ${adIndex + 1}`}
-                className={adIndex === index ? 'is-active' : undefined}
-                onClick={() => setIndex(adIndex)}
-              />
-            ))}
-          </div>
-        )}
       </div>
     </section>
   );

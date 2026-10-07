@@ -5,7 +5,6 @@ import type { ReactNode } from 'react';
 import { getActiveProductsForStore, getActiveStoreBySlug } from '@/lib/db';
 import type { Store } from '@/lib/types';
 import ProductCard from '@/components/store/ProductCard';
-import HeroProductSlider, { type HeroSlide } from '@/components/store/HeroProductSlider';
 import AdsBanner from '@/components/store/AdsBanner';
 import LeadChatbot from '@/components/store/LeadChatbot';
 import WhatsAppButton from '@/components/store/WhatsAppButton';
@@ -13,6 +12,8 @@ import Reveal from '@/components/store/Reveal';
 import { calculateProductPrice } from '@/lib/pricing';
 import { isValidWhatsAppNumber } from '@/lib/whatsapp';
 import { storefrontPath } from '@/lib/storefront-paths';
+
+const DEFAULT_STOREFRONT_HERO_BANNER = '/storefront/hero-tech-accessories-banner.jpg';
 
 function safePublicUrl(value?: string) {
   if (!value) return '';
@@ -62,29 +63,6 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
   const showWhatsApp = ['whatsapp', 'both'].includes(contactWidgetMode) && isValidWhatsAppNumber(store.whatsappNumber);
   const showChatbot = ['chatbot', 'both'].includes(contactWidgetMode);
 
-  const productSlides: HeroSlide[] = activeProducts
-    .map((product) => ({
-      src: product.thumbnail || product.images?.[0] || '',
-      label: product.name,
-      href: storefrontPath(store.slug, `products/${product.id}`),
-      mode: 'product' as const,
-    }))
-    .filter((slide) => Boolean(slide.src))
-    .slice(0, 6);
-  const configuredSlides = (store.heroSlides ?? []).filter(Boolean).map((src, index) => ({
-    src,
-    label: `${store.name} collection ${index + 1}`,
-    href: shopHref,
-    mode: 'campaign' as const,
-  }));
-  const slides = configuredSlides.length
-    ? configuredSlides
-    : productSlides.length
-      ? productSlides
-      : store.banner
-        ? [{ src: store.banner, label: store.name, href: shopHref, mode: 'campaign' as const }]
-        : [];
-
   const productImages = featured.map((product) => product.thumbnail || product.images?.[0] || '').filter(Boolean);
   const aboutImage = store.aboutImage || productImages[0] || '';
   const aboutSecondaryImage = productImages.find((image) => image !== aboutImage) || productImages[1] || '';
@@ -103,8 +81,11 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
   const chips = announcementChips(store.announcement);
 
   return <main>
-    <section className="store-hero">
-      <HeroProductSlider slides={slides} storeName={store.name}/>
+    <section
+      className="store-hero store-hero-static"
+      style={{ ['--hero-banner' as string]: `url("${DEFAULT_STOREFRONT_HERO_BANNER}")` }}
+    >
+      <div className="store-hero-static-bg" aria-hidden />
       <div className="store-hero-shell">
         <div className="store-hero-content">
           <div className="hero-kicker-row" aria-label="Store highlights">

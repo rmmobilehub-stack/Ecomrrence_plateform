@@ -2949,12 +2949,34 @@ body {
 
 /* Full-photo storefront hero: one continuous image surface at every viewport. */
 .store-hero {
+  position: relative;
   min-height: clamp(540px, 60vh, 640px);
   padding: 58px max(32px, calc((100vw - 1240px) / 2)) 72px;
   align-items: center;
   overflow: hidden;
   color: #fff;
   background: #0a2b3e;
+}
+.store-hero-static {
+  display: grid;
+  align-items: center;
+}
+.store-hero-static-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: #0a2b3e;
+  background-image:
+    linear-gradient(90deg, rgba(4, 24, 37, .78) 0%, rgba(5, 30, 44, .56) 38%, rgba(7, 37, 52, .18) 72%, rgba(7, 37, 52, .04) 100%),
+    var(--hero-banner);
+  background-position: center, 68% center;
+  background-size: cover, cover;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+.store-hero-static .store-hero-shell {
+  position: relative;
+  z-index: 1;
 }
 .store-hero > .hero-showcase {
   background: #0a2b3e;
@@ -2981,7 +3003,7 @@ body {
   background-image:
     linear-gradient(90deg, rgba(4, 24, 37, .78) 0%, rgba(5, 30, 44, .56) 38%, rgba(7, 37, 52, .18) 72%, rgba(7, 37, 52, .04) 100%),
     var(--hero-image) !important;
-  background-position: center, center !important;
+  background-position: center, 68% center !important;
   background-size: cover, cover !important;
 }
 .store-hero-shell {
