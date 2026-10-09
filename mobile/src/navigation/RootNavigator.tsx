@@ -95,7 +95,17 @@ function AppStack({ storeName }: { storeName?: string }) {
         contentStyle: { backgroundColor: colors.bg },
       }}>
       <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
-      <Stack.Screen name="Product" component={ProductScreen} options={{ title: 'Product' }} />
+      <Stack.Screen
+        name="Product"
+        component={ProductScreen}
+        options={{
+          title: 'Product',
+          headerStyle: { backgroundColor: '#050E24' },
+          headerTintColor: '#F7FBFF',
+          headerTitleStyle: { color: '#F7FBFF' },
+          contentStyle: { backgroundColor: '#050E24' },
+        }}
+      />
       <Stack.Screen name="Cart" component={CartScreen} options={{ title: 'Cart' }} />
       <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ title: 'Checkout' }} />
       <Stack.Screen
