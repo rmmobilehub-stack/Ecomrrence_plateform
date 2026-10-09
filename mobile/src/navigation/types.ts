@@ -19,6 +19,7 @@ export type RootStackParamList = {
   Checkout: undefined;
   OrderConfirmed: { order: PlacedOrder };
   Repair: undefined;
+  RepairCheck: { serviceId: string; serviceLabel: string; model: string };
   PhoneCheck: undefined;
   Contact: undefined;
   Account: undefined;

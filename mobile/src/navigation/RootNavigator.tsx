@@ -14,6 +14,7 @@ import { HomeScreen } from '../screens/HomeScreen';
 import { OrderConfirmedScreen } from '../screens/OrderConfirmedScreen';
 import { PhoneCheckScreen } from '../screens/PhoneCheckScreen';
 import { ProductScreen } from '../screens/ProductScreen';
+import { RepairCheckScreen } from '../screens/RepairCheckScreen';
 import { RepairDoneScreen, RepairScreen } from '../screens/RepairScreen';
 import { RepairsTabScreen } from '../screens/RepairsTabScreen';
 import { ShopScreen } from '../screens/ShopScreen';
@@ -114,6 +115,17 @@ function AppStack({ storeName }: { storeName?: string }) {
         options={{ title: 'Confirmed', headerBackVisible: false }}
       />
       <Stack.Screen name="Repair" component={RepairScreen} options={{ title: 'Repair' }} />
+      <Stack.Screen
+        name="RepairCheck"
+        component={RepairCheckScreen}
+        options={{
+          title: 'Availability',
+          headerStyle: { backgroundColor: '#050E24' },
+          headerTintColor: '#F7FBFF',
+          headerTitleStyle: { color: '#F7FBFF' },
+          contentStyle: { backgroundColor: '#050E24' },
+        }}
+      />
       <Stack.Screen
         name="RepairDone"
         component={RepairDoneScreen}
