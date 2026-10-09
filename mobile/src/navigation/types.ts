@@ -9,9 +9,10 @@ export type TabParamList = {
   About: undefined;
 };
 
-export type AuthStackParamList = {
-  Auth: undefined;
-};
+/** Where to send the user after login/register (mirrors web returnTo). */
+export type AuthReturnTo =
+  | { type: 'tab'; screen: keyof TabParamList }
+  | { type: 'screen'; name: keyof RootStackParamList; params?: object };
 
 export type RootStackParamList = {
   Tabs: NavigatorScreenParams<TabParamList> | undefined;
@@ -25,4 +26,5 @@ export type RootStackParamList = {
   Contact: undefined;
   Account: undefined;
   RepairDone: { bookingNumber: string };
+  Auth: { returnTo?: AuthReturnTo } | undefined;
 };

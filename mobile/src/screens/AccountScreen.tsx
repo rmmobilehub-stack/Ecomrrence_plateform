@@ -2,8 +2,10 @@ import { useCallback, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { fetchCustomerHistory } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
+import { accountReturn, ensureCustomerLogin } from '../ensureCustomerLogin';
 import { formatMoney } from '../money';
 import { colors, space } from '../theme';
 import type { HistoryOrder, HistoryRepair } from '../types';
@@ -49,11 +51,23 @@ export function AccountScreen() {
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(() => {
-    setOrders([]);
-    setRepairs([]);
+    if (!customer) {
+      setOrders([]);
+      setRepairs([]);
+      setError('');
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     setError('');
-    setLoading(false);
-  }, []);
+    fetchCustomerHistory()
+      .then(data => {
+        setOrders(data.orders || []);
+        setRepairs(data.repairs || []);
+      })
+      .catch(err => setError(err instanceof Error ? err.message : 'Could not load history'))
+      .finally(() => setLoading(false));
+  }, [customer]);
 
   useFocusEffect(
     useCallback(() => {
@@ -61,10 +75,27 @@ export function AccountScreen() {
     }, [load]),
   );
 
-  if (authLoading || !customer) {
+  if (authLoading) {
     return (
       <ScreenWrap>
         <LoadingBlock />
+      </ScreenWrap>
+    );
+  }
+
+  if (!customer) {
+    return (
+      <ScreenWrap style={styles.pad}>
+        <Title>My account</Title>
+        <Muted>Login to see orders and repair history — same account as the website.</Muted>
+        <View style={{ height: 16 }} />
+        <PrimaryButton
+          label="Login / Register"
+          onPress={() => ensureCustomerLogin(customer, navigation, accountReturn())}
+          color={accent}
+        />
+        <View style={{ height: 10 }} />
+        <SecondaryButton label="Continue shopping" onPress={() => navigation.navigate('Tabs', { screen: 'Shop' })} />
       </ScreenWrap>
     );
   }

@@ -1,11 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  fetchCustomerMe,
+  loginCustomer,
+  logoutCustomer,
+  registerCustomer,
+} from '../api';
 import { setAuthToken } from '../session';
 import type { CustomerProfile } from '../types';
 
 const TOKEN_KEY = 'shopsaas-customer-token';
-const PROFILE_KEY = 'shopsaas-customer-profile';
-const LOCAL_TOKEN = 'local-dev-session';
 
 type AuthContextValue = {
   customer: CustomerProfile | null;
@@ -23,38 +27,46 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function localProfile(partial: Partial<CustomerProfile>): CustomerProfile {
-  return {
-    id: partial.id || 'local-guest',
-    name: partial.name || 'Guest',
-    email: partial.email || '',
-    phone: partial.phone || '',
-  };
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    AsyncStorage.getItem(PROFILE_KEY)
-      .then(raw => {
-        if (!raw) return;
-        const profile = JSON.parse(raw) as CustomerProfile;
-        setAuthToken(LOCAL_TOKEN);
-        setCustomer(profile);
-      })
-      .catch(() => {
-        setAuthToken(null);
-        setCustomer(null);
-      })
-      .finally(() => setLoading(false));
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = await AsyncStorage.getItem(TOKEN_KEY);
+        if (!token) {
+          setAuthToken(null);
+          return;
+        }
+        setAuthToken(token);
+        const data = await fetchCustomerMe();
+        if (cancelled) return;
+        if (data.customer) {
+          setCustomer(data.customer);
+        } else {
+          setAuthToken(null);
+          await AsyncStorage.removeItem(TOKEN_KEY);
+        }
+      } catch {
+        if (!cancelled) {
+          setAuthToken(null);
+          setCustomer(null);
+          await AsyncStorage.removeItem(TOKEN_KEY).catch(() => undefined);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const persist = async (profile: CustomerProfile) => {
-    setAuthToken(LOCAL_TOKEN);
-    await AsyncStorage.setItem(TOKEN_KEY, LOCAL_TOKEN);
-    await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  const persistSession = async (token: string, profile: CustomerProfile) => {
+    setAuthToken(token);
+    await AsyncStorage.setItem(TOKEN_KEY, token);
     setCustomer(profile);
   };
 
@@ -62,22 +74,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       customer,
       loading,
-      login: async (email: string) => {
-        await persist(localProfile({ email, name: email.split('@')[0] || 'Guest' }));
+      login: async (email: string, password: string) => {
+        const data = await loginCustomer(email.trim(), password);
+        await persistSession(data.token, {
+          id: data.customer.id,
+          name: data.customer.name,
+          email: data.customer.email,
+          phone: data.customer.phone || '',
+        });
       },
-      register: async payload => {
-        await persist(
-          localProfile({
-            name: payload.name || payload.email.split('@')[0] || 'Guest',
-            email: payload.email,
-            phone: payload.phone,
-          }),
-        );
+      register: async (payload: {
+        name: string;
+        phone?: string;
+        email: string;
+        password: string;
+        confirmPassword: string;
+      }) => {
+        const data = await registerCustomer(payload);
+        await persistSession(data.token, {
+          id: data.customer.id,
+          name: data.customer.name,
+          email: data.customer.email,
+          phone: data.customer.phone || '',
+        });
       },
       logout: async () => {
+        try {
+          await logoutCustomer();
+        } catch {
+          // Clear local session even if API logout fails (offline / expired token).
+        }
         setAuthToken(null);
         setCustomer(null);
-        await AsyncStorage.multiRemove([TOKEN_KEY, PROFILE_KEY]);
+        await AsyncStorage.removeItem(TOKEN_KEY);
       },
     }),
     [customer, loading],

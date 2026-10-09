@@ -42,7 +42,7 @@ export interface Store {
 export interface ProductVariant {
   name: string;
   options: string[];
-  priceModifier: number;
+  priceModifier?: number;
 }
 
 export interface Product {
@@ -60,6 +60,7 @@ export interface Product {
   tags: string[];
   stock: number;
   sku: string;
+  customProperties?: { key: string; value: string; type?: 'text'; options?: string[] }[];
   status: 'active' | 'draft' | 'archived';
   variants: ProductVariant[];
 }

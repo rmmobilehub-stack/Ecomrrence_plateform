@@ -13,6 +13,7 @@ import { fetchCoupon, placeOrder } from '../api';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
 import { useAuth } from '../context/AuthContext';
+import { checkoutReturn, ensureCustomerLogin } from '../ensureCustomerLogin';
 import { formatMoney } from '../money';
 import { calculateDeliveryFee } from '../pricing';
 import { colors, space } from '../theme';
@@ -22,7 +23,7 @@ import type { RootStackParamList } from '../navigation/types';
 
 export function CheckoutScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { customer } = useAuth();
+  const { customer, loading: authLoading } = useAuth();
   const { items, subtotal, clear } = useCart();
   const { store, accent, currency } = useStore();
   const [form, setForm] = useState({
@@ -41,6 +42,13 @@ export function CheckoutScreen() {
   const [saving, setSaving] = useState(false);
 
   const setField = (key: keyof typeof form, value: string) => setForm(current => ({ ...current, [key]: value }));
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!customer) {
+      ensureCustomerLogin(customer, navigation, checkoutReturn());
+    }
+  }, [authLoading, customer, navigation]);
 
   useEffect(() => {
     if (!customer) return;

@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
 import { AccountScreen } from '../screens/AccountScreen';
@@ -20,17 +20,21 @@ import { RepairsTabScreen } from '../screens/RepairsTabScreen';
 import { ShopScreen } from '../screens/ShopScreen';
 import { colors } from '../theme';
 import { AboutGlyph, HealthCheckGlyph, HomeGlyph, RepairGlyph, ShopGlyph } from './icons';
-import type { AuthStackParamList, RootStackParamList, TabParamList } from './types';
+import type { RootStackParamList, TabParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-const AuthStackNav = createNativeStackNavigator<AuthStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
 const tabActive = colors.tabActive;
 const tabInactive = colors.tabInactive;
 
 function TabLabel({ label, focused }: { label: string; focused: boolean }) {
-  return <Text style={[styles.tabLabel, focused && styles.tabLabelActive]}>{label}</Text>;
+  return (
+    <View style={styles.tabLabelWrap}>
+      <Text style={[styles.tabLabel, focused && styles.tabLabelActive]}>{label}</Text>
+      <View style={[styles.tabUnderline, focused && styles.tabUnderlineActive]} />
+    </View>
+  );
 }
 
 function Tabs() {
@@ -92,14 +96,6 @@ function Tabs() {
   );
 }
 
-function AuthStack() {
-  return (
-    <AuthStackNav.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
-      <AuthStackNav.Screen name="Auth" component={AuthScreen} />
-    </AuthStackNav.Navigator>
-  );
-}
-
 function AppStack({ storeName }: { storeName?: string }) {
   return (
     <Stack.Navigator
@@ -129,18 +125,27 @@ function AppStack({ storeName }: { storeName?: string }) {
       <Stack.Screen name="PhoneCheck" component={PhoneCheckScreen} options={{ title: 'Phone check' }} />
       <Stack.Screen name="Contact" component={ContactScreen} options={{ title: storeName || 'Contact' }} />
       <Stack.Screen name="Account" component={AccountScreen} options={{ title: 'Account' }} />
+      <Stack.Screen
+        name="Auth"
+        component={AuthScreen}
+        options={{ title: 'Login', presentation: 'modal' }}
+      />
     </Stack.Navigator>
   );
 }
 
 export function RootNavigator() {
-  const { store } = useStore();
-  const { customer, loading } = useAuth();
+  const { store, loading: storeLoading } = useStore();
+  const { loading: authLoading } = useAuth();
 
-  if (loading) {
+  // Guest can browse; splash only while session restore + store bootstrap.
+  const booting = authLoading || storeLoading;
+
+  if (booting) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg }}>
-        <ActivityIndicator color={colors.accentSoft} />
+      <View style={styles.splash}>
+        <Image source={require('../assets/rm-mark.png')} style={styles.splashMark} resizeMode="contain" />
+        <ActivityIndicator color={colors.accentSoft} size="large" style={styles.splashLoader} />
       </View>
     );
   }
@@ -158,12 +163,20 @@ export function RootNavigator() {
           border: colors.line,
         },
       }}>
-      {customer ? <AppStack storeName={store?.name} /> : <AuthStack />}
+      <AppStack storeName={store?.name} />
     </NavigationContainer>
   );
 }
 
 const styles = StyleSheet.create({
+  splash: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.bg,
+  },
+  splashMark: { width: 260, height: 180 },
+  splashLoader: { marginTop: 36 },
   tabBar: {
     position: 'absolute',
     left: 12,
@@ -183,14 +196,17 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 },
   },
   tabBg: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: colors.tabBar,
     borderRadius: 28,
     borderWidth: 1,
     borderColor: 'rgba(77, 163, 255, 0.35)',
   },
-  tabLabel: { fontSize: 11, fontWeight: '700', color: tabInactive, marginTop: 3 },
+  tabLabelWrap: { alignItems: 'center', gap: 3, marginTop: 3 },
+  tabLabel: { fontSize: 11, fontWeight: '700', color: tabInactive },
   tabLabelActive: { color: tabActive },
+  tabUnderline: { width: 0, height: 2, borderRadius: 99, backgroundColor: tabActive },
+  tabUnderlineActive: { width: 18 },
   centerFab: {
     width: 62,
     height: 62,

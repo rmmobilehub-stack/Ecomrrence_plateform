@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Image,
   Pressable,
@@ -13,11 +13,15 @@ import { useNavigation, type CompositeNavigationProp } from '@react-navigation/n
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { filterCatalog, SHOP_CATEGORIES } from '../catalog';
+import { fetchProducts } from '../api';
+import { SelectField } from '../components/SelectField';
+import { useStore } from '../context/StoreContext';
+import { HeaderActions } from '../components/HeaderActions';
+import { resolveMediaUrl } from '../media';
 import { formatMoney } from '../money';
-import { BellGlyph, ShopGlyph, UserGlyph } from '../navigation/icons';
 import type { RootStackParamList, TabParamList } from '../navigation/types';
 import { calculateProductPrice, getReferencePrice } from '../pricing';
+import type { Category, Product } from '../types';
 
 const logoMark = require('../assets/rm-logo.png');
 
@@ -25,10 +29,51 @@ export function ShopScreen() {
   const navigation = useNavigation<
     CompositeNavigationProp<BottomTabNavigationProp<TabParamList, 'Shop'>, NativeStackNavigationProp<RootStackParamList>>
   >();
+  const { currency } = useStore();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [sort, setSort] = useState('newest');
-  const products = useMemo(() => filterCatalog(search, category, sort), [search, category, sort]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError('');
+    fetchProducts({
+      search: search.trim() || undefined,
+      categoryId: category || undefined,
+      sortBy: sort,
+    })
+      .then(data => {
+        if (cancelled) return;
+        setProducts(data.products || []);
+        setCategories(data.categories || []);
+      })
+      .catch(err => {
+        if (cancelled) return;
+        setError(err instanceof Error ? err.message : 'Could not load products');
+        setProducts([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [search, category, sort]);
+
+  const categoryOptions = useMemo(
+    () => [{ id: '', label: 'All categories' }, ...categories.map(entry => ({ id: entry.id, label: entry.name }))],
+    [categories],
+  );
+  const sortOptions = [
+    { id: 'newest', label: 'Newest' },
+    { id: 'price-asc', label: 'Price: low to high' },
+    { id: 'price-desc', label: 'Price: high to low' },
+  ];
 
   return (
     <View style={styles.page}>
@@ -39,30 +84,22 @@ export function ShopScreen() {
             <Image source={logoMark} style={styles.logo} />
             <Text style={styles.brandName}>RM Mobile Hub</Text>
           </View>
-          <View style={styles.headerActions}>
-            <Pressable onPress={() => navigation.navigate('Cart')} style={styles.iconBtn} accessibilityLabel="Cart">
-              <ShopGlyph color="#D7E7FF" />
-            </Pressable>
-            <Pressable onPress={() => navigation.navigate('Account')} style={styles.iconBtn} accessibilityLabel="Account">
-              <UserGlyph color="#D7E7FF" />
-            </Pressable>
-            <Pressable onPress={() => navigation.navigate('Account')} style={styles.iconBtn} accessibilityLabel="Alerts">
-              <BellGlyph color="#D7E7FF" />
-            </Pressable>
-          </View>
+          <HeaderActions onCart={() => navigation.navigate('Cart')} onAccount={() => navigation.navigate('Account')} />
         </View>
 
         <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled">
-          <Text style={styles.kicker}>APPLE-COMPATIBLE ACCESSORIES</Text>
-          <View style={styles.titleRow}>
+          <View style={styles.collectionIntro}>
+            <Text style={styles.kicker}>APPLE-COMPATIBLE ACCESSORIES</Text>
             <Text style={styles.title}>
               Chargers, cables{'\n'}and <Text style={styles.titleAccent}>more.</Text>
             </Text>
-            <View style={styles.countPill}>
-              <Text style={styles.countText}>{products.length}</Text>
+            <Text style={styles.sub}>Find the right power accessory for your everyday setup.</Text>
+            <View style={styles.collectionSignals}>
+              <Text style={styles.signal}>Cash on delivery</Text>
+              <Text style={styles.signalDot}>•</Text>
+              <Text style={styles.signal}>Clear compatibility</Text>
             </View>
           </View>
-          <Text style={styles.sub}>Find the right power accessory for your everyday setup.</Text>
 
           <View style={styles.searchWrap}>
             <Text style={styles.searchIcon}>⌕</Text>
@@ -76,25 +113,34 @@ export function ShopScreen() {
             />
           </View>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-            <Chip label="All" selected={!category} onPress={() => setCategory('')} />
-            {SHOP_CATEGORIES.map(entry => (
-              <Chip
-                key={entry.id}
-                label={entry.name}
-                selected={category === entry.id}
-                onPress={() => setCategory(entry.id)}
+          <View style={styles.filters}>
+            <View style={styles.filterHalf}>
+              <SelectField
+                label="Category"
+                placeholder="All categories"
+                value={category}
+                options={categoryOptions}
+                onChange={setCategory}
               />
-            ))}
-          </ScrollView>
-
-          <View style={styles.chips}>
-            <Chip label="Newest" selected={sort === 'newest'} onPress={() => setSort('newest')} />
-            <Chip label="Price ↑" selected={sort === 'price-asc'} onPress={() => setSort('price-asc')} />
-            <Chip label="Price ↓" selected={sort === 'price-desc'} onPress={() => setSort('price-desc')} />
+            </View>
+            <View style={styles.filterHalf}>
+              <SelectField
+                label="Sort"
+                placeholder="Newest"
+                value={sort}
+                options={sortOptions}
+                onChange={setSort}
+              />
+            </View>
           </View>
 
-          {products.length === 0 ? (
+          {loading ? (
+            <Text style={styles.emptyText}>Loading products…</Text>
+          ) : error ? (
+            <View style={styles.empty}>
+              <Text style={styles.emptyText}>{error}</Text>
+            </View>
+          ) : products.length === 0 ? (
             <View style={styles.empty}>
               <Text style={styles.emptyText}>No accessories match your search.</Text>
             </View>
@@ -103,6 +149,7 @@ export function ShopScreen() {
               {products.map(product => {
                 const sale = calculateProductPrice(product.price, product.discount);
                 const compare = getReferencePrice(product.price, product.comparePrice, product.discount);
+                const thumb = resolveMediaUrl(product.thumbnail || product.images?.[0] || '');
                 return (
                   <Pressable
                     key={product.id}
@@ -113,14 +160,26 @@ export function ShopScreen() {
                         <Text style={styles.badgeText}>-{product.discount}%</Text>
                       </View>
                     ) : null}
-                    <Image source={product.image} style={styles.thumb} resizeMode="contain" />
+                    {thumb ? (
+                      <Image source={{ uri: thumb }} style={styles.thumb} resizeMode="contain" />
+                    ) : (
+                      <View style={styles.thumb} />
+                    )}
                     <Text style={styles.kickerSmall}>Collection pick</Text>
                     <Text style={styles.name} numberOfLines={2}>
                       {product.name}
                     </Text>
                     <View style={styles.priceRow}>
-                      <Text style={styles.price}>{formatMoney(sale, 'PKR')}</Text>
-                      {compare > sale ? <Text style={styles.compare}>{formatMoney(compare, 'PKR')}</Text> : null}
+                      <Text style={styles.price}>{formatMoney(sale, currency)}</Text>
+                      {compare > sale ? (
+                        <View style={styles.compareRow}>
+                          <Text style={styles.compareLabel}>Was</Text>
+                          <View style={styles.compare}>
+                            <Text style={styles.compareText}>{formatMoney(compare, currency)}</Text>
+                            <View pointerEvents="none" style={styles.compareStrike} />
+                          </View>
+                        </View>
+                      ) : null}
                     </View>
                     <View style={styles.viewBtn}>
                       <Text style={styles.viewText}>View product →</Text>
@@ -133,14 +192,6 @@ export function ShopScreen() {
         </ScrollView>
       </SafeAreaView>
     </View>
-  );
-}
-
-function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
-  return (
-    <Pressable onPress={onPress} style={[styles.chip, selected && styles.chipOn]}>
-      <Text style={[styles.chipText, selected && styles.chipTextOn]}>{label}</Text>
-    </Pressable>
   );
 }
 
@@ -158,32 +209,15 @@ const styles = StyleSheet.create({
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   logo: { width: 38, height: 38, borderRadius: 12 },
   brandName: { color: '#F4F8FF', fontSize: 16, fontWeight: '700' },
-  headerActions: { flexDirection: 'row', gap: 8 },
-  iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(150, 190, 255, 0.35)',
-    backgroundColor: 'rgba(8, 28, 58, 0.55)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   pad: { paddingHorizontal: 16, paddingBottom: 110, gap: 12 },
-  kicker: { color: '#4DA3FF', fontSize: 11, fontWeight: '800', letterSpacing: 1.1, marginTop: 6 },
-  titleRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 },
-  title: { flex: 1, color: '#F7FBFF', fontSize: 30, fontWeight: '800', lineHeight: 34, letterSpacing: -0.5 },
+  collectionIntro: { gap: 8, paddingTop: 6, paddingBottom: 4 },
+  kicker: { color: '#4DA3FF', fontSize: 11, fontWeight: '800', letterSpacing: 1.1 },
+  title: { color: '#F7FBFF', fontSize: 30, fontWeight: '800', lineHeight: 34, letterSpacing: -0.5 },
   titleAccent: { color: '#4DA3FF' },
-  countPill: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(126, 200, 255, 0.35)',
-    backgroundColor: 'rgba(47, 123, 255, 0.15)',
-  },
-  countText: { color: '#8EC8FF', fontWeight: '800', fontSize: 13 },
   sub: { color: '#C5D5EC', fontSize: 14, lineHeight: 21 },
+  collectionSignals: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 },
+  signal: { color: '#8EC8FF', fontWeight: '700', fontSize: 11 },
+  signalDot: { color: '#4DA3FF', fontSize: 12 },
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -196,18 +230,8 @@ const styles = StyleSheet.create({
   },
   searchIcon: { color: '#4DA3FF', fontSize: 18, fontWeight: '700' },
   search: { flex: 1, minHeight: 46, color: '#F4F8FF', fontSize: 15 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: {
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(126, 200, 255, 0.28)',
-    backgroundColor: 'rgba(8, 28, 58, 0.55)',
-  },
-  chipOn: { backgroundColor: '#2F7BFF', borderColor: '#2F7BFF' },
-  chipText: { color: '#C5D5EC', fontWeight: '700', fontSize: 13 },
-  chipTextOn: { color: '#FFFFFF' },
+  filters: { flexDirection: 'row', gap: 10 },
+  filterHalf: { flex: 1 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   card: {
     width: '48%',
@@ -235,7 +259,11 @@ const styles = StyleSheet.create({
   name: { color: '#F4F8FF', fontWeight: '700', fontSize: 14, marginTop: 4, minHeight: 36 },
   priceRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
   price: { color: '#8EC8FF', fontWeight: '800', fontSize: 13 },
-  compare: { color: '#6B86A8', textDecorationLine: 'line-through', fontSize: 11 },
+  compareRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  compare: { position: 'relative', paddingVertical: 1 },
+  compareText: { color: '#7596BE', fontSize: 11 },
+  compareStrike: { position: 'absolute', left: 0, right: 0, top: 8, height: 2, borderRadius: 99, backgroundColor: '#5F86B6' },
+  compareLabel: { color: '#6B86A8', fontSize: 10, fontWeight: '700' },
   viewBtn: { marginTop: 10, paddingVertical: 8, alignItems: 'center', borderRadius: 12, backgroundColor: 'rgba(47, 123, 255, 0.18)' },
   viewText: { color: '#D7E7FF', fontWeight: '700', fontSize: 12 },
   empty: {

@@ -1,8 +1,10 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
+import { checkoutReturn, ensureCustomerLogin } from '../ensureCustomerLogin';
 import { formatMoney } from '../money';
 import { colors, space } from '../theme';
 import { Card, Chip, Muted, PrimaryButton, RemoteImage, ScreenWrap, Title } from '../ui';
@@ -10,6 +12,7 @@ import type { RootStackParamList } from '../navigation/types';
 
 export function CartScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { customer } = useAuth();
   const { items, update, remove, subtotal, count } = useCart();
   const { accent, currency } = useStore();
 
@@ -55,7 +58,10 @@ export function CartScreen() {
         <Text style={styles.total}>Subtotal {formatMoney(subtotal, currency)}</Text>
         <PrimaryButton
           label="Checkout"
-          onPress={() => navigation.navigate('Checkout')}
+          onPress={() => {
+            if (!ensureCustomerLogin(customer, navigation, checkoutReturn())) return;
+            navigation.navigate('Checkout');
+          }}
           color={accent}
         />
       </ScrollView>

@@ -13,7 +13,7 @@ function App() {
         <StoreProvider>
           <AuthProvider>
             <CartProvider>
-              <StatusBar barStyle="dark-content" />
+              <StatusBar barStyle="light-content" />
               <RootNavigator />
             </CartProvider>
           </AuthProvider>

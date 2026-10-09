@@ -9,11 +9,17 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { useAuth } from '../context/AuthContext';
+import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../context/AuthContext';
+import { resumeAfterAuth } from '../ensureCustomerLogin';
+import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme';
 
 export function AuthScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'Auth'>>();
   const { login, register } = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [name, setName] = useState('');
@@ -21,12 +27,26 @@ export function AuthScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const finish = () => resumeAfterAuth(navigation, route.params?.returnTo);
+
   const submit = async () => {
-    if (mode === 'register') {
-      await register({ name, phone, email, password, confirmPassword });
-      return;
+    setError('');
+    setBusy(true);
+    try {
+      if (mode === 'register') {
+        await register({ name, phone, email, password, confirmPassword });
+      } else {
+        await login(email, password);
+      }
+      finish();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not continue');
+    } finally {
+      setBusy(false);
     }
-    await login(email, password);
   };
 
   return (
@@ -38,8 +58,8 @@ export function AuthScreen() {
             <Text style={styles.title}>{mode === 'login' ? 'Login' : 'Create account'}</Text>
             <Text style={styles.lead}>
               {mode === 'login'
-                ? 'Use your email and password. Your session stays saved on this device.'
-                : 'Register once — then Buy now, Phone Check and Repair stay linked to you.'}
+                ? 'Login to buy, checkout, book repairs, or run a phone check — same account as the website.'
+                : 'Register once. Buy, Phone Check and Repair stay linked to you.'}
             </Text>
 
             <View style={styles.tabs}>
@@ -79,8 +99,16 @@ export function AuthScreen() {
               />
             ) : null}
 
-            <Pressable onPress={submit} style={styles.submit}>
-              <Text style={styles.submitText}>{mode === 'login' ? 'Login' : 'Create account'}</Text>
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+
+            <Pressable onPress={submit} style={[styles.submit, busy && styles.submitDisabled]} disabled={busy}>
+              <Text style={styles.submitText}>
+                {busy ? 'Please wait…' : mode === 'login' ? 'Login' : 'Create account'}
+              </Text>
+            </Pressable>
+
+            <Pressable onPress={() => navigation.goBack()} style={styles.skip}>
+              <Text style={styles.skipText}>Continue browsing</Text>
             </Pressable>
 
             <Text style={styles.hint}>
@@ -142,9 +170,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   tab: { flex: 1, minHeight: 42, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
-  tabActive: {
-    backgroundColor: colors.accent,
-  },
+  tabActive: { backgroundColor: colors.accent },
   tabText: { color: colors.muted, fontWeight: '800' },
   tabTextActive: { color: '#FFFFFF' },
   field: { flex: 1, marginBottom: 12 },
@@ -159,6 +185,7 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontSize: 16,
   },
+  error: { color: colors.danger, marginBottom: 8, fontWeight: '600' },
   submit: {
     marginTop: 8,
     minHeight: 50,
@@ -167,7 +194,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  submitDisabled: { opacity: 0.6 },
   submitText: { color: '#fff', fontWeight: '800', fontSize: 16 },
+  skip: { marginTop: 14, alignItems: 'center' },
+  skipText: { color: colors.accentSoft, fontWeight: '700' },
   hint: { marginTop: 16, color: colors.muted, fontSize: 13, lineHeight: 20, textAlign: 'center' },
   hintStrong: { fontWeight: '800', color: colors.accentSoft },
 });
