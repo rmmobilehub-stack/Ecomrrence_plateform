@@ -19,15 +19,15 @@ import { RepairDoneScreen, RepairScreen } from '../screens/RepairScreen';
 import { RepairsTabScreen } from '../screens/RepairsTabScreen';
 import { ShopScreen } from '../screens/ShopScreen';
 import { colors } from '../theme';
-import { AboutGlyph, HomeGlyph, RepairGlyph, ShopGlyph } from './icons';
+import { AboutGlyph, HealthCheckGlyph, HomeGlyph, RepairGlyph, ShopGlyph } from './icons';
 import type { AuthStackParamList, RootStackParamList, TabParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const AuthStackNav = createNativeStackNavigator<AuthStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
-const tabActive = '#8EC8FF';
-const tabInactive = '#6B86A8';
+const tabActive = colors.tabActive;
+const tabInactive = colors.tabInactive;
 
 function TabLabel({ label, focused }: { label: string; focused: boolean }) {
   return <Text style={[styles.tabLabel, focused && styles.tabLabelActive]}>{label}</Text>;
@@ -60,6 +60,19 @@ function Tabs() {
         }}
       />
       <Tab.Screen
+        name="HealthCheck"
+        component={PhoneCheckScreen}
+        options={{
+          tabBarLabel: () => null,
+          tabBarAccessibilityLabel: 'Health check',
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.centerFab, focused && styles.centerFabActive]}>
+              <HealthCheckGlyph color="#FFFFFF" />
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Repairs"
         component={RepairsTabScreen}
         options={{
@@ -81,7 +94,7 @@ function Tabs() {
 
 function AuthStack() {
   return (
-    <AuthStackNav.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#F7FCFF' } }}>
+    <AuthStackNav.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
       <AuthStackNav.Screen name="Auth" component={AuthScreen} />
     </AuthStackNav.Navigator>
   );
@@ -93,20 +106,12 @@ function AppStack({ storeName }: { storeName?: string }) {
       screenOptions={{
         headerShadowVisible: false,
         headerStyle: { backgroundColor: colors.bg },
+        headerTintColor: colors.ink,
+        headerTitleStyle: { color: colors.ink, fontWeight: '700' },
         contentStyle: { backgroundColor: colors.bg },
       }}>
       <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
-      <Stack.Screen
-        name="Product"
-        component={ProductScreen}
-        options={{
-          title: 'Product',
-          headerStyle: { backgroundColor: '#050E24' },
-          headerTintColor: '#F7FBFF',
-          headerTitleStyle: { color: '#F7FBFF' },
-          contentStyle: { backgroundColor: '#050E24' },
-        }}
-      />
+      <Stack.Screen name="Product" component={ProductScreen} options={{ title: 'Product' }} />
       <Stack.Screen name="Cart" component={CartScreen} options={{ title: 'Cart' }} />
       <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ title: 'Checkout' }} />
       <Stack.Screen
@@ -115,17 +120,7 @@ function AppStack({ storeName }: { storeName?: string }) {
         options={{ title: 'Confirmed', headerBackVisible: false }}
       />
       <Stack.Screen name="Repair" component={RepairScreen} options={{ title: 'Repair' }} />
-      <Stack.Screen
-        name="RepairCheck"
-        component={RepairCheckScreen}
-        options={{
-          title: 'Availability',
-          headerStyle: { backgroundColor: '#050E24' },
-          headerTintColor: '#F7FBFF',
-          headerTitleStyle: { color: '#F7FBFF' },
-          contentStyle: { backgroundColor: '#050E24' },
-        }}
-      />
+      <Stack.Screen name="RepairCheck" component={RepairCheckScreen} options={{ title: 'Availability' }} />
       <Stack.Screen
         name="RepairDone"
         component={RepairDoneScreen}
@@ -144,8 +139,8 @@ export function RootNavigator() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#050E24' }}>
-        <ActivityIndicator color="#4DA3FF" />
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg }}>
+        <ActivityIndicator color={colors.accentSoft} />
       </View>
     );
   }
@@ -156,9 +151,9 @@ export function RootNavigator() {
         ...DefaultTheme,
         colors: {
           ...DefaultTheme.colors,
-          background: customer ? '#050E24' : '#F7FCFF',
+          background: colors.bg,
           card: colors.card,
-          primary: colors.ink,
+          primary: colors.accent,
           text: colors.ink,
           border: colors.line,
         },
@@ -174,21 +169,46 @@ const styles = StyleSheet.create({
     left: 12,
     right: 12,
     bottom: 10,
-    height: 72,
+    height: 74,
     borderRadius: 28,
     borderTopWidth: 0,
-    backgroundColor: 'transparent',
-    elevation: 0,
+    backgroundColor: colors.tabBar,
+    elevation: 16,
     paddingTop: 8,
     paddingBottom: 10,
+    overflow: 'visible',
+    shadowColor: '#000000',
+    shadowOpacity: 0.4,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
   },
   tabBg: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#071A33',
+    backgroundColor: colors.tabBar,
     borderRadius: 28,
     borderWidth: 1,
-    borderColor: 'rgba(90, 140, 210, 0.28)',
+    borderColor: 'rgba(77, 163, 255, 0.35)',
   },
-  tabLabel: { fontSize: 11, fontWeight: '600', color: tabInactive, marginTop: 2 },
+  tabLabel: { fontSize: 11, fontWeight: '700', color: tabInactive, marginTop: 3 },
   tabLabelActive: { color: tabActive },
+  centerFab: {
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+    marginTop: -32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.fab,
+    borderWidth: 3,
+    borderColor: '#EAF3FF',
+    shadowColor: colors.fab,
+    shadowOpacity: 0.55,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 14,
+  },
+  centerFabActive: {
+    backgroundColor: colors.fabActive,
+    shadowOpacity: 0.65,
+  },
 });

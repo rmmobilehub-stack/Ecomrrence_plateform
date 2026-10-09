@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   thumb: { width: 72, height: 72, borderRadius: 12, backgroundColor: colors.line },
   name: { fontWeight: '700', color: colors.ink },
   qty: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
-  qtyValue: { fontWeight: '700', minWidth: 20, textAlign: 'center' },
+  qtyValue: { fontWeight: '700', minWidth: 20, textAlign: 'center', color: colors.ink },
   remove: { color: colors.danger, fontWeight: '600' },
   total: { fontSize: 18, fontWeight: '800', color: colors.ink },
 });

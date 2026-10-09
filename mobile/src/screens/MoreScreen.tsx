@@ -19,7 +19,11 @@ export function MoreScreen() {
           <PrimaryButton label="Book a repair" onPress={() => navigation.navigate('Repair')} color={accent} />
         </Card>
         <Card>
-          <PrimaryButton label="Free phone check" onPress={() => navigation.navigate('PhoneCheck')} color={accent} />
+          <PrimaryButton
+            label="Free phone check"
+            onPress={() => navigation.navigate('Tabs', { screen: 'HealthCheck' })}
+            color={accent}
+          />
         </Card>
         <Card>
           <PrimaryButton label="Contact store" onPress={() => navigation.navigate('Contact')} color={accent} />

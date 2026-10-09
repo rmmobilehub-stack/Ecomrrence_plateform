@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
   },
-  chipSelected: { backgroundColor: colors.ink, borderColor: colors.ink },
+  chipSelected: { backgroundColor: colors.accent, borderColor: colors.accent },
   chipText: { color: colors.ink, fontWeight: '600', fontSize: 13 },
   chipTextSelected: { color: '#fff' },
   field: { marginBottom: 12 },

@@ -4,6 +4,7 @@ import type { PlacedOrder } from '../types';
 export type TabParamList = {
   Home: undefined;
   Shop: undefined;
+  HealthCheck: undefined;
   Repairs: undefined;
   About: undefined;
 };

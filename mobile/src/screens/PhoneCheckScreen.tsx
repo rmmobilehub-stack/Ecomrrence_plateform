@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { fetchDeviceEstimate, fetchRepairCatalog } from '../api';
 import { useStore } from '../context/StoreContext';
 import { formatMoney } from '../money';
@@ -77,6 +77,7 @@ export function PhoneCheckScreen() {
   if (loading) {
     return (
       <ScreenWrap>
+        <StatusBar barStyle="light-content" />
         <LoadingBlock />
       </ScreenWrap>
     );
@@ -84,6 +85,7 @@ export function PhoneCheckScreen() {
 
   return (
     <ScreenWrap>
+      <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.pad}>
         <Title>Free phone check</Title>
         <Muted>Apple iPhones only for now. Other brands are listed but not bookable yet.</Muted>
@@ -229,7 +231,7 @@ export function ConditionFields({
 }
 
 const styles = StyleSheet.create({
-  pad: { padding: space, gap: 10, paddingBottom: 48 },
+  pad: { padding: space, gap: 10, paddingBottom: 120 },
   label: { fontWeight: '700', color: colors.ink, marginTop: 6 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   score: { fontWeight: '800', fontSize: 16, color: colors.ink, marginBottom: 6 },

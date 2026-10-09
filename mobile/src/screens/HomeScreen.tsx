@@ -59,7 +59,7 @@ export function HomeScreen() {
 
           <Pressable
             accessibilityRole="button"
-            onPress={() => navigation.navigate('PhoneCheck')}
+            onPress={() => navigation.navigate('HealthCheck')}
             style={styles.secondaryBtn}>
             <HeartGlyph color="#7EC8FF" />
             <Text style={styles.secondaryText}>Free phone check</Text>
