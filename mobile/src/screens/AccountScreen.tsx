@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { fetchCustomerHistory } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
 import { formatMoney } from '../money';
@@ -50,17 +49,11 @@ export function AccountScreen() {
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(() => {
-    if (!customer) return;
-    setLoading(true);
-    fetchCustomerHistory()
-      .then(data => {
-        setOrders(data.orders || []);
-        setRepairs(data.repairs || []);
-        setError('');
-      })
-      .catch(err => setError(err instanceof Error ? err.message : 'Could not load account'))
-      .finally(() => setLoading(false));
-  }, [customer]);
+    setOrders([]);
+    setRepairs([]);
+    setError('');
+    setLoading(false);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {

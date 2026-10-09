@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { fetchProducts } from '../api';
@@ -39,6 +39,7 @@ export function ShopScreen() {
 
   return (
     <ScreenWrap>
+      <StatusBar barStyle="dark-content" />
       <ScrollView contentContainerStyle={styles.pad}>
         <Title>Shop</Title>
         <TextInput
@@ -90,7 +91,7 @@ export function ShopScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { padding: space, paddingBottom: 40, gap: 10 },
+  pad: { padding: space, paddingBottom: 110, gap: 10 },
   search: {
     backgroundColor: colors.card,
     borderWidth: 1,

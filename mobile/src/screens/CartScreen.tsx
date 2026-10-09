@@ -1,18 +1,15 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
-import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
 import { formatMoney } from '../money';
 import { colors, space } from '../theme';
 import { Card, Chip, Muted, PrimaryButton, RemoteImage, ScreenWrap, Title } from '../ui';
-import type { RootStackParamList, TabParamList } from '../navigation/types';
+import type { RootStackParamList } from '../navigation/types';
 
 export function CartScreen() {
-  const navigation = useNavigation<
-    CompositeNavigationProp<BottomTabNavigationProp<TabParamList, 'Cart'>, NativeStackNavigationProp<RootStackParamList>>
-  >();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { items, update, remove, subtotal, count } = useCart();
   const { accent, currency } = useStore();
 
@@ -22,7 +19,7 @@ export function CartScreen() {
         <Title>Cart</Title>
         <Muted>Your cart is empty.</Muted>
         <View style={{ height: 16 }} />
-        <PrimaryButton label="Browse products" onPress={() => navigation.navigate('Shop')} color={accent} />
+        <PrimaryButton label="Browse products" onPress={() => navigation.navigate('Tabs', { screen: 'Shop' })} color={accent} />
       </ScreenWrap>
     );
   }

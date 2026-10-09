@@ -1,16 +1,13 @@
 import { ScrollView, StyleSheet } from 'react-native';
-import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
-import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useStore } from '../context/StoreContext';
 import { space } from '../theme';
 import { Card, Muted, PrimaryButton, ScreenWrap, Title } from '../ui';
-import type { RootStackParamList, TabParamList } from '../navigation/types';
+import type { RootStackParamList } from '../navigation/types';
 
 export function MoreScreen() {
-  const navigation = useNavigation<
-    CompositeNavigationProp<BottomTabNavigationProp<TabParamList, 'More'>, NativeStackNavigationProp<RootStackParamList>>
-  >();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { store, accent } = useStore();
 
   return (

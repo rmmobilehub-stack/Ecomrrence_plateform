@@ -4,9 +4,8 @@ import type { PlacedOrder } from '../types';
 export type TabParamList = {
   Home: undefined;
   Shop: undefined;
-  Cart: undefined;
-  Account: undefined;
-  More: undefined;
+  Repairs: undefined;
+  About: undefined;
 };
 
 export type AuthStackParamList = {
@@ -16,10 +15,12 @@ export type AuthStackParamList = {
 export type RootStackParamList = {
   Tabs: NavigatorScreenParams<TabParamList> | undefined;
   Product: { productId: string };
+  Cart: undefined;
   Checkout: undefined;
   OrderConfirmed: { order: PlacedOrder };
   Repair: undefined;
   PhoneCheck: undefined;
   Contact: undefined;
+  Account: undefined;
   RepairDone: { bookingNumber: string };
 };

@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ErrorText } from '../ui';
 
 const ink = '#123247';
 const muted = '#5A7A8F';
@@ -27,24 +26,12 @@ export function AuthScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-
   const submit = async () => {
-    setSaving(true);
-    setError('');
-    try {
-      if (mode === 'register') {
-        if (password !== confirmPassword) throw new Error('Password and confirm password do not match');
-        await register({ name, phone, email, password, confirmPassword });
-      } else {
-        await login(email, password);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
-    } finally {
-      setSaving(false);
+    if (mode === 'register') {
+      await register({ name, phone, email, password, confirmPassword });
+      return;
     }
+    await login(email, password);
   };
 
   return (
@@ -63,18 +50,12 @@ export function AuthScreen() {
           <View style={styles.tabs}>
             <Pressable
               style={[styles.tab, mode === 'login' && styles.tabActive]}
-              onPress={() => {
-                setMode('login');
-                setError('');
-              }}>
+              onPress={() => setMode('login')}>
               <Text style={[styles.tabText, mode === 'login' && styles.tabTextActive]}>Login</Text>
             </Pressable>
             <Pressable
               style={[styles.tab, mode === 'register' && styles.tabActive]}
-              onPress={() => {
-                setMode('register');
-                setError('');
-              }}>
+              onPress={() => setMode('register')}>
               <Text style={[styles.tabText, mode === 'register' && styles.tabTextActive]}>Register</Text>
             </Pressable>
           </View>
@@ -117,12 +98,8 @@ export function AuthScreen() {
             />
           )}
 
-          <ErrorText>{error}</ErrorText>
-
-          <Pressable style={[styles.submit, saving && { opacity: 0.55 }]} onPress={submit} disabled={saving}>
-            <Text style={styles.submitText}>
-              {saving ? 'Please wait…' : mode === 'login' ? 'Login & continue' : 'Create account'}
-            </Text>
+          <Pressable style={styles.submit} onPress={submit}>
+            <Text style={styles.submitText}>{mode === 'login' ? 'Login & continue' : 'Create account'}</Text>
           </Pressable>
 
           {mode === 'login' ? (

@@ -1,10 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { fetchCustomerMe, loginCustomer, logoutCustomer, registerCustomer } from '../api';
 import { setAuthToken } from '../session';
 import type { CustomerProfile } from '../types';
 
 const TOKEN_KEY = 'shopsaas-customer-token';
+const PROFILE_KEY = 'shopsaas-customer-profile';
+const LOCAL_TOKEN = 'local-dev-session';
 
 type AuthContextValue = {
   customer: CustomerProfile | null;
@@ -22,22 +23,26 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+function localProfile(partial: Partial<CustomerProfile>): CustomerProfile {
+  return {
+    id: partial.id || 'local-guest',
+    name: partial.name || 'Guest',
+    email: partial.email || '',
+    phone: partial.phone || '',
+  };
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    AsyncStorage.getItem(TOKEN_KEY)
-      .then(async token => {
-        if (!token) return;
-        setAuthToken(token);
-        const data = await fetchCustomerMe();
-        if (data.customer) {
-          setCustomer(data.customer);
-        } else {
-          setAuthToken(null);
-          await AsyncStorage.removeItem(TOKEN_KEY);
-        }
+    AsyncStorage.getItem(PROFILE_KEY)
+      .then(raw => {
+        if (!raw) return;
+        const profile = JSON.parse(raw) as CustomerProfile;
+        setAuthToken(LOCAL_TOKEN);
+        setCustomer(profile);
       })
       .catch(() => {
         setAuthToken(null);
@@ -46,9 +51,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
-  const persist = async (token: string, profile: CustomerProfile) => {
-    setAuthToken(token);
-    await AsyncStorage.setItem(TOKEN_KEY, token);
+  const persist = async (profile: CustomerProfile) => {
+    setAuthToken(LOCAL_TOKEN);
+    await AsyncStorage.setItem(TOKEN_KEY, LOCAL_TOKEN);
+    await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
     setCustomer(profile);
   };
 
@@ -56,31 +62,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       customer,
       loading,
-      login: async (email: string, password: string) => {
-        const data = await loginCustomer(email, password);
-        if (!data.token) throw new Error('Login did not return a session token');
-        await persist(data.token, data.customer);
+      login: async (email: string) => {
+        await persist(localProfile({ email, name: email.split('@')[0] || 'Guest' }));
       },
-      register: async (payload: {
-        name: string;
-        phone?: string;
-        email: string;
-        password: string;
-        confirmPassword: string;
-      }) => {
-        const data = await registerCustomer(payload);
-        if (!data.token) throw new Error('Register did not return a session token');
-        await persist(data.token, data.customer);
+      register: async payload => {
+        await persist(
+          localProfile({
+            name: payload.name || payload.email.split('@')[0] || 'Guest',
+            email: payload.email,
+            phone: payload.phone,
+          }),
+        );
       },
       logout: async () => {
-        try {
-          await logoutCustomer();
-        } catch {
-          // Local logout still proceeds if the API is unreachable.
-        }
         setAuthToken(null);
         setCustomer(null);
-        await AsyncStorage.removeItem(TOKEN_KEY);
+        await AsyncStorage.multiRemove([TOKEN_KEY, PROFILE_KEY]);
       },
     }),
     [customer, loading],

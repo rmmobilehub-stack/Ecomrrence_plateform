@@ -70,7 +70,7 @@ export function ProductScreen() {
   const onAdd = () => {
     if (!cartItem || unavailable) return;
     add(cartItem);
-    navigation.navigate('Tabs', { screen: 'Cart' });
+    navigation.navigate('Cart');
   };
   const onBuy = () => {
     if (!cartItem || unavailable) return;
