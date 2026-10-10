@@ -21,7 +21,7 @@ import type { RootStackParamList } from '../navigation/types';
 import { ConditionFields } from './PhoneCheckScreen';
 import { isValidWhatsAppNumber, openWhatsApp } from '../whatsapp';
 
-const repairHeroArt = require('../assets/repair-iphone.jpg');
+const repairHeroArt = require('../assets/rm-iphone-repair-hero.png');
 
 const BRANDS = [
   { id: 'apple', name: 'Apple', available: true },

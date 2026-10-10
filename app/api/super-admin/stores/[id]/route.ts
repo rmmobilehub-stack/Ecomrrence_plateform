@@ -6,7 +6,7 @@ import type { Store } from '@/lib/types';
 const allowedFields: (keyof Store)[] = [
   'name', 'slug', 'description', 'logo', 'banner', 'heroSlides', 'heroTitle',
   'heroCtaLabel', 'announcement', 'aboutTitle', 'aboutDescription', 'aboutImage', 'ads',
-  'primaryColor', 'currency', 'contactEmail', 'whatsappNumber', 'contactWidgetMode', 'deliveryFee',
+  'primaryColor', 'currency', 'contactEmail', 'contactPhone', 'contactAddress', 'whatsappNumber', 'contactWidgetMode', 'deliveryFee',
   'freeDeliveryThreshold', 'socialLinks', 'isActive',
 ];
 

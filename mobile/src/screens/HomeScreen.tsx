@@ -15,6 +15,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { fetchProducts } from '../api';
 import { useStore } from '../context/StoreContext';
+import { useAppTheme } from '../context/ThemeContext';
 import { HeaderActions } from '../components/HeaderActions';
 import { resolveMediaUrl } from '../media';
 import { formatMoney } from '../money';
@@ -55,6 +56,7 @@ export function HomeScreen() {
     CompositeNavigationProp<BottomTabNavigationProp<TabParamList, 'Home'>, NativeStackNavigationProp<RootStackParamList>>
   >();
   const { store, currency } = useStore();
+  const { colors, isDark } = useAppTheme();
   const [featured, setFeatured] = useState<Product[]>([]);
 
   useEffect(() => {
@@ -75,13 +77,13 @@ export function HomeScreen() {
     'Model-specific protection, chargers and cables — with repair and phone check in one hub.';
 
   return (
-    <View style={styles.page}>
-      <StatusBar barStyle="light-content" />
+    <View style={[styles.page, { backgroundColor: colors.bg }]}>
+      <StatusBar barStyle={colors.statusBar} />
       <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
         <View style={styles.header}>
           <View style={styles.brand}>
             <Image source={logoMark} style={styles.logo} />
-            <Text style={styles.brandName}>{store?.name || 'RM Mobile Hub'}</Text>
+            <Text style={[styles.brandName, { color: colors.ink }]}>{store?.name || 'RM Mobile Hub'}</Text>
           </View>
           <HeaderActions onCart={() => navigation.navigate('Cart')} onAccount={() => navigation.navigate('Account')} />
         </View>
@@ -100,21 +102,10 @@ export function HomeScreen() {
               </View>
               <Text style={styles.headline}>{heroTitle}</Text>
               <Text style={styles.sub}>{heroDesc}</Text>
-              <View style={styles.heroActionRow}>
-                <Pressable onPress={() => navigation.navigate('Shop')} style={styles.primaryBtn}>
-                  <Text style={styles.primaryText}>{ctaLabel}</Text>
-                  <Text style={styles.arrow}>→</Text>
-                </Pressable>
-                {isValidWhatsAppNumber(store?.whatsappNumber) ? (
-                  <Pressable
-                    style={styles.heroWhatsApp}
-                    accessibilityRole="button"
-                    accessibilityLabel="Chat with us on WhatsApp"
-                    onPress={() => void openWhatsApp(store?.whatsappNumber, `Hello ${store?.name || 'RM Mobile Hub'}, I need help with an accessory.`)}>
-                    <Icon name="logo-whatsapp" size={23} color="#FFFFFF" />
-                  </Pressable>
-                ) : null}
-              </View>
+              <Pressable onPress={() => navigation.navigate('Shop')} style={styles.primaryBtn}>
+                <Text style={styles.primaryText}>{ctaLabel}</Text>
+                <Text style={styles.arrow}>→</Text>
+              </Pressable>
               <Pressable onPress={() => navigation.navigate('HealthCheck')} style={styles.secondaryBtn}>
                 <HeartGlyph color="#7EC8FF" />
                 <Text style={styles.secondaryText}>Free phone check</Text>
@@ -134,17 +125,17 @@ export function HomeScreen() {
           <View style={styles.section}>
             <View style={styles.sectionHead}>
               <View style={{ flex: 1 }}>
-                <Text style={styles.sectionTitle}>
-                  Featured charging <Text style={styles.accent}>essentials</Text>
+                <Text style={[styles.sectionTitle, { color: colors.ink }]}>
+                  Featured charging <Text style={[styles.accent, { color: colors.accentSoft }]}>essentials</Text>
                 </Text>
-                <Text style={styles.sectionSub}>Fast chargers, durable cables and magnetic accessories.</Text>
+                <Text style={[styles.sectionSub, { color: colors.muted }]}>Fast chargers, durable cables and magnetic accessories.</Text>
               </View>
               <Pressable onPress={() => navigation.navigate('Shop')}>
-                <Text style={styles.link}>View all →</Text>
+                <Text style={[styles.link, { color: colors.accentSoft }]}>View all →</Text>
               </Pressable>
             </View>
             {featured.length === 0 ? (
-              <Text style={styles.empty}>Products load from the same store backend as the website.</Text>
+              <Text style={[styles.empty, { color: colors.muted }]}>Products load from the same store backend as the website.</Text>
             ) : (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.featuredRow}>
                 {featured.map(product => {
@@ -154,17 +145,20 @@ export function HomeScreen() {
                   return (
                     <Pressable
                       key={product.id}
-                      style={styles.productCard}
+                      style={[
+                        styles.productCard,
+                        { backgroundColor: colors.card, borderColor: colors.cardBorder },
+                      ]}
                       onPress={() => navigation.navigate('Product', { productId: product.id })}>
                       {thumb ? (
                         <Image source={{ uri: thumb }} style={styles.productThumb} resizeMode="contain" />
                       ) : (
-                        <View style={styles.productThumb} />
+                        <View style={[styles.productThumb, { backgroundColor: isDark ? '#08182F' : '#E6F6FF' }]} />
                       )}
-                      <Text style={styles.productName} numberOfLines={2}>
+                      <Text style={[styles.productName, { color: colors.ink }]} numberOfLines={2}>
                         {product.name}
                       </Text>
-                      <Text style={styles.productPrice}>{formatMoney(sale, currency)}</Text>
+                      <Text style={[styles.productPrice, { color: colors.accentSoft }]}>{formatMoney(sale, currency)}</Text>
                       {compare > sale ? (
                         <View style={styles.productCompareRow}>
                           <Text style={styles.productWas}>Was</Text>
@@ -183,74 +177,114 @@ export function HomeScreen() {
 
           {/* Values — compact */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              Everything your iPhone needs, <Text style={styles.accent}>in one place.</Text>
+            <Text style={[styles.sectionTitle, { color: colors.ink }]}>
+              Everything your iPhone needs, <Text style={[styles.accent, { color: colors.accentSoft }]}>in one place.</Text>
             </Text>
             <View style={styles.valuesGrid}>
               {VALUES.map(item => (
-                <View key={item.id} style={styles.valueCard}>
-                  <Text style={styles.valueIndex}>{item.id}</Text>
-                  <Text style={styles.valueTitle}>{item.title}</Text>
-                  <Text style={styles.valueBody}>{item.body}</Text>
+                <View
+                  key={item.id}
+                  style={[styles.valueCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+                  <Text style={[styles.valueIndex, { color: colors.accentSoft }]}>{item.id}</Text>
+                  <Text style={[styles.valueTitle, { color: colors.ink }]}>{item.title}</Text>
+                  <Text style={[styles.valueBody, { color: colors.muted }]}>{item.body}</Text>
                 </View>
               ))}
             </View>
           </View>
 
           {/* About — compact */}
-          <View style={[styles.section, styles.aboutCard]}>
-            <Text style={styles.kicker}>About {store?.name || 'RM Mobile Hub'}</Text>
-            <Text style={styles.aboutTitle}>{aboutTitle}</Text>
-            <Text style={styles.sectionSub} numberOfLines={3}>
+          <View
+            style={[
+              styles.section,
+              styles.aboutCard,
+              { backgroundColor: colors.card, borderColor: colors.cardBorder },
+            ]}>
+            <Text style={[styles.kicker, { color: colors.accentSoft }]}>About {store?.name || 'RM Mobile Hub'}</Text>
+            <Text style={[styles.aboutTitle, { color: colors.ink }]}>{aboutTitle}</Text>
+            <Text style={[styles.sectionSub, { color: colors.muted }]} numberOfLines={3}>
               {aboutBody}
             </Text>
             <View style={styles.factRow}>
-              <View style={styles.fact}>
-                <Text style={styles.factStrong}>Easy</Text>
-                <Text style={styles.factMuted}>Checkout</Text>
+              <View style={[styles.fact, { backgroundColor: isDark ? 'rgba(5,14,36,0.45)' : '#F0F9FF', borderColor: colors.cardBorder }]}>
+                <Text style={[styles.factStrong, { color: colors.ink }]}>Easy</Text>
+                <Text style={[styles.factMuted, { color: colors.muted }]}>Checkout</Text>
               </View>
-              <View style={styles.fact}>
-                <Text style={styles.factStrong}>COD</Text>
-                <Text style={styles.factMuted}>On delivery</Text>
+              <View style={[styles.fact, { backgroundColor: isDark ? 'rgba(5,14,36,0.45)' : '#F0F9FF', borderColor: colors.cardBorder }]}>
+                <Text style={[styles.factStrong, { color: colors.ink }]}>COD</Text>
+                <Text style={[styles.factMuted, { color: colors.muted }]}>On delivery</Text>
               </View>
-              <View style={styles.fact}>
-                <Text style={styles.factStrong}>Direct</Text>
-                <Text style={styles.factMuted}>Support</Text>
+              <View style={[styles.fact, { backgroundColor: isDark ? 'rgba(5,14,36,0.45)' : '#F0F9FF', borderColor: colors.cardBorder }]}>
+                <Text style={[styles.factStrong, { color: colors.ink }]}>Direct</Text>
+                <Text style={[styles.factMuted, { color: colors.muted }]}>Support</Text>
               </View>
             </View>
-            <Pressable onPress={() => navigation.navigate('About')} style={styles.ghostBtn}>
-              <Text style={styles.ghostText}>Learn more →</Text>
+            <Pressable
+              onPress={() => navigation.navigate('About')}
+              style={[styles.ghostBtn, { borderColor: colors.cardBorder }]}>
+              <Text style={[styles.ghostText, { color: colors.ink }]}>Learn more →</Text>
             </Pressable>
           </View>
 
           {/* Journey — compact row */}
           <View style={styles.section}>
-            <Text style={styles.kicker}>How it works</Text>
+            <Text style={[styles.kicker, { color: colors.accentSoft }]}>How it works</Text>
             <View style={styles.journeyRow}>
               {JOURNEY.map(step => (
-                <View key={step.id} style={styles.journeyPill}>
-                  <Text style={styles.journeyIndex}>{step.id}</Text>
-                  <Text style={styles.journeyTitle}>{step.title}</Text>
-                  <Text style={styles.journeyBody}>{step.body}</Text>
+                <View
+                  key={step.id}
+                  style={[styles.journeyPill, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+                  <Text style={[styles.journeyIndex, { color: colors.accentSoft }]}>{step.id}</Text>
+                  <Text style={[styles.journeyTitle, { color: colors.ink }]}>{step.title}</Text>
+                  <Text style={[styles.journeyBody, { color: colors.muted }]}>{step.body}</Text>
                 </View>
               ))}
             </View>
           </View>
 
           {/* Bottom CTA */}
-          <View style={[styles.section, styles.ctaCard]}>
-            <Text style={styles.sectionTitle}>
-              Shop accessories or <Text style={styles.accent}>book a repair</Text>
+          <View
+            style={[
+              styles.section,
+              styles.ctaCard,
+              { backgroundColor: colors.card, borderColor: colors.cardBorder },
+            ]}>
+            <Text style={[styles.sectionTitle, { color: colors.ink }]}>
+              Shop accessories or <Text style={[styles.accent, { color: colors.accentSoft }]}>book a repair</Text>
             </Text>
             <View style={styles.ctaRow}>
-              <Pressable onPress={() => navigation.navigate('Shop')} style={styles.primaryBtn}>
+              <Pressable
+                onPress={() => navigation.navigate('Shop')}
+                style={[styles.primaryBtn, { backgroundColor: colors.accent }]}>
                 <Text style={styles.primaryText}>Shop</Text>
                 <Text style={styles.arrow}>→</Text>
               </Pressable>
-              <Pressable onPress={() => navigation.navigate('Repairs')} style={styles.secondaryBtn}>
-                <Text style={styles.secondaryText}>Repairs</Text>
-                <Text style={styles.arrowMuted}>→</Text>
+              <Pressable
+                onPress={() => navigation.navigate('Repairs')}
+                style={[
+                  styles.secondaryBtn,
+                  {
+                    borderColor: colors.cardBorder,
+                    backgroundColor: isDark ? 'rgba(8, 28, 58, 0.55)' : '#F0F9FF',
+                  },
+                ]}>
+                <Text style={[styles.secondaryText, { color: colors.ink }]}>Repairs</Text>
+                <Text style={[styles.arrowMuted, { color: colors.accentSoft }]}>→</Text>
               </Pressable>
+              {isValidWhatsAppNumber(store?.whatsappNumber) ? (
+                <Pressable
+                  style={styles.ctaWhatsApp}
+                  accessibilityRole="button"
+                  accessibilityLabel="Chat with us on WhatsApp"
+                  onPress={() =>
+                    void openWhatsApp(
+                      store?.whatsappNumber,
+                      `Hello ${store?.name || 'RM Mobile Hub'}, I need help with an accessory or repair.`,
+                    )
+                  }>
+                  <Icon name="logo-whatsapp" size={22} color="#FFFFFF" />
+                </Pressable>
+              ) : null}
             </View>
           </View>
         </ScrollView>
@@ -309,9 +343,18 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     marginTop: 4,
   },
-  heroActionRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 4 },
-  heroWhatsApp: { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center', backgroundColor: '#25D366', borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)' },
   primaryText: { color: '#FFFFFF', fontWeight: '700', fontSize: 14 },
+  ctaWhatsApp: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#25D366',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
+    marginTop: 4,
+  },
   arrow: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
   secondaryBtn: {
     alignSelf: 'flex-start',

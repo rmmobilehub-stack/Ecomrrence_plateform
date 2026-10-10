@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { fetchProducts } from '../api';
 import { SelectField } from '../components/SelectField';
 import { useStore } from '../context/StoreContext';
+import { useAppTheme } from '../context/ThemeContext';
 import { HeaderActions } from '../components/HeaderActions';
 import { resolveMediaUrl } from '../media';
 import { formatMoney } from '../money';
@@ -30,6 +31,7 @@ export function ShopScreen() {
     CompositeNavigationProp<BottomTabNavigationProp<TabParamList, 'Shop'>, NativeStackNavigationProp<RootStackParamList>>
   >();
   const { currency } = useStore();
+  const { colors, isDark } = useAppTheme();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [sort, setSort] = useState('newest');
@@ -76,39 +78,46 @@ export function ShopScreen() {
   ];
 
   return (
-    <View style={styles.page}>
-      <StatusBar barStyle="light-content" />
+    <View style={[styles.page, { backgroundColor: colors.bg }]}>
+      <StatusBar barStyle={colors.statusBar} />
       <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
         <View style={styles.header}>
           <View style={styles.brand}>
             <Image source={logoMark} style={styles.logo} />
-            <Text style={styles.brandName}>RM Mobile Hub</Text>
+            <Text style={[styles.brandName, { color: colors.ink }]}>RM Mobile Hub</Text>
           </View>
           <HeaderActions onCart={() => navigation.navigate('Cart')} onAccount={() => navigation.navigate('Account')} />
         </View>
 
         <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled">
           <View style={styles.collectionIntro}>
-            <Text style={styles.kicker}>APPLE-COMPATIBLE ACCESSORIES</Text>
-            <Text style={styles.title}>
-              Chargers, cables{'\n'}and <Text style={styles.titleAccent}>more.</Text>
+            <Text style={[styles.kicker, { color: colors.accentSoft }]}>APPLE-COMPATIBLE ACCESSORIES</Text>
+            <Text style={[styles.title, { color: colors.ink }]}>
+              Chargers, cables{'\n'}and <Text style={[styles.titleAccent, { color: colors.accentSoft }]}>more.</Text>
             </Text>
-            <Text style={styles.sub}>Find the right power accessory for your everyday setup.</Text>
+            <Text style={[styles.sub, { color: colors.muted }]}>Find the right power accessory for your everyday setup.</Text>
             <View style={styles.collectionSignals}>
-              <Text style={styles.signal}>Cash on delivery</Text>
-              <Text style={styles.signalDot}>•</Text>
-              <Text style={styles.signal}>Clear compatibility</Text>
+              <Text style={[styles.signal, { color: colors.accentSoft }]}>Cash on delivery</Text>
+              <Text style={[styles.signalDot, { color: colors.accentSoft }]}>•</Text>
+              <Text style={[styles.signal, { color: colors.accentSoft }]}>Clear compatibility</Text>
             </View>
           </View>
 
-          <View style={styles.searchWrap}>
-            <Text style={styles.searchIcon}>⌕</Text>
+          <View
+            style={[
+              styles.searchWrap,
+              {
+                borderColor: colors.cardBorder,
+                backgroundColor: isDark ? 'rgba(8, 28, 58, 0.72)' : colors.card,
+              },
+            ]}>
+            <Text style={[styles.searchIcon, { color: colors.accentSoft }]}>⌕</Text>
             <TextInput
               value={search}
               onChangeText={setSearch}
               placeholder="Search chargers and accessories"
-              placeholderTextColor="#7A93B0"
-              style={styles.search}
+              placeholderTextColor={colors.muted}
+              style={[styles.search, { color: colors.ink }]}
               autoCapitalize="none"
             />
           </View>
@@ -135,14 +144,14 @@ export function ShopScreen() {
           </View>
 
           {loading ? (
-            <Text style={styles.emptyText}>Loading products…</Text>
+            <Text style={[styles.emptyText, { color: colors.muted }]}>Loading products…</Text>
           ) : error ? (
-            <View style={styles.empty}>
-              <Text style={styles.emptyText}>{error}</Text>
+            <View style={[styles.empty, { borderColor: colors.cardBorder }]}>
+              <Text style={[styles.emptyText, { color: colors.muted }]}>{error}</Text>
             </View>
           ) : products.length === 0 ? (
-            <View style={styles.empty}>
-              <Text style={styles.emptyText}>No accessories match your search.</Text>
+            <View style={[styles.empty, { borderColor: colors.cardBorder }]}>
+              <Text style={[styles.emptyText, { color: colors.muted }]}>No accessories match your search.</Text>
             </View>
           ) : (
             <View style={styles.grid}>
@@ -153,24 +162,24 @@ export function ShopScreen() {
                 return (
                   <Pressable
                     key={product.id}
-                    style={styles.card}
+                    style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}
                     onPress={() => navigation.navigate('Product', { productId: product.id })}>
                     {product.discount > 0 ? (
-                      <View style={styles.badge}>
+                      <View style={[styles.badge, { backgroundColor: colors.accent }]}>
                         <Text style={styles.badgeText}>-{product.discount}%</Text>
                       </View>
                     ) : null}
                     {thumb ? (
                       <Image source={{ uri: thumb }} style={styles.thumb} resizeMode="contain" />
                     ) : (
-                      <View style={styles.thumb} />
+                      <View style={[styles.thumb, { backgroundColor: isDark ? '#08182F' : '#E6F6FF' }]} />
                     )}
-                    <Text style={styles.kickerSmall}>Collection pick</Text>
-                    <Text style={styles.name} numberOfLines={2}>
+                    <Text style={[styles.kickerSmall, { color: colors.accentSoft }]}>Collection pick</Text>
+                    <Text style={[styles.name, { color: colors.ink }]} numberOfLines={2}>
                       {product.name}
                     </Text>
                     <View style={styles.priceRow}>
-                      <Text style={styles.price}>{formatMoney(sale, currency)}</Text>
+                      <Text style={[styles.price, { color: colors.accentSoft }]}>{formatMoney(sale, currency)}</Text>
                       {compare > sale ? (
                         <View style={styles.compareRow}>
                           <Text style={styles.compareLabel}>Was</Text>
@@ -181,8 +190,8 @@ export function ShopScreen() {
                         </View>
                       ) : null}
                     </View>
-                    <View style={styles.viewBtn}>
-                      <Text style={styles.viewText}>View product →</Text>
+                    <View style={[styles.viewBtn, { backgroundColor: isDark ? 'rgba(47, 123, 255, 0.18)' : '#E6F6FF' }]}>
+                      <Text style={[styles.viewText, { color: colors.ink }]}>View product →</Text>
                     </View>
                   </Pressable>
                 );

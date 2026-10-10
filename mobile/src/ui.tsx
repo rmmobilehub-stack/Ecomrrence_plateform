@@ -12,6 +12,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAppTheme } from './context/ThemeContext';
 import { colors, radius, space } from './theme';
 import { resolveMediaUrl } from './media';
 
@@ -22,27 +23,36 @@ export function ScreenWrap({
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
 }) {
+  const { colors: theme } = useAppTheme();
   return (
-    <SafeAreaView style={[styles.screen, style]} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={[styles.screen, { backgroundColor: theme.bg }, style]} edges={['top', 'left', 'right']}>
       {children}
     </SafeAreaView>
   );
 }
 
 export function Card({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
-  return <View style={[styles.card, style]}>{children}</View>;
+  const { colors: theme } = useAppTheme();
+  return (
+    <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.line }, style]}>
+      {children}
+    </View>
+  );
 }
 
 export function Title({ children }: { children: React.ReactNode }) {
-  return <Text style={styles.title}>{children}</Text>;
+  const { colors: theme } = useAppTheme();
+  return <Text style={[styles.title, { color: theme.ink }]}>{children}</Text>;
 }
 
 export function Subtitle({ children }: { children: React.ReactNode }) {
-  return <Text style={styles.subtitle}>{children}</Text>;
+  const { colors: theme } = useAppTheme();
+  return <Text style={[styles.subtitle, { color: theme.muted }]}>{children}</Text>;
 }
 
 export function Muted({ children }: { children: React.ReactNode }) {
-  return <Text style={styles.muted}>{children}</Text>;
+  const { colors: theme } = useAppTheme();
+  return <Text style={[styles.muted, { color: theme.muted }]}>{children}</Text>;
 }
 
 export function ErrorText({ children }: { children?: string }) {
@@ -114,14 +124,18 @@ export function Field({
   onChangeText,
   ...rest
 }: { label: string } & TextInputProps) {
+  const { colors: theme } = useAppTheme();
   return (
     <View style={styles.field}>
-      <Text style={styles.fieldLabel}>{label}</Text>
+      <Text style={[styles.fieldLabel, { color: theme.muted }]}>{label}</Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
-        placeholderTextColor={colors.muted}
-        style={styles.input}
+        placeholderTextColor={theme.muted}
+        style={[
+          styles.input,
+          { backgroundColor: theme.card, borderColor: theme.line, color: theme.ink },
+        ]}
         {...rest}
       />
     </View>

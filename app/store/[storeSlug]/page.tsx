@@ -159,8 +159,16 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
         <div className="store-about-modern-facts">
           <div><strong>Easy</strong><span>Simple checkout</span></div>
           <div><strong>COD</strong><span>Pay on delivery</span></div>
-          <div><strong>{store.whatsappNumber ? 'Direct' : 'Email'}</strong><span>Personal support</span></div>
+          <div><strong>{store.whatsappNumber || store.contactPhone ? 'Direct' : 'Email'}</strong><span>Personal support</span></div>
         </div>
+        {(store.contactPhone || store.contactEmail || store.contactAddress || store.whatsappNumber) ? (
+          <div className="store-about-contact">
+            {store.contactPhone ? <p><strong>Phone</strong><span>{store.contactPhone}</span></p> : null}
+            {store.contactEmail ? <p><strong>Email</strong><span>{store.contactEmail}</span></p> : null}
+            {store.contactAddress ? <p><strong>Address</strong><span>{store.contactAddress}</span></p> : null}
+            {store.whatsappNumber ? <p><strong>WhatsApp</strong><span>{store.whatsappNumber}</span></p> : null}
+          </div>
+        ) : null}
         <div className="store-about-modern-actions">
           <Link className="btn btn-primary" href={shopHref}>Explore the collection <ArrowRight size={17}/></Link>
           {socials.length > 0 && <div className="store-socials"><span>Connect with us</span><div>{socials.map(({ key, label, Icon, href }) => <a key={key} href={href} target="_blank" rel="noreferrer" aria-label={label} title={label}><Icon size={18}/></a>)}</div></div>}

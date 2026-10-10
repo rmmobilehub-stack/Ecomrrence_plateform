@@ -5,9 +5,11 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { fetchDeviceEstimate, fetchRepairCatalog } from '../api';
+import { HeaderActions } from '../components/HeaderActions';
 import { SelectField } from '../components/SelectField';
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
+import { useAppTheme } from '../context/ThemeContext';
 import { ensureCustomerLogin, healthCheckReturn, repairReturn } from '../ensureCustomerLogin';
 import { formatMoney } from '../money';
 import { colors } from '../theme';
@@ -25,10 +27,7 @@ import {
 } from '../types';
 import { Card, Chip, ErrorText, Field, LoadingBlock, Muted, PrimaryButton } from '../ui';
 import type { RootStackParamList } from '../navigation/types';
-import { isValidWhatsAppNumber, openWhatsApp } from '../whatsapp';
-
 const logoMark = require('../assets/rm-logo.png');
-const heroArt = require('../assets/phone-check-hero.png');
 
 const BRANDS = [
   { id: 'apple', name: 'Apple', available: true },
@@ -49,6 +48,7 @@ export function PhoneCheckScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { customer } = useAuth();
   const { store, accent } = useStore();
+  const { colors: theme, isDark } = useAppTheme();
   const [models, setModels] = useState<RepairModel[]>([]);
   const [brandId, setBrandId] = useState('apple');
   const [modelId, setModelId] = useState('');
@@ -119,8 +119,8 @@ export function PhoneCheckScreen() {
 
   if (loading) {
     return (
-      <View style={styles.page}>
-        <StatusBar barStyle="light-content" />
+      <View style={[styles.page, { backgroundColor: theme.bg }]}>
+        <StatusBar barStyle={theme.statusBar} />
         <SafeAreaView style={styles.safe}>
           <LoadingBlock />
         </SafeAreaView>
@@ -129,42 +129,64 @@ export function PhoneCheckScreen() {
   }
 
   return (
-    <View style={styles.page}>
-      <StatusBar barStyle="light-content" />
+    <View style={[styles.page, { backgroundColor: theme.bg }]}>
+      <StatusBar barStyle={theme.statusBar} />
       <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
         <View style={styles.header}>
-          <Image source={logoMark} style={styles.logo} />
-          <Text style={styles.brandName}>{store?.name || 'RM Mobile Hub'}</Text>
+          <View style={styles.brandRow}>
+            <Image source={logoMark} style={styles.logo} />
+            <Text style={[styles.brandName, { color: theme.ink }]}>{store?.name || 'RM Mobile Hub'}</Text>
+          </View>
+          <HeaderActions onCart={() => navigation.navigate('Cart')} onAccount={() => navigation.navigate('Account')} />
         </View>
 
         <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled">
           {/* Hero like reference */}
-          <View style={styles.hero}>
+          <View
+            style={[
+              styles.hero,
+              {
+                backgroundColor: isDark ? 'rgba(10, 28, 56, 0.9)' : theme.card,
+                borderColor: theme.cardBorder,
+              },
+            ]}>
             <View style={styles.heroCopy}>
-              <View style={styles.phoneCheckKicker}><Icon name="pulse-outline" size={14} color="#9FD7FF" /><Text style={styles.phoneCheckKickerText}>PHONE CHECK</Text></View>
-              <Text style={styles.heroTitle}>Health score {'&'} <Text style={styles.heroAccent}>market worth</Text></Text>
-              <Text style={styles.heroSub}>Choose your model, share its condition and get an instant health score with Pakistan market range.</Text>
-              <View style={styles.checkTrustRow}>
-                <View style={styles.checkTrust}><Icon name="checkmark-circle-outline" size={13} color="#9FD7FF" /><Text style={styles.checkTrustText}>Instant assessment</Text></View>
-                <View style={styles.checkTrust}><Icon name="trending-up-outline" size={13} color="#9FD7FF" /><Text style={styles.checkTrustText}>Market range</Text></View>
+              <View style={styles.phoneCheckKicker}><Icon name="pulse-outline" size={14} color={theme.accentSoft} /><Text style={[styles.phoneCheckKickerText, { color: theme.accentSoft }]}>PHONE CHECK</Text></View>
+              <Text style={[styles.heroTitle, { color: theme.ink }]}>Health score {'&'} <Text style={[styles.heroAccent, { color: theme.accentSoft }]}>market worth</Text></Text>
+              <Text style={[styles.heroSub, { color: theme.muted }]}>Choose your model, share its condition and get an instant health score with Pakistan market range.</Text>
+              <View style={styles.heroTiles}>
+                <View style={[styles.heroTile, { backgroundColor: isDark ? 'rgba(47, 123, 255, 0.14)' : '#E6F6FF', borderColor: theme.cardBorder }]}>
+                  <Icon name="pulse-outline" size={13} color={theme.accentSoft} />
+                  <Text style={[styles.heroTileLabel, { color: theme.ink }]}>Mobile health</Text>
+                </View>
+                <View style={[styles.heroTile, { backgroundColor: isDark ? 'rgba(47, 123, 255, 0.14)' : '#E6F6FF', borderColor: theme.cardBorder }]}>
+                  <Icon name="trending-up-outline" size={13} color={theme.accentSoft} />
+                  <Text style={[styles.heroTileLabel, { color: theme.ink }]}>Market worth</Text>
+                </View>
               </View>
-              {isValidWhatsAppNumber(store?.whatsappNumber) ? (
-                <Pressable style={styles.checkWhatsApp} onPress={() => void openWhatsApp(store?.whatsappNumber, `Hello ${store?.name || 'RM Mobile Hub'}, I need help with a phone check.`)}>
-                  <Icon name="logo-whatsapp" size={18} color="#FFFFFF" />
-                </Pressable>
-              ) : null}
             </View>
-            <View style={styles.heroArtWrap}>
-              <View style={styles.heroGlow} />
-              <Image source={heroArt} style={styles.heroArt} resizeMode="contain" />
-              <View style={styles.checkBadge}>
-                <Text style={styles.checkMark}>✓</Text>
+            <View style={styles.heroArtWrap} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+              <View style={styles.heroOrbit} />
+              <View style={styles.heroDevice}>
+                <View style={styles.heroIsland} />
+                <Text style={styles.heroHeart}>92</Text>
+                <Text style={styles.heroHealth}>HEALTH</Text>
+                <View style={[styles.heroBar, { width: 32 }]} />
+                <View style={[styles.heroBar, { width: 24 }]} />
+                <View style={[styles.heroBar, { width: 18 }]} />
+              </View>
+              <View style={styles.heroScoreCard}>
+                <Text style={styles.heroScoreLabel}>Estimated score</Text>
+                <Text style={styles.heroScoreValue}>
+                  9.2<Text style={styles.heroScoreUnit}>/10</Text>
+                </Text>
+                <Text style={styles.heroScoreStatus}>Excellent condition</Text>
               </View>
             </View>
           </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Enter your phone details</Text>
+          <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+            <Text style={[styles.cardTitle, { color: theme.ink }]}>Enter your phone details</Text>
             <SelectField
               label="Brand"
               placeholder="Select brand"
@@ -189,7 +211,7 @@ export function PhoneCheckScreen() {
               }}
             />
             {!started ? (
-              <Pressable style={styles.startBtn} onPress={startCheck}>
+              <Pressable style={[styles.startBtn, { backgroundColor: theme.accent }]} onPress={startCheck}>
                 <Text style={styles.startText}>Start phone check</Text>
                 <Text style={styles.startArrow}>→</Text>
               </Pressable>
@@ -209,8 +231,8 @@ export function PhoneCheckScreen() {
           </Pressable>
 
           {showCondition ? (
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Condition details</Text>
+            <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+              <Text style={[styles.cardTitle, { color: theme.ink }]}>Condition details</Text>
               <ConditionFields condition={condition} setCondition={setCondition} />
               <ErrorText>{error}</ErrorText>
               <PrimaryButton
@@ -350,61 +372,127 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 4,
     marginBottom: 6,
   },
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 1 },
   logo: { width: 42, height: 42, borderRadius: 13 },
-  brandName: { color: '#F4F8FF', fontSize: 16, fontWeight: '800' },
+  brandName: { fontSize: 16, fontWeight: '800' },
   pad: { paddingHorizontal: 16, paddingBottom: 120, gap: 14 },
   hero: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    minHeight: 210,
-    padding: 15,
+    gap: 6,
+    padding: 14,
     borderRadius: 20,
     overflow: 'hidden',
     backgroundColor: 'rgba(10, 28, 56, 0.9)',
     borderWidth: 1,
     borderColor: 'rgba(126, 200, 255, 0.28)',
   },
-  heroCopy: { flex: 1, gap: 8, paddingRight: 4 },
+  heroCopy: { flex: 1, gap: 7, paddingRight: 2, minWidth: 0 },
   phoneCheckKicker: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 5, borderRadius: 999, backgroundColor: 'rgba(77, 163, 255, 0.14)' },
   phoneCheckKickerText: { color: '#9FD7FF', fontSize: 9, fontWeight: '800', letterSpacing: 0.9 },
-  heroTitle: { color: '#F7FBFF', fontSize: 25, fontWeight: '800', lineHeight: 29 },
+  heroTitle: { color: '#F7FBFF', fontSize: 22, fontWeight: '800', lineHeight: 26 },
   heroAccent: { color: '#4DA3FF' },
-  heroSub: { color: '#C5D5EC', fontSize: 13, lineHeight: 19 },
-  checkTrustRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  checkTrust: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  checkTrustText: { color: '#B7CDE7', fontSize: 10, fontWeight: '700' },
-  checkWhatsApp: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: '#25D366' },
-  heroArtWrap: { width: 112, height: 170, alignItems: 'center', justifyContent: 'center' },
-  heroGlow: {
-    position: 'absolute',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: 'rgba(77, 163, 255, 0.25)',
+  heroSub: { color: '#C5D5EC', fontSize: 12, lineHeight: 17 },
+  heroTiles: { flexDirection: 'row', flexWrap: 'nowrap', gap: 6, marginTop: 2 },
+  heroTile: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 10,
+    backgroundColor: 'rgba(47, 123, 255, 0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(126, 200, 255, 0.28)',
   },
-  heroArt: { width: 108, height: 160 },
-  checkBadge: {
-    position: 'absolute',
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: '#2F7BFF',
+  heroTileLabel: { color: '#D7E7FF', fontSize: 10, fontWeight: '700' },
+  heroArtWrap: {
+    width: 96,
+    height: 142,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: '#EAF3FF',
-    shadowColor: '#2F7BFF',
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-    elevation: 8,
+    flexShrink: 0,
   },
-  checkMark: { color: '#fff', fontSize: 20, fontWeight: '900' },
+  heroOrbit: {
+    position: 'absolute',
+    width: 108,
+    height: 108,
+    borderRadius: 54,
+    borderWidth: 1,
+    borderColor: 'rgba(123, 222, 251, 0.35)',
+    backgroundColor: 'rgba(123, 222, 251, 0.08)',
+  },
+  heroDevice: {
+    width: 54,
+    height: 98,
+    borderRadius: 13,
+    borderWidth: 3,
+    borderColor: '#173F5C',
+    backgroundColor: '#7FDAEF',
+    alignItems: 'center',
+    paddingTop: 18,
+    transform: [{ rotate: '8deg' }],
+    shadowColor: '#1B7197',
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 6,
+  },
+  heroIsland: {
+    position: 'absolute',
+    top: 5,
+    width: 22,
+    height: 5,
+    borderRadius: 999,
+    backgroundColor: '#123249',
+  },
+  heroHeart: {
+    color: '#08364F',
+    fontSize: 18,
+    fontWeight: '800',
+    letterSpacing: -0.8,
+    lineHeight: 20,
+  },
+  heroHealth: {
+    color: '#17628A',
+    fontSize: 6,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    marginTop: 1,
+  },
+  heroBar: {
+    height: 3,
+    borderRadius: 999,
+    backgroundColor: 'rgba(10, 80, 110, 0.24)',
+    marginTop: 5,
+  },
+  heroScoreCard: {
+    position: 'absolute',
+    right: -4,
+    bottom: 4,
+    minWidth: 78,
+    paddingHorizontal: 7,
+    paddingVertical: 6,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.94)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.9)',
+    gap: 1,
+    shadowColor: '#125E82',
+    shadowOpacity: 0.16,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 5,
+  },
+  heroScoreLabel: { color: '#618296', fontSize: 7, fontWeight: '700' },
+  heroScoreValue: { color: '#087FBB', fontSize: 14, fontWeight: '800', lineHeight: 16 },
+  heroScoreUnit: { fontSize: 8, fontWeight: '700' },
+  heroScoreStatus: { color: '#178158', fontSize: 7, fontWeight: '700' },
   card: {
     borderRadius: 18,
     padding: 16,
