@@ -1,5 +1,6 @@
 export type ScreenCondition = 'all_neat' | 'some_scratches' | 'many_scratches';
 export type OwnershipStatus = 'first_owner' | 'box_pack' | 'used' | 'non_active';
+export type PtaStatus = 'pta' | 'non_pta';
 export type BodyFlag = 'scratches' | 'side_rough' | 'body_changed' | 'back_glass_changed';
 export type ChangedPart = 'glass' | 'battery' | 'front_camera' | 'back_camera';
 
@@ -11,6 +12,8 @@ export type DeviceConditionInput = {
   batteryHealthPercent: number;
   ageYears: number;
   ownership: OwnershipStatus;
+  /** PTA-approved phones sell higher in Pakistan; non-PTA is discounted. */
+  ptaStatus: PtaStatus;
   additionalNote: string;
 };
 
@@ -37,6 +40,7 @@ export const DEFAULT_DEVICE_CONDITION: DeviceConditionInput = {
   batteryHealthPercent: 85,
   ageYears: 1,
   ownership: 'used',
+  ptaStatus: 'pta',
   additionalNote: '',
 };
 
@@ -65,6 +69,11 @@ export const OWNERSHIP_OPTIONS: { id: OwnershipStatus; label: string }[] = [
   { id: 'box_pack', label: 'Box pack' },
   { id: 'used', label: 'Used' },
   { id: 'non_active', label: 'Non-active' },
+];
+
+export const PTA_STATUS_OPTIONS: { id: PtaStatus; label: string; hint: string }[] = [
+  { id: 'pta', label: 'PTA approved', hint: 'Higher Pakistan market price' },
+  { id: 'non_pta', label: 'Non-PTA', hint: 'Lower market price vs PTA' },
 ];
 
 const SCREEN_SCORE: Record<ScreenCondition, number> = {
@@ -173,6 +182,14 @@ export function buildRuleBasedEstimate(input: {
     min = roundToThousand(min * 0.82);
     max = roundToThousand(max * 0.88);
   }
+  // Base ranges assume PTA; non-PTA trades materially lower in Pakistan.
+  if (c.ptaStatus === 'non_pta') {
+    min = roundToThousand(min * 0.72);
+    max = roundToThousand(max * 0.78);
+  } else {
+    min = roundToThousand(min * 1.02);
+    max = roundToThousand(max * 1.04);
+  }
   if (max < min) max = min + 5000;
 
   const suggestions: string[] = [];
@@ -196,6 +213,11 @@ export function buildRuleBasedEstimate(input: {
   if (c.ownership === 'non_active') {
     suggestions.push('Non-active status lowers market trust — verify IMEI / network status before selling.');
   }
+  if (c.ptaStatus === 'non_pta') {
+    suggestions.push('Non-PTA phones usually sell lower than PTA-approved units — buyers discount tax/DIRBS risk.');
+  } else {
+    suggestions.push('PTA-approved status supports stronger Pakistan market offers — keep approval proof ready.');
+  }
   if (score < 55) {
     suggestions.push('Repair before selling usually recovers more value than selling as-is.');
     buySuggestions.push('Doorstep repair booking');
@@ -203,13 +225,14 @@ export function buildRuleBasedEstimate(input: {
     suggestions.push('Keep box, charger and bill notes ready — complete set helps Pakistan market offers.');
     buySuggestions.push('Original-style charger / cable');
   }
+  const ptaLabel = c.ptaStatus === 'pta' ? 'PTA approved' : 'Non-PTA';
   return {
     score,
     scoreLabel: scoreLabel(score),
     marketValueMinPkr: min,
     marketValueMaxPkr: max,
     currency: 'PKR',
-    summary: `${input.modelName} looks around ${score}/100 for current resale health in Pakistan used-phone market.`,
+    summary: `${input.modelName} (${ptaLabel}) looks around ${score}/100 for current resale health in Pakistan used-phone market.`,
     suggestions: suggestions.slice(0, 4),
     buySuggestions: buySuggestions.slice(0, 4),
     source: 'rules',
@@ -231,12 +254,15 @@ export function parseConditionPayload(body: unknown): DeviceConditionInput | nul
   const raw = body as Record<string, unknown>;
   const screens: ScreenCondition[] = ['all_neat', 'some_scratches', 'many_scratches'];
   const ownerships: OwnershipStatus[] = ['first_owner', 'box_pack', 'used', 'non_active'];
+  const ptaStatuses: PtaStatus[] = ['pta', 'non_pta'];
   const bodyIds: BodyFlag[] = ['scratches', 'side_rough', 'body_changed', 'back_glass_changed'];
   const partIds: ChangedPart[] = ['glass', 'battery', 'front_camera', 'back_camera'];
   const screenCondition = String(raw.screenCondition || '');
   const ownership = String(raw.ownership || '');
+  const ptaStatus = String(raw.ptaStatus || 'pta');
   if (!screens.includes(screenCondition as ScreenCondition)) return null;
   if (!ownerships.includes(ownership as OwnershipStatus)) return null;
+  if (!ptaStatuses.includes(ptaStatus as PtaStatus)) return null;
   const overallOutOf10 = Number(raw.overallOutOf10);
   const batteryHealthPercent = Number(raw.batteryHealthPercent);
   const ageYears = Number(raw.ageYears);
@@ -259,6 +285,7 @@ export function parseConditionPayload(body: unknown): DeviceConditionInput | nul
     batteryHealthPercent: clamp(Math.round(batteryHealthPercent), 0, 100),
     ageYears: Number.isFinite(ageYears) ? clamp(ageYears, 0, 12) : 1,
     ownership: ownership as OwnershipStatus,
+    ptaStatus: ptaStatus as PtaStatus,
     additionalNote: String(raw.additionalNote || '').trim().slice(0, 500),
   };
 }

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Facebook, Globe2, HeartPulse, Instagram, MessageCircle, Music2, ShieldCheck, Sparkles, Truck, Twitter, Youtube } from 'lucide-react';
+import { ArrowRight, Facebook, Globe2, HeartPulse, Instagram, Mail, MapPin, MessageCircle, Music2, Phone, ShieldCheck, Sparkles, Truck, Twitter, Youtube } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { getActiveProductsForStore, getActiveStoreBySlug } from '@/lib/db';
@@ -10,7 +10,7 @@ import LeadChatbot from '@/components/store/LeadChatbot';
 import WhatsAppButton from '@/components/store/WhatsAppButton';
 import Reveal from '@/components/store/Reveal';
 import { calculateProductPrice } from '@/lib/pricing';
-import { isValidWhatsAppNumber } from '@/lib/whatsapp';
+import { createWhatsAppUrl, isValidWhatsAppNumber, normalizeWhatsAppNumber } from '@/lib/whatsapp';
 import { storefrontPath } from '@/lib/storefront-paths';
 
 const DEFAULT_STOREFRONT_HERO_BANNER = '/storefront/hero-tech-accessories-banner.jpg';
@@ -62,6 +62,16 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
   const contactWidgetMode = store.contactWidgetMode ?? 'both';
   const showWhatsApp = ['whatsapp', 'both'].includes(contactWidgetMode) && isValidWhatsAppNumber(store.whatsappNumber);
   const showChatbot = ['chatbot', 'both'].includes(contactWidgetMode);
+  const contactPhone = (store.contactPhone || '').trim();
+  const contactEmail = (store.contactEmail || '').trim();
+  const contactAddress = (store.contactAddress || '').trim();
+  const hasConnectDetails = Boolean(contactPhone || contactEmail || contactAddress || isValidWhatsAppNumber(store.whatsappNumber));
+  const phoneHref = contactPhone
+    ? `tel:+${normalizeWhatsAppNumber(contactPhone) || contactPhone.replace(/\D/g, '')}`
+    : '';
+  const whatsappHref = isValidWhatsAppNumber(store.whatsappNumber)
+    ? createWhatsAppUrl(store.whatsappNumber, chatMessage)
+    : '';
 
   const productImages = featured.map((product) => product.thumbnail || product.images?.[0] || '').filter(Boolean);
   const aboutImage = store.aboutImage || productImages[0] || '';
@@ -161,17 +171,48 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
           <div><strong>COD</strong><span>Pay on delivery</span></div>
           <div><strong>{store.whatsappNumber || store.contactPhone ? 'Direct' : 'Email'}</strong><span>Personal support</span></div>
         </div>
-        {(store.contactPhone || store.contactEmail || store.contactAddress || store.whatsappNumber) ? (
-          <div className="store-about-contact">
-            {store.contactPhone ? <p><strong>Phone</strong><span>{store.contactPhone}</span></p> : null}
-            {store.contactEmail ? <p><strong>Email</strong><span>{store.contactEmail}</span></p> : null}
-            {store.contactAddress ? <p><strong>Address</strong><span>{store.contactAddress}</span></p> : null}
-            {store.whatsappNumber ? <p><strong>WhatsApp</strong><span>{store.whatsappNumber}</span></p> : null}
-          </div>
-        ) : null}
+        <div className="store-about-connect">
+          <p className="store-about-connect-title">Connect with us</p>
+          <p className="store-about-connect-hint">Reach {store.name} for accessories, phone check or doorstep repair.</p>
+          {hasConnectDetails ? (
+            <div className="store-about-contact">
+              {contactPhone ? (
+                <a className="store-about-contact-row" href={phoneHref || undefined}>
+                  <span className="store-about-contact-icon"><Phone size={17}/></span>
+                  <span><strong>Phone</strong><em>{contactPhone}</em></span>
+                </a>
+              ) : null}
+              {contactEmail ? (
+                <a className="store-about-contact-row" href={`mailto:${contactEmail}`}>
+                  <span className="store-about-contact-icon"><Mail size={17}/></span>
+                  <span><strong>Email</strong><em>{contactEmail}</em></span>
+                </a>
+              ) : null}
+              {contactAddress ? (
+                <div className="store-about-contact-row">
+                  <span className="store-about-contact-icon"><MapPin size={17}/></span>
+                  <span><strong>Address</strong><em>{contactAddress}</em></span>
+                </div>
+              ) : null}
+              {whatsappHref ? (
+                <a className="store-about-contact-row is-whatsapp" href={whatsappHref} rel="noreferrer">
+                  <span className="store-about-contact-icon"><MessageCircle size={17}/></span>
+                  <span><strong>WhatsApp</strong><em>{store.whatsappNumber}</em></span>
+                </a>
+              ) : null}
+            </div>
+          ) : (
+            <p className="store-about-connect-empty">Contact details will appear here once the store admin saves them.</p>
+          )}
+          {socials.length > 0 ? (
+            <div className="store-socials store-about-socials">
+              <span>Social</span>
+              <div>{socials.map(({ key, label, Icon, href }) => <a key={key} href={href} target="_blank" rel="noreferrer" aria-label={label} title={label}><Icon size={18}/></a>)}</div>
+            </div>
+          ) : null}
+        </div>
         <div className="store-about-modern-actions">
           <Link className="btn btn-primary" href={shopHref}>Explore the collection <ArrowRight size={17}/></Link>
-          {socials.length > 0 && <div className="store-socials"><span>Connect with us</span><div>{socials.map(({ key, label, Icon, href }) => <a key={key} href={href} target="_blank" rel="noreferrer" aria-label={label} title={label}><Icon size={18}/></a>)}</div></div>}
         </div>
       </Reveal>
       {aboutSecondaryImage && <div className="store-about-modern-product"><img src={aboutSecondaryImage} alt="A product from our collection" loading="lazy" decoding="async"/><span>Part of our collection</span></div>}

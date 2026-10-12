@@ -18,6 +18,7 @@ import {
   DEFAULT_DEVICE_CONDITION,
   OWNERSHIP_OPTIONS,
   PARTS_CHANGED_OPTIONS,
+  PTA_STATUS_OPTIONS,
   SCREEN_CONDITION_OPTIONS,
   type BodyFlag,
   type ChangedPart,
@@ -293,6 +294,18 @@ export function ConditionFields({
 }) {
   return (
     <View style={{ gap: 10 }}>
+      <Text style={styles.fieldLabel}>PTA status</Text>
+      <Muted>PTA-approved phones usually get a higher market price than non-PTA.</Muted>
+      <View style={styles.row}>
+        {PTA_STATUS_OPTIONS.map(option => (
+          <Chip
+            key={option.id}
+            label={option.label}
+            selected={condition.ptaStatus === option.id}
+            onPress={() => setCondition({ ...condition, ptaStatus: option.id })}
+          />
+        ))}
+      </View>
       <Text style={styles.fieldLabel}>Screen</Text>
       <View style={styles.row}>
         {SCREEN_CONDITION_OPTIONS.map(option => (

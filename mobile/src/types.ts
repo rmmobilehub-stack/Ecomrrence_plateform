@@ -187,6 +187,7 @@ export interface RepairCatalog {
 
 export type ScreenCondition = 'all_neat' | 'some_scratches' | 'many_scratches';
 export type OwnershipStatus = 'first_owner' | 'box_pack' | 'used' | 'non_active';
+export type PtaStatus = 'pta' | 'non_pta';
 export type BodyFlag = 'scratches' | 'side_rough' | 'body_changed' | 'back_glass_changed';
 export type ChangedPart = 'glass' | 'battery' | 'front_camera' | 'back_camera';
 
@@ -198,6 +199,7 @@ export interface DeviceConditionInput {
   batteryHealthPercent: number;
   ageYears: number;
   ownership: OwnershipStatus;
+  ptaStatus: PtaStatus;
   additionalNote: string;
 }
 
@@ -220,6 +222,7 @@ export const DEFAULT_DEVICE_CONDITION: DeviceConditionInput = {
   batteryHealthPercent: 85,
   ageYears: 1,
   ownership: 'used',
+  ptaStatus: 'pta',
   additionalNote: '',
 };
 
@@ -248,4 +251,9 @@ export const OWNERSHIP_OPTIONS: { id: OwnershipStatus; label: string }[] = [
   { id: 'box_pack', label: 'Box pack' },
   { id: 'used', label: 'Used' },
   { id: 'non_active', label: 'Non-active' },
+];
+
+export const PTA_STATUS_OPTIONS: { id: PtaStatus; label: string }[] = [
+  { id: 'pta', label: 'PTA approved' },
+  { id: 'non_pta', label: 'Non-PTA' },
 ];

@@ -77,7 +77,7 @@ export default async function ProductPage({ params }: { params: { storeSlug: str
           <div className="product-kicker-row">
             <p className="eyebrow product-eyebrow">{categoryName}</p>
             <span className={`product-stock-chip ${inStock ? 'is-in-stock' : 'is-out-of-stock'}`}>
-              {inStock ? `${product.stock} in stock` : 'Out of stock'}
+              {inStock ? 'In stock' : 'Out of stock'}
             </span>
           </div>
 
@@ -110,7 +110,7 @@ export default async function ProductPage({ params }: { params: { storeSlug: str
             <span>
               <strong>Availability</strong>
               <b className={inStock ? 'text-success' : 'text-error'}>
-                {inStock ? `${product.stock} in stock` : 'Out of stock'}
+                {inStock ? 'In stock' : 'Out of stock'}
               </b>
             </span>
           </div>
