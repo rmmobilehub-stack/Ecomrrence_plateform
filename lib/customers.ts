@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { findById, insertOne, readDb, toApplicationRow, updateOne } from '@/lib/db';
+import { deleteOne, findById, insertOne, readDb, toApplicationRow, updateOne } from '@/lib/db';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import type { CustomerAccount, Order, RepairBooking } from '@/lib/types';
 
@@ -129,4 +129,78 @@ export async function getCustomerRepairs(customerId: string): Promise<RepairBook
 
 export async function getCustomerById(id: string) {
   return findById<CustomerAccount>('customers', id);
+}
+
+export type PublicCustomer = Omit<CustomerAccount, 'passwordHash' | 'googleId' | 'facebookId'> & {
+  hasPassword: boolean;
+};
+
+export function toPublicCustomer(customer: CustomerAccount): PublicCustomer {
+  const { passwordHash: _passwordHash, googleId: _googleId, facebookId: _facebookId, ...rest } = customer;
+  return {
+    ...rest,
+    hasPassword: Boolean(customer.passwordHash),
+  };
+}
+
+export async function listCustomersByStore(storeId: string): Promise<PublicCustomer[]> {
+  const customers = await readDb<CustomerAccount>('customers');
+  return customers
+    .filter(entry => entry.storeId === storeId)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .map(toPublicCustomer);
+}
+
+export async function updateCustomerAccount(
+  storeId: string,
+  id: string,
+  input: { name?: string; email?: string; phone?: string; password?: string },
+): Promise<PublicCustomer> {
+  const existing = await findById<CustomerAccount>('customers', id);
+  if (!existing || existing.storeId !== storeId) {
+    throw new Error('User not found');
+  }
+
+  const updates: Partial<CustomerAccount> = {};
+
+  if (input.name !== undefined) {
+    const name = String(input.name || '').trim().slice(0, 100);
+    if (name.length < 2) throw new Error('Enter a full name');
+    updates.name = name;
+  }
+
+  if (input.email !== undefined) {
+    const email = normalizeEmail(String(input.email || ''));
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new Error('Enter a valid email address');
+    }
+    const duplicate = await findCustomerByEmail(storeId, email);
+    if (duplicate && duplicate.id !== id) {
+      throw new Error('Another account already uses this email');
+    }
+    updates.email = email;
+  }
+
+  if (input.phone !== undefined) {
+    updates.phone = String(input.phone || '').trim().slice(0, 40);
+  }
+
+  if (input.password !== undefined && String(input.password || '').length > 0) {
+    const password = String(input.password);
+    if (password.length < 6) throw new Error('Password must be at least 6 characters');
+    updates.passwordHash = await bcrypt.hash(password, 10);
+  }
+
+  const updated = await updateOne<CustomerAccount>('customers', id, updates);
+  if (!updated) throw new Error('Could not update user');
+  return toPublicCustomer(updated);
+}
+
+export async function deleteCustomerAccount(storeId: string, id: string) {
+  const existing = await findById<CustomerAccount>('customers', id);
+  if (!existing || existing.storeId !== storeId) {
+    throw new Error('User not found');
+  }
+  await deleteOne<CustomerAccount>('customers', id);
+  return true;
 }

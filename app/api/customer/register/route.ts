@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
       phone: String(body.phone || ''),
     });
 
+    const fromApp = String(body.client || '').trim().toLowerCase() === 'app';
     const magicToken = await signMagicLoginToken({
       id: customer.id,
       email: customer.email,
@@ -47,19 +48,23 @@ export async function POST(req: NextRequest) {
       storeSlug: store.slug,
       avatarUrl: customer.avatarUrl,
     });
-    const loginLink = `${siteOrigin(req)}/api/customer/magic-login?token=${encodeURIComponent(magicToken)}`;
+    const loginLink = `${siteOrigin(req)}/api/customer/magic-login?token=${encodeURIComponent(magicToken)}${
+      fromApp ? '&client=app' : ''
+    }`;
 
     void sendCustomerEmail({
       to: customer.email,
       brandName: store.name,
       subject: `Welcome to ${store.name}`,
       actionUrl: loginLink,
-      actionLabel: 'Log in to your account',
+      actionLabel: fromApp ? 'Open app & log in' : 'Log in to your account',
       text: [
         `Hi ${customer.name || 'there'},`,
         '',
         `Your account on ${store.name} is ready.`,
-        'Click the button below to log in instantly — no password needed for this link.',
+        fromApp
+          ? 'Click the button below to open the app and log in — you are not signed in until you use this link.'
+          : 'Click the button below to log in instantly — no password needed for this link.',
         '',
         'This link works for 7 days. After that, use your email and password on the login page.',
         '',
@@ -69,6 +74,19 @@ export async function POST(req: NextRequest) {
         store.name,
       ].join('\n'),
     });
+
+    // App registrations must log in via the email magic link (no auto session).
+    if (fromApp) {
+      return NextResponse.json({
+        success: true,
+        customer: {
+          id: customer.id,
+          name: customer.name,
+          email: customer.email,
+          phone: customer.phone,
+        },
+      });
+    }
 
     const token = await signCustomerToken({
       id: customer.id,

@@ -6,8 +6,9 @@ import { fetchCustomerHistory } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
 import { accountReturn, ensureCustomerLogin } from '../ensureCustomerLogin';
+import { useAppTheme } from '../context/ThemeContext';
 import { formatMoney } from '../money';
-import { colors, space } from '../theme';
+import { space } from '../theme';
 import type { HistoryOrder, HistoryRepair } from '../types';
 import { Card, ErrorText, LoadingBlock, Muted, PrimaryButton, ScreenWrap, SecondaryButton, Title } from '../ui';
 import type { RootStackParamList } from '../navigation/types';
@@ -35,16 +36,17 @@ function initials(name: string, email: string) {
     .join('');
 }
 
-function statusColor(status: string) {
-  if (status === 'cancelled') return colors.danger;
-  if (status === 'delivered' || status === 'completed') return colors.success;
-  return colors.accent;
-}
-
 export function AccountScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { customer, loading: authLoading, logout } = useAuth();
   const { store, accent, currency } = useStore();
+  const { colors } = useAppTheme();
+
+  const statusColor = (status: string) => {
+    if (status === 'cancelled') return colors.danger;
+    if (status === 'delivered' || status === 'completed') return colors.success;
+    return colors.accent;
+  };
   const [orders, setOrders] = useState<HistoryOrder[]>([]);
   const [repairs, setRepairs] = useState<HistoryRepair[]>([]);
   const [error, setError] = useState('');
@@ -105,7 +107,7 @@ export function AccountScreen() {
         contentContainerStyle={styles.pad}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}>
         <View style={styles.head}>
-          <View style={styles.avatar}>
+          <View style={[styles.avatar, { backgroundColor: colors.accent }]}>
             <Text style={styles.avatarText}>{initials(customer.name, customer.email)}</Text>
           </View>
           <View style={{ flex: 1 }}>
@@ -120,11 +122,11 @@ export function AccountScreen() {
 
         <View style={styles.stats}>
           <Card style={styles.stat}>
-            <Text style={styles.statNum}>{orders.length}</Text>
+            <Text style={[styles.statNum, { color: colors.ink }]}>{orders.length}</Text>
             <Muted>Orders</Muted>
           </Card>
           <Card style={styles.stat}>
-            <Text style={styles.statNum}>{repairs.length}</Text>
+            <Text style={[styles.statNum, { color: colors.ink }]}>{repairs.length}</Text>
             <Muted>Repairs</Muted>
           </Card>
         </View>
@@ -132,7 +134,7 @@ export function AccountScreen() {
         <ErrorText>{error}</ErrorText>
 
         <View style={styles.sectionHead}>
-          <Text style={styles.sectionTitle}>Order history</Text>
+          <Text style={[styles.sectionTitle, { color: colors.ink }]}>Order history</Text>
           <Text style={[styles.link, { color: accent }]} onPress={() => navigation.navigate('Tabs', { screen: 'Shop' })}>
             Shop again
           </Text>
@@ -147,24 +149,24 @@ export function AccountScreen() {
           orders.map(order => (
             <Card key={order.id} style={styles.card}>
               <View style={styles.row}>
-                <Text style={styles.strong}>{order.orderNumber}</Text>
+                <Text style={[styles.strong, { color: colors.ink }]}>{order.orderNumber}</Text>
                 <Muted>{formatDate(order.createdAt)}</Muted>
               </View>
-              <Text style={styles.items}>
+              <Text style={[styles.items, { color: colors.ink }]}>
                 {(order.items || []).map(item => `${item.qty}× ${item.productName}`).join(', ')}
               </Text>
               <View style={styles.row}>
                 <Text style={{ color: statusColor(order.status), fontWeight: '700', textTransform: 'capitalize' }}>
                   {order.status}
                 </Text>
-                <Text style={styles.strong}>{formatMoney(order.total, currency)}</Text>
+                <Text style={[styles.strong, { color: colors.ink }]}>{formatMoney(order.total, currency)}</Text>
               </View>
             </Card>
           ))
         )}
 
         <View style={styles.sectionHead}>
-          <Text style={styles.sectionTitle}>Repair history</Text>
+          <Text style={[styles.sectionTitle, { color: colors.ink }]}>Repair history</Text>
           <Text style={[styles.link, { color: accent }]} onPress={() => navigation.navigate('Repair')}>
             Book repair
           </Text>
@@ -179,10 +181,10 @@ export function AccountScreen() {
           repairs.map(booking => (
             <Card key={booking.id} style={styles.card}>
               <View style={styles.row}>
-                <Text style={styles.strong}>{booking.bookingNumber}</Text>
+                <Text style={[styles.strong, { color: colors.ink }]}>{booking.bookingNumber}</Text>
                 <Muted>{formatDate(booking.createdAt)}</Muted>
               </View>
-              <Text style={styles.items}>
+              <Text style={[styles.items, { color: colors.ink }]}>
                 {booking.device?.modelName} · {booking.issue?.issueName}
               </Text>
               <View style={styles.row}>
@@ -190,7 +192,7 @@ export function AccountScreen() {
                   {booking.status}
                 </Text>
                 {booking.deviceEstimate ? (
-                  <Text style={styles.strong}>Score {booking.deviceEstimate.score}/100</Text>
+                  <Text style={[styles.strong, { color: colors.ink }]}>Score {booking.deviceEstimate.score}/100</Text>
                 ) : null}
               </View>
             </Card>
@@ -208,19 +210,18 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: { color: '#fff', fontWeight: '800' },
   stats: { flexDirection: 'row', gap: 10 },
   stat: { flex: 1, alignItems: 'flex-start' },
-  statNum: { fontSize: 22, fontWeight: '800', color: colors.ink },
+  statNum: { fontSize: 22, fontWeight: '800' },
   sectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
-  sectionTitle: { fontSize: 18, fontWeight: '800', color: colors.ink },
-  link: { fontWeight: '700', color: colors.accentSoft },
+  sectionTitle: { fontSize: 18, fontWeight: '800' },
+  link: { fontWeight: '700' },
   card: { gap: 6 },
   row: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
-  strong: { fontWeight: '800', color: colors.ink },
-  items: { color: colors.ink },
+  strong: { fontWeight: '800' },
+  items: {},
 });

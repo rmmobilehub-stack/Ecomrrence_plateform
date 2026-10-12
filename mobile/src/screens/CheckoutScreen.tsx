@@ -15,8 +15,9 @@ import { useStore } from '../context/StoreContext';
 import { useAuth } from '../context/AuthContext';
 import { checkoutReturn, ensureCustomerLogin } from '../ensureCustomerLogin';
 import { formatMoney } from '../money';
+import { useAppTheme } from '../context/ThemeContext';
 import { calculateDeliveryFee } from '../pricing';
-import { colors, space } from '../theme';
+import { space } from '../theme';
 import type { Coupon } from '../types';
 import { Card, ErrorText, Field, Muted, PrimaryButton, ScreenWrap, SecondaryButton, Title } from '../ui';
 import type { RootStackParamList } from '../navigation/types';
@@ -26,6 +27,7 @@ export function CheckoutScreen() {
   const { customer, loading: authLoading } = useAuth();
   const { items, subtotal, clear } = useCart();
   const { store, accent, currency } = useStore();
+  const { colors } = useAppTheme();
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -150,13 +152,13 @@ export function CheckoutScreen() {
           <Field label="Country *" value={form.country} onChangeText={value => setField('country', value)} />
           <Field label="Order notes" value={form.notes} onChangeText={value => setField('notes', value)} multiline />
           <Card>
-            <Text style={styles.summaryTitle}>Your order</Text>
+            <Text style={[styles.summaryTitle, { color: colors.ink }]}>Your order</Text>
             {items.map((item, index) => (
               <View key={index} style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>
+                <Text style={[styles.summaryLabel, { color: colors.ink }]}>
                   {item.productName} × {item.qty}
                 </Text>
-                <Text>{money(item.price * item.qty)}</Text>
+                <Text style={{ color: colors.ink }}>{money(item.price * item.qty)}</Text>
               </View>
             ))}
             <Field label="Coupon code" value={couponInput} onChangeText={value => setCouponInput(value.toUpperCase())} />
@@ -164,23 +166,23 @@ export function CheckoutScreen() {
             <ErrorText>{couponError}</ErrorText>
             {productDiscount > 0 && (
               <View style={styles.summaryRow}>
-                <Text>Product discount</Text>
+                <Text style={{ color: colors.ink }}>Product discount</Text>
                 <Text style={{ color: colors.success }}>−{money(productDiscount)}</Text>
               </View>
             )}
             {coupon ? (
               <View style={styles.summaryRow}>
-                <Text>Coupon {coupon.code}</Text>
+                <Text style={{ color: colors.ink }}>Coupon {coupon.code}</Text>
                 <Text style={{ color: colors.success }}>−{money(discount)}</Text>
               </View>
             ) : null}
             <View style={styles.summaryRow}>
-              <Text>Delivery</Text>
-              <Text>{deliveryFee === 0 ? 'Free' : money(deliveryFee)}</Text>
+              <Text style={{ color: colors.ink }}>Delivery</Text>
+              <Text style={{ color: colors.ink }}>{deliveryFee === 0 ? 'Free' : money(deliveryFee)}</Text>
             </View>
             <View style={styles.summaryRow}>
-              <Text style={styles.total}>Total</Text>
-              <Text style={styles.total}>{money(total)}</Text>
+              <Text style={[styles.total, { color: colors.ink }]}>Total</Text>
+              <Text style={[styles.total, { color: colors.ink }]}>{money(total)}</Text>
             </View>
           </Card>
           <ErrorText>{error}</ErrorText>
@@ -198,8 +200,8 @@ export function CheckoutScreen() {
 
 const styles = StyleSheet.create({
   pad: { padding: space, paddingBottom: 48, gap: 4 },
-  summaryTitle: { fontWeight: '800', fontSize: 16, marginBottom: 10, color: colors.ink },
+  summaryTitle: { fontWeight: '800', fontSize: 16, marginBottom: 10 },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  summaryLabel: { flex: 1, paddingRight: 8, color: colors.ink },
-  total: { fontWeight: '800', fontSize: 16, color: colors.ink },
+  summaryLabel: { flex: 1, paddingRight: 8 },
+  total: { fontWeight: '800', fontSize: 16 },
 });

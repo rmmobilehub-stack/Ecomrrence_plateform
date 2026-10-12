@@ -56,8 +56,9 @@ export function Muted({ children }: { children: React.ReactNode }) {
 }
 
 export function ErrorText({ children }: { children?: string }) {
+  const { colors: theme } = useAppTheme();
   if (!children) return null;
-  return <Text style={styles.error}>{children}</Text>;
+  return <Text style={[styles.error, { color: theme.danger }]}>{children}</Text>;
 }
 
 export function PrimaryButton({
@@ -71,11 +72,12 @@ export function PrimaryButton({
   disabled?: boolean;
   color?: string;
 }) {
+  const { colors: theme } = useAppTheme();
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      style={[styles.primaryBtn, { backgroundColor: color || colors.accent }, disabled && styles.disabled]}>
+      style={[styles.primaryBtn, { backgroundColor: color || theme.accent }, disabled && styles.disabled]}>
       <Text style={styles.primaryBtnText}>{label}</Text>
     </Pressable>
   );
@@ -90,9 +92,17 @@ export function SecondaryButton({
   onPress: () => void;
   disabled?: boolean;
 }) {
+  const { colors: theme } = useAppTheme();
   return (
-    <Pressable onPress={onPress} disabled={disabled} style={[styles.secondaryBtn, disabled && styles.disabled]}>
-      <Text style={styles.secondaryBtnText}>{label}</Text>
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      style={[
+        styles.secondaryBtn,
+        { borderColor: theme.line, backgroundColor: theme.card },
+        disabled && styles.disabled,
+      ]}>
+      <Text style={[styles.secondaryBtnText, { color: theme.ink }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -108,12 +118,18 @@ export function Chip({
   onPress?: () => void;
   disabled?: boolean;
 }) {
+  const { colors: theme } = useAppTheme();
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      style={[styles.chip, selected && styles.chipSelected, disabled && styles.disabled]}>
-      <Text style={[styles.chipText, selected && styles.chipTextSelected]}>{label}</Text>
+      style={[
+        styles.chip,
+        { backgroundColor: theme.card, borderColor: theme.line },
+        selected && { backgroundColor: theme.accent, borderColor: theme.accent },
+        disabled && styles.disabled,
+      ]}>
+      <Text style={[styles.chipText, { color: theme.ink }, selected && styles.chipTextSelected]}>{label}</Text>
     </Pressable>
   );
 }
@@ -157,9 +173,10 @@ export function RemoteImage({
 }
 
 export function LoadingBlock() {
+  const { colors: theme } = useAppTheme();
   return (
     <View style={styles.loading}>
-      <ActivityIndicator color={colors.accent} />
+      <ActivityIndicator color={theme.accent} />
       <Muted>Loading…</Muted>
     </View>
   );

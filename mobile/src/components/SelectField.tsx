@@ -29,7 +29,7 @@ export function SelectField({
           styles.field,
           {
             borderColor: colors.cardBorder,
-            backgroundColor: isDark ? 'rgba(8, 28, 58, 0.72)' : colors.card,
+            backgroundColor: isDark ? 'rgba(8, 28, 58, 0.72)' : '#FFFFFF',
           },
         ]}
         onPress={() => setOpen(true)}>
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   chevron: { fontSize: 18, fontWeight: '700' },
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(2, 8, 20, 0.55)',
+    backgroundColor: 'rgba(18, 56, 78, 0.35)',
     justifyContent: 'flex-end',
   },
   sheet: {
