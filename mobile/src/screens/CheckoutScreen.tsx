@@ -21,6 +21,7 @@ import { space } from '../theme';
 import type { Coupon } from '../types';
 import { Card, ErrorText, Field, Muted, PrimaryButton, ScreenWrap, SecondaryButton, Title } from '../ui';
 import type { RootStackParamList } from '../navigation/types';
+import { emailValidationMessage, phoneValidationMessage } from '../validation';
 
 export function CheckoutScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -74,9 +75,12 @@ export function CheckoutScreen() {
   const deliveryFee = calculateDeliveryFee(store?.deliveryFee, store?.freeDeliveryThreshold, amountAfterCoupon);
   const total = amountAfterCoupon + deliveryFee;
   const money = (amount: number) => formatMoney(amount, store?.currency || currency);
-  const requiredComplete = [form.name, form.phone, form.email, form.address, form.city, form.country].every(
-    value => value.trim().length > 0,
-  );
+  const phoneError = phoneValidationMessage(form.phone, true);
+  const emailError = emailValidationMessage(form.email);
+  const requiredComplete =
+    [form.name, form.address, form.city, form.country].every(value => value.trim().length > 0) &&
+    !phoneError &&
+    !emailError;
 
   const applyCoupon = async () => {
     setCouponError('');
@@ -94,7 +98,23 @@ export function CheckoutScreen() {
   };
 
   const submit = async () => {
-    if (!items.length || !requiredComplete) return;
+    if (!items.length) return;
+    if (form.name.trim().length < 2) {
+      setError('Enter your full name');
+      return;
+    }
+    if (phoneError) {
+      setError(phoneError);
+      return;
+    }
+    if (emailError) {
+      setError(emailError);
+      return;
+    }
+    if (!requiredComplete) {
+      setError('Complete the required delivery details first.');
+      return;
+    }
     setSaving(true);
     setError('');
     try {

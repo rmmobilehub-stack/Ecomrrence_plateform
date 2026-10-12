@@ -15,7 +15,7 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [mode, setModeState] = useState<ThemeMode>('light');
+  const [mode, setModeState] = useState<ThemeMode>('dark');
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Avoid a flash of the wrong palette before storage loads.
   if (!ready) {
     return (
-      <ThemeContext.Provider value={{ ...value, mode: 'light', isDark: false, colors: lightColors }}>
+      <ThemeContext.Provider value={{ ...value, mode: 'dark', isDark: true, colors: darkColors }}>
         {children}
       </ThemeContext.Provider>
     );

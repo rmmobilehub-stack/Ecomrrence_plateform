@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ArrowRight, Bot, MessageCircle, Send, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { contactValidationMessage } from '@/lib/validation';
 
 type Message = { role: 'visitor' | 'assistant'; message: string };
 type Stage = 'idle' | 'name' | 'contact' | 'interest' | 'submitting' | 'done';
@@ -69,9 +70,8 @@ export default function LeadChatbot({ slug, storeName, description, currency, de
       return;
     }
     if (stage === 'contact') {
-      const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text);
-      const validPhone = text.replace(/\D/g, '').length >= 7;
-      if (!validEmail && !validPhone) { add('assistant', 'Please enter a valid phone number or email address.'); return; }
+      const contactError = contactValidationMessage(text);
+      if (contactError) { add('assistant', contactError); return; }
       setLead((current) => ({ ...current, contact: text }));
       setStage('interest');
       add('assistant', 'What product or type of help are you interested in?');

@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { deleteOne, findById, insertOne, readDb, toApplicationRow, updateOne } from '@/lib/db';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import type { CustomerAccount, Order, RepairBooking } from '@/lib/types';
+import { isValidEmail, isValidPhone } from '@/lib/validation';
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -26,8 +27,11 @@ export async function registerCustomer(input: {
   const phone = String(input.phone || '').trim().slice(0, 40);
   const password = String(input.password || '');
 
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (!email || !isValidEmail(email)) {
     throw new Error('Enter a valid email address');
+  }
+  if (phone && !isValidPhone(phone)) {
+    throw new Error('Enter a valid phone number (e.g. 03XXXXXXXXX or +92…)');
   }
   if (name.length < 2) throw new Error('Enter your full name');
   if (password.length < 6) throw new Error('Password must be at least 6 characters');

@@ -133,8 +133,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password: string;
         confirmPassword: string;
       }) => {
-        // Do not persist session — user must open the email magic-login link (opens the app).
-        await registerCustomer(payload);
+        const data = await registerCustomer(payload);
+        await persistSession(data.token, {
+          id: data.customer.id,
+          name: data.customer.name,
+          email: data.customer.email,
+          phone: data.customer.phone || '',
+        });
       },
       acceptSessionToken,
       logout: async () => {

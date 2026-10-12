@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { HeartPulse, LockKeyhole, Package, ShieldCheck, Wrench } from 'lucide-react';
 import { storefrontPath } from '@/lib/storefront-paths';
 import { clearCustomerSessionCache } from '@/components/store/ensureCustomerLogin';
+import { emailValidationMessage, phoneValidationMessage } from '@/lib/validation';
 
 export default function CustomerLoginPanel({
   storeSlug,
@@ -24,17 +25,26 @@ export default function CustomerLoginPanel({
   const [confirmPassword, setConfirmPassword] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(initialError || '');
-  const [notice, setNotice] = useState('');
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSaving(true);
     setError('');
-    setNotice('');
     try {
-      if (mode === 'register' && password !== confirmPassword) {
-        throw new Error('Password and confirm password do not match');
+      const emailError = emailValidationMessage(email);
+      if (emailError) throw new Error(emailError);
+
+      if (mode === 'register') {
+        const phoneError = phoneValidationMessage(phone, false);
+        if (phoneError) throw new Error(phoneError);
+        if (password !== confirmPassword) {
+          throw new Error('Password and confirm password do not match');
+        }
+        if (password.length < 6) {
+          throw new Error('Password must be at least 6 characters');
+        }
       }
+
       const endpoint = mode === 'login' ? '/api/customer/login' : '/api/customer/register';
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -49,17 +59,6 @@ export default function CustomerLoginPanel({
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Something went wrong');
-
-      if (mode === 'register') {
-        setPassword('');
-        setConfirmPassword('');
-        setMode('login');
-        setNotice(
-          'Account created. Open the login link in your email to sign in — you are not logged in yet. You can also use email and password after that.',
-        );
-        setSaving(false);
-        return;
-      }
 
       clearCustomerSessionCache();
       const next =
@@ -117,8 +116,8 @@ export default function CustomerLoginPanel({
         <h1>{mode === 'login' ? 'Login' : 'Create account'}</h1>
         <p className="customer-login-lead">
           {mode === 'login'
-            ? 'Use your email and password, or the login link from your welcome email.'
-            : 'Create an account — then open the login link in your email to sign in. No auto-login after register.'}
+            ? 'Use your email and password. Your session stays saved on this device.'
+            : 'Register once — you will be signed in right away, and a welcome email will confirm your account.'}
         </p>
 
         <div className="customer-auth-tabs" role="tablist">
@@ -142,14 +141,12 @@ export default function CustomerLoginPanel({
             onClick={() => {
               setMode('register');
               setError('');
-              setNotice('');
             }}
           >
             Register
           </button>
         </div>
 
-        {notice ? <p className="form-success customer-login-error" role="status">{notice}</p> : null}
         {error ? <p className="form-error customer-login-error">{error}</p> : null}
 
         <form className="customer-auth-form" onSubmit={(event) => void submit(event)}>
@@ -174,6 +171,7 @@ export default function CustomerLoginPanel({
                   onChange={(event) => setPhone(event.target.value)}
                   placeholder="03XXXXXXXXX"
                   autoComplete="tel"
+                  inputMode="tel"
                 />
               </label>
             </div>

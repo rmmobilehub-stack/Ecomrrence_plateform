@@ -16,6 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import { useAppTheme } from '../context/ThemeContext';
 import { resumeAfterAuth } from '../ensureCustomerLogin';
 import type { RootStackParamList } from '../navigation/types';
+import { emailValidationMessage, phoneValidationMessage } from '../validation';
 
 export function AuthScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -29,27 +30,26 @@ export function AuthScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
 
   const finish = () => resumeAfterAuth(navigation, route.params?.returnTo);
 
   const submit = async () => {
     setError('');
-    setNotice('');
     setBusy(true);
     try {
+      const emailError = emailValidationMessage(email);
+      if (emailError) throw new Error(emailError);
+
       if (mode === 'register') {
+        const phoneError = phoneValidationMessage(phone, false);
+        if (phoneError) throw new Error(phoneError);
+        if (password !== confirmPassword) throw new Error('Password and confirm password do not match');
+        if (password.length < 6) throw new Error('Password must be at least 6 characters');
         await register({ name, phone, email, password, confirmPassword });
-        setPassword('');
-        setConfirmPassword('');
-        setMode('login');
-        setNotice(
-          'Account created. Open the login link in your email to sign in — the app will open directly. Password login also works after that.',
-        );
-        return;
+      } else {
+        await login(email, password);
       }
-      await login(email, password);
       finish();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not continue');
@@ -90,7 +90,6 @@ export function AuthScreen() {
                 onPress={() => {
                   setMode('register');
                   setError('');
-                  setNotice('');
                 }}
                 style={[styles.tab, mode === 'register' && { backgroundColor: colors.accent }]}>
                 <Text style={[styles.tabText, { color: mode === 'register' ? '#FFFFFF' : colors.muted }]}>
@@ -123,7 +122,6 @@ export function AuthScreen() {
               />
             ) : null}
 
-            {notice ? <Text style={[styles.notice, { color: colors.success }]}>{notice}</Text> : null}
             {error ? <Text style={[styles.error, { color: colors.danger }]}>{error}</Text> : null}
 
             <Pressable
@@ -143,7 +141,6 @@ export function AuthScreen() {
               {mode === 'login' ? (
                 <>
                   New here? Switch to <Text style={[styles.hintStrong, { color: colors.accentSoft }]}>Register</Text>.
-                  After register, use the email login link so the app opens signed in.
                 </>
               ) : (
                 <>
@@ -214,7 +211,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     fontSize: 16,
   },
-  notice: { marginBottom: 10, fontWeight: '600', lineHeight: 20 },
   error: { marginBottom: 8, fontWeight: '600' },
   submit: {
     marginTop: 8,

@@ -1,17 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { signMagicLoginToken } from '@/lib/customer-auth';
+import {
+  createCustomerAuthCookie,
+  isSecureRequest,
+  signCustomerToken,
+} from '@/lib/customer-auth';
 import { getActiveStoreBySlug } from '@/lib/db';
 import { registerCustomer } from '@/lib/customers';
 import { sendCustomerEmail } from '@/lib/email';
-
-function siteOrigin(req: NextRequest) {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '').trim();
-  if (configured) return configured;
-  const forwarded = req.headers.get('x-forwarded-proto')?.split(',')[0]?.trim();
-  const host = req.headers.get('x-forwarded-host') || req.headers.get('host');
-  if (host) return `${forwarded || req.nextUrl.protocol.replace(':', '')}://${host}`;
-  return req.nextUrl.origin;
-}
+import { emailValidationMessage, phoneValidationMessage } from '@/lib/validation';
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,6 +22,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Password and confirm password do not match' }, { status: 400 });
     }
 
+    const emailError = emailValidationMessage(String(body.email || ''));
+    if (emailError) return NextResponse.json({ error: emailError }, { status: 400 });
+
+    const phoneError = phoneValidationMessage(String(body.phone || ''), false);
+    if (phoneError) return NextResponse.json({ error: phoneError }, { status: 400 });
+
     const customer = await registerCustomer({
       storeId: store.id,
       email: String(body.email || ''),
@@ -34,44 +36,34 @@ export async function POST(req: NextRequest) {
       phone: String(body.phone || ''),
     });
 
-    const fromApp = String(body.client || '').trim().toLowerCase() === 'app';
-    const magicToken = await signMagicLoginToken({
-      id: customer.id,
-      email: customer.email,
-      name: customer.name,
-      storeId: customer.storeId,
-      storeSlug: store.slug,
-      avatarUrl: customer.avatarUrl,
-    });
-    const loginLink = `${siteOrigin(req)}/api/customer/magic-login?token=${encodeURIComponent(magicToken)}${
-      fromApp ? '&client=app' : ''
-    }`;
-
+    const brandName = store.name || 'RM Mobile Hub';
     void sendCustomerEmail({
       to: customer.email,
-      brandName: store.name,
-      subject: `Welcome to ${store.name}`,
-      actionUrl: loginLink,
-      actionLabel: fromApp ? 'Open app & log in' : 'Log in to your account',
+      brandName,
+      subject: `Welcome to ${brandName}`,
       text: [
         `Hi ${customer.name || 'there'},`,
         '',
-        `Your account on ${store.name} is ready.`,
-        'You are not signed in yet. Click the button below to log in with this email link.',
-        '',
-        'This link works for 7 days. After that, use your email and password on the login page.',
-        '',
-        'If you did not create this account, please contact the store.',
+        `You are registered in ${brandName}.`,
+        'You can sign in anytime with your email and password.',
         '',
         `Thanks,`,
-        store.name,
+        brandName,
       ].join('\n'),
     });
 
-    // Never auto-login on register — only the email magic link (or a later password login) starts a session.
-    return NextResponse.json({
+    const token = await signCustomerToken({
+      id: customer.id,
+      email: customer.email,
+      name: customer.name,
+      role: 'customer',
+      storeId: customer.storeId,
+      avatarUrl: customer.avatarUrl,
+    });
+
+    const response = NextResponse.json({
       success: true,
-      requiresEmailLogin: true,
+      token,
       customer: {
         id: customer.id,
         name: customer.name,
@@ -79,6 +71,8 @@ export async function POST(req: NextRequest) {
         phone: customer.phone,
       },
     });
+    response.cookies.set(createCustomerAuthCookie(token, isSecureRequest(req)));
+    return response;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Could not register';
     const status = /already exists/i.test(message) ? 409 : 400;

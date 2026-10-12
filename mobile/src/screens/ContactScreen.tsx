@@ -5,6 +5,7 @@ import { useStore } from '../context/StoreContext';
 import { useAppTheme } from '../context/ThemeContext';
 import { space } from '../theme';
 import { ErrorText, Field, PrimaryButton, ScreenWrap, Title } from '../ui';
+import { contactValidationMessage } from '../validation';
 import { isValidWhatsAppNumber, openWhatsApp } from '../whatsapp';
 
 export function ContactScreen() {
@@ -30,6 +31,10 @@ export function ContactScreen() {
     setError('');
     setDone('');
     try {
+      if (name.trim().length < 2) throw new Error('Enter your full name');
+      const contactError = contactValidationMessage(contact);
+      if (contactError) throw new Error(contactError);
+      if (!interest.trim()) throw new Error('Tell us what you need');
       await createLead({ name, contact, interest });
       setDone('Thanks — the store received your message.');
       setName('');

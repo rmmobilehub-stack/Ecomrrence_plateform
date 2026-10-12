@@ -6,6 +6,7 @@ import {
 } from '@/lib/customer-auth';
 import { getActiveStoreBySlug } from '@/lib/db';
 import { loginCustomer } from '@/lib/customers';
+import { emailValidationMessage } from '@/lib/validation';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +14,9 @@ export async function POST(req: NextRequest) {
     const storeSlug = String(body.storeSlug || '').trim();
     const store = await getActiveStoreBySlug(storeSlug);
     if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
+
+    const emailError = emailValidationMessage(String(body.email || ''));
+    if (emailError) return NextResponse.json({ error: emailError }, { status: 400 });
 
     const customer = await loginCustomer({
       storeId: store.id,

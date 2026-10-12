@@ -153,7 +153,7 @@ export function registerCustomer(payload: {
   password: string;
   confirmPassword: string;
 }) {
-  return request<{ success: boolean; customer: AuthCustomer }>('/api/customer/register', {
+  return request<{ success: boolean; token: string; customer: AuthCustomer }>('/api/customer/register', {
     method: 'POST',
     body: JSON.stringify({ storeSlug: STORE_SLUG, client: 'app', ...payload }),
   });

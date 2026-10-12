@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { insertOne, readDb } from '@/lib/db';
 import type { Lead, Store } from '@/lib/types';
+import { contactValidationMessage } from '@/lib/validation';
 
 export async function POST(request: NextRequest, { params }: { params: { slug: string } }) {
   try {
@@ -11,8 +12,9 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
     const name = String(body.name ?? '').trim().slice(0, 100);
     const contact = String(body.contact ?? '').trim().slice(0, 160);
     const interest = String(body.interest ?? '').trim().slice(0, 500);
-    if (name.length < 2 || contact.length < 5) {
-      return NextResponse.json({ error: 'Name and valid contact are required' }, { status: 400 });
+    const contactError = contactValidationMessage(contact);
+    if (name.length < 2 || contactError) {
+      return NextResponse.json({ error: contactError || 'Name and valid contact are required' }, { status: 400 });
     }
 
     const stores = await readDb<Store>('stores');
