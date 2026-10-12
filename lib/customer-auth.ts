@@ -20,9 +20,60 @@ export async function signCustomerToken(payload: CustomerAuthPayload): Promise<s
 export async function verifyCustomerToken(token: string): Promise<CustomerAuthPayload | null> {
   try {
     const { payload } = await jwtVerify(token, SECRET);
-    const data = payload as unknown as CustomerAuthPayload;
+    const data = payload as unknown as CustomerAuthPayload & { purpose?: string };
+    if (data.purpose === 'magic_login') return null;
     if (data.role !== 'customer' || !data.id || !data.storeId) return null;
     return data;
+  } catch {
+    return null;
+  }
+}
+
+/** Short-lived one-click login link used in registration emails. */
+export async function signMagicLoginToken(payload: {
+  id: string;
+  email: string;
+  name: string;
+  storeId: string;
+  storeSlug: string;
+  avatarUrl?: string;
+}): Promise<string> {
+  return new SignJWT({
+    id: payload.id,
+    email: payload.email,
+    name: payload.name,
+    role: 'customer',
+    storeId: payload.storeId,
+    storeSlug: payload.storeSlug,
+    avatarUrl: payload.avatarUrl || '',
+    purpose: 'magic_login',
+  })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('7d')
+    .sign(SECRET);
+}
+
+export async function verifyMagicLoginToken(
+  token: string,
+): Promise<(CustomerAuthPayload & { storeSlug: string }) | null> {
+  try {
+    const { payload } = await jwtVerify(token, SECRET);
+    const data = payload as unknown as CustomerAuthPayload & { purpose?: string; storeSlug?: string };
+    if (data.purpose !== 'magic_login' || data.role !== 'customer' || !data.id || !data.storeId) {
+      return null;
+    }
+    const storeSlug = String(data.storeSlug || '').trim();
+    if (!storeSlug) return null;
+    return {
+      id: data.id,
+      email: data.email,
+      name: data.name,
+      role: 'customer',
+      storeId: data.storeId,
+      avatarUrl: data.avatarUrl,
+      storeSlug,
+    };
   } catch {
     return null;
   }
