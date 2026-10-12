@@ -87,7 +87,6 @@ export function AccountScreen() {
     return (
       <ScreenWrap style={styles.pad}>
         <Title>My account</Title>
-        <Muted>Login to see orders and repair history — same account as the website.</Muted>
         <View style={{ height: 16 }} />
         <PrimaryButton
           label="Login / Register"
@@ -140,7 +139,7 @@ export function AccountScreen() {
         </View>
         {orders.length === 0 ? (
           <Card>
-            <Muted>No product orders yet. When you buy something, it will show here.</Muted>
+            <Muted>No orders yet.</Muted>
             <View style={{ height: 10 }} />
             <PrimaryButton label="Browse products" onPress={() => navigation.navigate('Tabs', { screen: 'Shop' })} color={accent} />
           </Card>

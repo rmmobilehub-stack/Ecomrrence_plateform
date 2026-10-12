@@ -14,7 +14,6 @@ export function MoreScreen() {
     <ScreenWrap>
       <ScrollView contentContainerStyle={styles.pad}>
         <Title>Services</Title>
-        <Muted>Doorstep iPhone repair, a free phone check, and store contact.</Muted>
         <Card>
           <PrimaryButton label="Book a repair" onPress={() => navigation.navigate('Repair')} color={accent} />
         </Card>

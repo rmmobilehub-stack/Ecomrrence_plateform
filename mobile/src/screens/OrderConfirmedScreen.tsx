@@ -3,7 +3,7 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { formatMoney } from '../money';
 import { colors, space } from '../theme';
-import { Card, Muted, PrimaryButton, ScreenWrap, Title } from '../ui';
+import { Card, PrimaryButton, ScreenWrap, Title } from '../ui';
 import { isValidWhatsAppNumber, openWhatsApp } from '../whatsapp';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -17,9 +17,6 @@ export function OrderConfirmedScreen() {
     <ScreenWrap>
       <ScrollView contentContainerStyle={styles.pad}>
         <Title>Order received</Title>
-        <Muted>
-          {order.storeName || 'Store'} confirmed {order.orderNumber}. Pay cash on delivery.
-        </Muted>
         <Card>
           <Text style={styles.row}>Order {order.orderNumber}</Text>
           <Text style={styles.row}>Total {money(order.total)}</Text>

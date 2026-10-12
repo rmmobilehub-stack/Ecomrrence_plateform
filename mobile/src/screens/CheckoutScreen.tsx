@@ -131,7 +131,6 @@ export function CheckoutScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled">
           <Title>Checkout</Title>
-          <Muted>Cash on delivery. Complete your delivery details.</Muted>
           <Field label="Full name *" value={form.name} onChangeText={value => setField('name', value)} />
           <Field
             label="Phone *"

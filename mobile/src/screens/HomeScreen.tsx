@@ -29,17 +29,22 @@ import { isValidWhatsAppNumber, openWhatsApp } from '../whatsapp';
 const heroArt = require('../assets/home-hero.jpg');
 const logoMark = require('../assets/rm-logo.png');
 
-const VALUES = [
-  { id: '01', title: 'Fast charging', body: 'Everyday power accessories.' },
-  { id: '02', title: 'Clear compatibility', body: 'Pick with confidence.' },
-  { id: '03', title: 'Cash on delivery', body: 'Pay when it arrives.' },
-  { id: '04', title: 'Direct support', body: 'Chat & WhatsApp help.' },
+type HomeNavTarget =
+  | { kind: 'tab'; screen: keyof TabParamList }
+  | { kind: 'stack'; screen: 'Contact' | 'Cart' }
+  | { kind: 'whatsapp' };
+
+const VALUES: { title: string; target: HomeNavTarget }[] = [
+  { title: 'Fast charging', target: { kind: 'tab', screen: 'Shop' } },
+  { title: 'Compatibility', target: { kind: 'tab', screen: 'Shop' } },
+  { title: 'Cash on delivery', target: { kind: 'tab', screen: 'Shop' } },
+  { title: 'Direct support', target: { kind: 'whatsapp' } },
 ];
 
-const JOURNEY = [
-  { id: '01', title: 'Choose', body: 'Find the right accessory.' },
-  { id: '02', title: 'Confirm', body: 'Checkout or WhatsApp.' },
-  { id: '03', title: 'Receive', body: 'Pay on delivery.' },
+const JOURNEY: { title: string; target: HomeNavTarget }[] = [
+  { title: 'Choose', target: { kind: 'tab', screen: 'Shop' } },
+  { title: 'Confirm', target: { kind: 'stack', screen: 'Cart' } },
+  { title: 'Receive', target: { kind: 'tab', screen: 'About' } },
 ];
 
 function announcementChips(announcement?: string) {
@@ -67,14 +72,24 @@ export function HomeScreen() {
 
   const chips = useMemo(() => announcementChips(store?.announcement), [store?.announcement]);
   const heroTitle = store?.heroTitle || 'Protection and power for every iPhone.';
-  const heroDesc =
-    store?.description || 'Protective cases, fast chargers and dependable cables for your Apple setup.';
-  const ctaLabel = store?.heroCtaLabel || 'Shop mobile accessories';
+  const ctaLabel = store?.heroCtaLabel || 'Shop accessories';
   const aboutTitle = store?.aboutTitle || `Meet ${store?.name || 'RM Mobile Hub'}.`;
-  const aboutBody =
-    store?.aboutDescription ||
-    store?.description ||
-    'Model-specific protection, chargers and cables — with repair and phone check in one hub.';
+
+  const openTarget = (target: HomeNavTarget) => {
+    if (target.kind === 'tab') {
+      navigation.navigate(target.screen);
+      return;
+    }
+    if (target.kind === 'stack') {
+      navigation.navigate(target.screen);
+      return;
+    }
+    if (isValidWhatsAppNumber(store?.whatsappNumber)) {
+      void openWhatsApp(store?.whatsappNumber, `Hello ${store?.name || 'RM Mobile Hub'}, I need help.`);
+      return;
+    }
+    navigation.navigate('Contact');
+  };
 
   return (
     <View style={[styles.page, { backgroundColor: colors.bg }]}>
@@ -89,7 +104,6 @@ export function HomeScreen() {
         </View>
 
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          {/* Hero */}
           <ImageBackground source={heroArt} style={styles.hero} imageStyle={styles.heroImage}>
             <View style={styles.heroShade} />
             <View style={styles.heroCopy}>
@@ -100,42 +114,46 @@ export function HomeScreen() {
                   </View>
                 ))}
               </View>
-              <Text style={styles.headline}>{heroTitle}</Text>
-              <Text style={styles.sub}>{heroDesc}</Text>
+              <Text style={styles.headline} numberOfLines={3}>
+                {heroTitle}
+              </Text>
               <Pressable onPress={() => navigation.navigate('Shop')} style={styles.primaryBtn}>
                 <Text style={styles.primaryText}>{ctaLabel}</Text>
                 <Text style={styles.arrow}>→</Text>
               </Pressable>
-              <Pressable onPress={() => navigation.navigate('HealthCheck')} style={styles.secondaryBtn}>
-                <HeartGlyph color="#7EC8FF" />
-                <Text style={styles.secondaryText}>Free phone check</Text>
-                <Text style={styles.arrowMuted}>→</Text>
-              </Pressable>
+              <View style={styles.heroBtnRow}>
+                <Pressable onPress={() => navigation.navigate('HealthCheck')} style={styles.secondaryBtn}>
+                  <HeartGlyph color="#7EC8FF" />
+                  <Text style={styles.secondaryText}>Phone check</Text>
+                </Pressable>
+                <Pressable onPress={() => navigation.navigate('Repairs')} style={styles.secondaryBtn}>
+                  <Icon name="construct-outline" size={16} color="#7EC8FF" />
+                  <Text style={styles.secondaryText}>Repairs</Text>
+                </Pressable>
+              </View>
               <View style={styles.trustRow}>
-                <Text style={styles.trustItem}>Cash on delivery</Text>
+                <Text style={styles.trustItem}>COD</Text>
                 <Text style={styles.trustDot}>•</Text>
-                <Text style={styles.trustItem}>Clear compatibility</Text>
+                <Text style={styles.trustItem}>Compatibility</Text>
                 <Text style={styles.trustDot}>•</Text>
-                <Text style={styles.trustItem}>Direct support</Text>
+                <Text style={styles.trustItem}>Support</Text>
               </View>
             </View>
           </ImageBackground>
 
-          {/* Featured */}
           <View style={styles.section}>
             <View style={styles.sectionHead}>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.sectionTitle, { color: colors.ink }]}>
-                  Featured charging <Text style={[styles.accent, { color: colors.accentSoft }]}>essentials</Text>
+                  Featured <Text style={[styles.accent, { color: colors.accentSoft }]}>essentials</Text>
                 </Text>
-                <Text style={[styles.sectionSub, { color: colors.muted }]}>Fast chargers, durable cables and magnetic accessories.</Text>
               </View>
               <Pressable onPress={() => navigation.navigate('Shop')}>
                 <Text style={[styles.link, { color: colors.accentSoft }]}>View all →</Text>
               </Pressable>
             </View>
             {featured.length === 0 ? (
-              <Text style={[styles.empty, { color: colors.muted }]}>Products load from the same store backend as the website.</Text>
+              <Text style={[styles.empty, { color: colors.muted }]}>No products yet.</Text>
             ) : (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.featuredRow}>
                 {featured.map(product => {
@@ -175,25 +193,23 @@ export function HomeScreen() {
             )}
           </View>
 
-          {/* Values — compact */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.ink }]}>
-              Everything your iPhone needs, <Text style={[styles.accent, { color: colors.accentSoft }]}>in one place.</Text>
+              Why shop <Text style={[styles.accent, { color: colors.accentSoft }]}>here</Text>
             </Text>
             <View style={styles.valuesGrid}>
               {VALUES.map(item => (
-                <View
-                  key={item.id}
+                <Pressable
+                  key={item.title}
+                  onPress={() => openTarget(item.target)}
                   style={[styles.valueCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-                  <Text style={[styles.valueIndex, { color: colors.accentSoft }]}>{item.id}</Text>
                   <Text style={[styles.valueTitle, { color: colors.ink }]}>{item.title}</Text>
-                  <Text style={[styles.valueBody, { color: colors.muted }]}>{item.body}</Text>
-                </View>
+                  <Text style={[styles.cardArrow, { color: colors.accentSoft }]}>→</Text>
+                </Pressable>
               ))}
             </View>
           </View>
 
-          {/* About — compact */}
           <View
             style={[
               styles.section,
@@ -201,48 +217,40 @@ export function HomeScreen() {
               { backgroundColor: colors.card, borderColor: colors.cardBorder },
             ]}>
             <Text style={[styles.kicker, { color: colors.accentSoft }]}>About {store?.name || 'RM Mobile Hub'}</Text>
-            <Text style={[styles.aboutTitle, { color: colors.ink }]}>{aboutTitle}</Text>
-            <Text style={[styles.sectionSub, { color: colors.muted }]} numberOfLines={3}>
-              {aboutBody}
+            <Text style={[styles.aboutTitle, { color: colors.ink }]} numberOfLines={2}>
+              {aboutTitle}
             </Text>
-            <View style={styles.factRow}>
-              <View style={[styles.fact, { backgroundColor: isDark ? 'rgba(5,14,36,0.45)' : '#F0F9FF', borderColor: colors.cardBorder }]}>
-                <Text style={[styles.factStrong, { color: colors.ink }]}>Easy</Text>
-                <Text style={[styles.factMuted, { color: colors.muted }]}>Checkout</Text>
-              </View>
-              <View style={[styles.fact, { backgroundColor: isDark ? 'rgba(5,14,36,0.45)' : '#F0F9FF', borderColor: colors.cardBorder }]}>
-                <Text style={[styles.factStrong, { color: colors.ink }]}>COD</Text>
-                <Text style={[styles.factMuted, { color: colors.muted }]}>On delivery</Text>
-              </View>
-              <View style={[styles.fact, { backgroundColor: isDark ? 'rgba(5,14,36,0.45)' : '#F0F9FF', borderColor: colors.cardBorder }]}>
-                <Text style={[styles.factStrong, { color: colors.ink }]}>Direct</Text>
-                <Text style={[styles.factMuted, { color: colors.muted }]}>Support</Text>
-              </View>
+            <View style={styles.aboutActions}>
+              <Pressable
+                onPress={() => navigation.navigate('About')}
+                style={[styles.ghostBtn, { borderColor: colors.cardBorder }]}>
+                <Text style={[styles.ghostText, { color: colors.ink }]}>Learn more →</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => navigation.navigate('Repairs')}
+                style={[styles.ghostBtn, { borderColor: colors.cardBorder }]}>
+                <Text style={[styles.ghostText, { color: colors.ink }]}>Repairs →</Text>
+              </Pressable>
             </View>
-            <Pressable
-              onPress={() => navigation.navigate('About')}
-              style={[styles.ghostBtn, { borderColor: colors.cardBorder }]}>
-              <Text style={[styles.ghostText, { color: colors.ink }]}>Learn more →</Text>
-            </Pressable>
           </View>
 
-          {/* Journey — compact row */}
           <View style={styles.section}>
-            <Text style={[styles.kicker, { color: colors.accentSoft }]}>How it works</Text>
-            <View style={styles.journeyRow}>
-              {JOURNEY.map(step => (
-                <View
-                  key={step.id}
-                  style={[styles.journeyPill, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-                  <Text style={[styles.journeyIndex, { color: colors.accentSoft }]}>{step.id}</Text>
-                  <Text style={[styles.journeyTitle, { color: colors.ink }]}>{step.title}</Text>
-                  <Text style={[styles.journeyBody, { color: colors.muted }]}>{step.body}</Text>
-                </View>
+            <Text style={[styles.sectionTitle, { color: colors.ink }]}>
+              How it <Text style={[styles.accent, { color: colors.accentSoft }]}>works</Text>
+            </Text>
+            <View style={styles.valuesGrid}>
+              {JOURNEY.map(item => (
+                <Pressable
+                  key={item.title}
+                  onPress={() => openTarget(item.target)}
+                  style={[styles.valueCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+                  <Text style={[styles.valueTitle, { color: colors.ink }]}>{item.title}</Text>
+                  <Text style={[styles.cardArrow, { color: colors.accentSoft }]}>→</Text>
+                </Pressable>
               ))}
             </View>
           </View>
 
-          {/* Bottom CTA */}
           <View
             style={[
               styles.section,
@@ -250,7 +258,7 @@ export function HomeScreen() {
               { backgroundColor: colors.card, borderColor: colors.cardBorder },
             ]}>
             <Text style={[styles.sectionTitle, { color: colors.ink }]}>
-              Shop accessories or <Text style={[styles.accent, { color: colors.accentSoft }]}>book a repair</Text>
+              Shop or <Text style={[styles.accent, { color: colors.accentSoft }]}>book a repair</Text>
             </Text>
             <View style={styles.ctaRow}>
               <Pressable
@@ -275,11 +283,11 @@ export function HomeScreen() {
                 <Pressable
                   style={styles.ctaWhatsApp}
                   accessibilityRole="button"
-                  accessibilityLabel="Chat with us on WhatsApp"
+                  accessibilityLabel="Chat on WhatsApp"
                   onPress={() =>
                     void openWhatsApp(
                       store?.whatsappNumber,
-                      `Hello ${store?.name || 'RM Mobile Hub'}, I need help with an accessory or repair.`,
+                      `Hello ${store?.name || 'RM Mobile Hub'}, I need help.`,
                     )
                   }>
                   <Icon name="logo-whatsapp" size={22} color="#FFFFFF" />
@@ -309,7 +317,7 @@ const styles = StyleSheet.create({
   brandName: { color: '#F4F8FF', fontSize: 17, fontWeight: '800' },
   scroll: { paddingBottom: 120 },
   hero: {
-    minHeight: 360,
+    minHeight: 320,
     marginHorizontal: 16,
     borderRadius: 24,
     overflow: 'hidden',
@@ -331,55 +339,43 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(126, 200, 255, 0.35)',
   },
   chipText: { color: '#D7E7FF', fontSize: 11, fontWeight: '700' },
-  headline: { color: '#F7FBFF', fontSize: 28, fontWeight: '800', lineHeight: 34, letterSpacing: -0.5 },
-  sub: { color: '#C5D5EC', fontSize: 14, lineHeight: 21 },
+  headline: { color: '#F7FBFF', fontSize: 26, fontWeight: '800', lineHeight: 32, letterSpacing: -0.5 },
   primaryBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'flex-start',
     gap: 8,
     backgroundColor: '#2F7BFF',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 22,
-    marginTop: 4,
+    marginTop: 2,
   },
   primaryText: { color: '#FFFFFF', fontWeight: '700', fontSize: 14 },
-  ctaWhatsApp: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#25D366',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.35)',
-    marginTop: 4,
-  },
   arrow: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
+  arrowMuted: { color: '#9CC7FF', fontSize: 16, fontWeight: '700' },
+  heroBtnRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   secondaryBtn: {
-    alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
     borderWidth: 1,
     borderColor: 'rgba(126, 200, 255, 0.45)',
     backgroundColor: 'rgba(8, 28, 58, 0.55)',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
     borderRadius: 22,
   },
-  secondaryText: { color: '#EAF3FF', fontWeight: '700', fontSize: 14 },
-  arrowMuted: { color: '#9CC7FF', fontSize: 16, fontWeight: '700' },
-  trustRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginTop: 8 },
+  secondaryText: { color: '#EAF3FF', fontWeight: '700', fontSize: 13 },
+  trustRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginTop: 4 },
   trustItem: { color: '#A8C0DA', fontSize: 12, fontWeight: '600' },
   trustDot: { color: '#4DA3FF' },
   section: { paddingHorizontal: 16, paddingTop: 22, gap: 10 },
   sectionHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   kicker: { color: '#4DA3FF', fontSize: 11, fontWeight: '800', letterSpacing: 1 },
-  sectionTitle: { color: '#F7FBFF', fontSize: 22, fontWeight: '800', lineHeight: 28 },
-  aboutTitle: { color: '#F7FBFF', fontSize: 18, fontWeight: '800', lineHeight: 24 },
+  sectionTitle: { color: '#F7FBFF', fontSize: 20, fontWeight: '800', lineHeight: 26 },
+  aboutTitle: { color: '#F7FBFF', fontSize: 17, fontWeight: '800', lineHeight: 23 },
   accent: { color: '#4DA3FF' },
-  sectionSub: { color: '#C5D5EC', fontSize: 13, lineHeight: 19 },
   link: { color: '#8EC8FF', fontWeight: '700', marginTop: 4 },
   empty: { color: '#A8C0DA', fontSize: 13 },
   featuredRow: { gap: 12, paddingRight: 8 },
@@ -397,66 +393,63 @@ const styles = StyleSheet.create({
   productCompareRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 1 },
   productCompare: { position: 'relative', paddingVertical: 1 },
   productCompareText: { color: '#7596BE', fontSize: 11 },
-  productCompareStrike: { position: 'absolute', left: 0, right: 0, top: 8, height: 2, borderRadius: 99, backgroundColor: '#5F86B6' },
+  productCompareStrike: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 8,
+    height: 2,
+    borderRadius: 99,
+    backgroundColor: '#5F86B6',
+  },
   productWas: { color: '#6B86A8', fontSize: 10, fontWeight: '700' },
   valuesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   valueCard: {
     width: '48%',
     flexGrow: 1,
     borderRadius: 14,
-    padding: 12,
-    backgroundColor: 'rgba(10, 28, 56, 0.88)',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: 'rgba(126, 200, 255, 0.22)',
-    gap: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  valueIndex: { color: '#4DA3FF', fontWeight: '800', fontSize: 11 },
-  valueTitle: { color: '#F7FBFF', fontWeight: '800', fontSize: 14 },
-  valueBody: { color: '#A8C0DA', fontSize: 11, lineHeight: 15 },
+  valueTitle: { fontWeight: '800', fontSize: 14, flex: 1 },
+  cardArrow: { fontWeight: '700', fontSize: 16 },
   aboutCard: {
     marginHorizontal: 16,
     marginTop: 22,
     padding: 16,
     borderRadius: 18,
-    backgroundColor: 'rgba(10, 28, 56, 0.92)',
     borderWidth: 1,
-    borderColor: 'rgba(126, 200, 255, 0.25)',
   },
-  factRow: { flexDirection: 'row', gap: 8, marginTop: 2 },
-  fact: { flex: 1 },
-  factStrong: { color: '#F7FBFF', fontWeight: '800', fontSize: 13 },
-  factMuted: { color: '#A8C0DA', fontSize: 11, marginTop: 2 },
+  aboutActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
   ghostBtn: {
     alignSelf: 'flex-start',
-    marginTop: 6,
     paddingVertical: 9,
     paddingHorizontal: 14,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(126, 200, 255, 0.4)',
   },
-  ghostText: { color: '#EAF3FF', fontWeight: '700' },
-  journeyRow: { flexDirection: 'row', gap: 8 },
-  journeyPill: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 14,
-    backgroundColor: 'rgba(10, 28, 56, 0.88)',
-    borderWidth: 1,
-    borderColor: 'rgba(126, 200, 255, 0.22)',
-    gap: 4,
-  },
-  journeyIndex: { color: '#4DA3FF', fontWeight: '800', fontSize: 12 },
-  journeyTitle: { color: '#F7FBFF', fontWeight: '800', fontSize: 14 },
-  journeyBody: { color: '#A8C0DA', fontSize: 11, lineHeight: 15 },
+  ghostText: { fontWeight: '700', fontSize: 13 },
   ctaCard: {
     marginHorizontal: 16,
     marginTop: 22,
     padding: 16,
     borderRadius: 18,
-    backgroundColor: 'rgba(47, 123, 255, 0.12)',
     borderWidth: 1,
-    borderColor: 'rgba(126, 200, 255, 0.28)',
   },
   ctaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 4 },
+  ctaWhatsApp: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#25D366',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
+    marginTop: 2,
+  },
 });

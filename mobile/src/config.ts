@@ -1,14 +1,11 @@
 import { Platform } from 'react-native';
 
 /**
- * Live backend (Next.js website). Release / production APK uses this.
- * Example: https://your-domain.com  (no trailing slash)
- *
- * Local `yarn dev` on port 3001 is ONLY for debug builds.
+ * Live backend — same as NEXT_PUBLIC_SITE_URL in root .env
  */
-export const LIVE_API_BASE_URL = 'https://YOUR-LIVE-DOMAIN.com';
+export const LIVE_API_BASE_URL = 'https://ecomrrence-plateform.vercel.app';
 
-/** Must match DEFAULT_STORE_SLUG / store slug in the live database. */
+/** Must match DEFAULT_STORE_SLUG in .env / live DB. */
 export const STORE_SLUG = 'demo';
 
 /**

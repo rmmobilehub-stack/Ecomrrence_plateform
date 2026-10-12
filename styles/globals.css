@@ -3161,6 +3161,43 @@ body {
   line-height: 1.6;
 }
 
+.store-values-grid .home-link-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 100%;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.store-values-grid .home-link-card-arrow {
+  align-self: flex-start;
+  color: var(--store-accent, #0ea5e9);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.store-journey-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 8px;
+}
+
+@media (max-width: 1000px) {
+  .store-journey-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .store-journey-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .store-about-modern {
   position: relative;
   width: min(calc(100% - 40px), 1320px);
@@ -3456,8 +3493,16 @@ a.store-about-contact-row:hover {
 }
 .store-journey-cta > div { display: grid; gap: 7px; }
 .store-journey-cta > div > span { color: #83dced; font-size: .68rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
-.store-journey-cta > div strong { max-width: 18ch; font-size: clamp(1.45rem, 2.5vw, 2.2rem); line-height: 1.08; letter-spacing: -.04em; }
+.store-journey-cta > div strong { max-width: 28ch; font-size: clamp(1.45rem, 2.5vw, 2.2rem); line-height: 1.08; letter-spacing: -.04em; }
 .store-journey-cta .btn { flex: 0 0 auto; }
+.store-journey-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex: 0 0 auto;
+}
 
 @media (max-width: 1000px) {
   .store-values-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -3503,6 +3548,8 @@ a.store-about-contact-row:hover {
   .store-journey-steps article:last-child { border-bottom: 0; }
   .store-journey-cta { align-items: stretch; flex-direction: column; }
   .store-journey-cta .btn { width: 100%; }
+  .store-journey-cta-actions { width: 100%; justify-content: stretch; }
+  .store-journey-cta-actions .btn { flex: 1 1 auto; }
 }
 
 @media (max-width: 520px) {
@@ -5686,12 +5733,34 @@ a.store-about-contact-row:hover {
 }
 
 .store-journey-cta > div strong {
-  max-width: 22ch;
+  max-width: 28ch;
   font-family: var(--font-store-display), var(--font-store-sans), ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(1.55rem, 2.8vw, 2.35rem);
   font-weight: 650;
   line-height: 1.12;
   letter-spacing: -.04em;
+}
+
+.store-journey-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex: 0 1 auto;
+  max-width: min(100%, 420px);
+}
+
+.store-journey-cta .btn-secondary {
+  background: rgba(255, 255, 255, .12);
+  color: #fff;
+  border-color: rgba(255, 255, 255, .28);
+  box-shadow: none;
+}
+
+.store-journey-cta .btn-secondary:hover {
+  background: rgba(255, 255, 255, .2);
+  border-color: rgba(255, 255, 255, .4);
 }
 
 .store-journey-cta > div strong .section-title-accent,

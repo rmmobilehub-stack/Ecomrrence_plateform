@@ -3,7 +3,7 @@ import { Linking, ScrollView, StyleSheet, Text } from 'react-native';
 import { createLead } from '../api';
 import { useStore } from '../context/StoreContext';
 import { colors, space } from '../theme';
-import { ErrorText, Field, Muted, PrimaryButton, ScreenWrap, Title } from '../ui';
+import { ErrorText, Field, PrimaryButton, ScreenWrap, Title } from '../ui';
 import { isValidWhatsAppNumber, openWhatsApp } from '../whatsapp';
 
 export function ContactScreen() {
@@ -44,7 +44,6 @@ export function ContactScreen() {
     <ScreenWrap>
       <ScrollView contentContainerStyle={styles.pad}>
         <Title>Contact</Title>
-        <Muted>Leave a message or open WhatsApp. Chatbot transcripts from the website are not mirrored here.</Muted>
         {isValidWhatsAppNumber(store?.whatsappNumber) && (
           <PrimaryButton
             label="WhatsApp the store"

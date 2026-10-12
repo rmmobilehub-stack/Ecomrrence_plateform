@@ -95,7 +95,6 @@ export function ShopScreen() {
             <Text style={[styles.title, { color: colors.ink }]}>
               Chargers, cables{'\n'}and <Text style={[styles.titleAccent, { color: colors.accentSoft }]}>more.</Text>
             </Text>
-            <Text style={[styles.sub, { color: colors.muted }]}>Find the right power accessory for your everyday setup.</Text>
             <View style={styles.collectionSignals}>
               <Text style={[styles.signal, { color: colors.accentSoft }]}>Cash on delivery</Text>
               <Text style={[styles.signalDot, { color: colors.accentSoft }]}>•</Text>
@@ -223,7 +222,6 @@ const styles = StyleSheet.create({
   kicker: { color: '#4DA3FF', fontSize: 11, fontWeight: '800', letterSpacing: 1.1 },
   title: { color: '#F7FBFF', fontSize: 30, fontWeight: '800', lineHeight: 34, letterSpacing: -0.5 },
   titleAccent: { color: '#4DA3FF' },
-  sub: { color: '#C5D5EC', fontSize: 14, lineHeight: 21 },
   collectionSignals: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 },
   signal: { color: '#8EC8FF', fontWeight: '700', fontSize: 11 },
   signalDot: { color: '#4DA3FF', fontSize: 12 },

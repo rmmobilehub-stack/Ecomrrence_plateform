@@ -50,9 +50,6 @@ export function RepairsTabScreen() {
               <Text style={styles.heroTitle}>
                 Doorstep <Text style={styles.heroAccent}>iPhone</Text> repair
               </Text>
-              <Text style={styles.heroSub}>
-                Pick your model and colour. We come to your address, repair it on the spot, and leave once it works again.
-              </Text>
               <View style={styles.points}>
                 <View style={styles.point}>
                   <Icon name="shield-checkmark-outline" size={13} color="#BFE5FF" />
@@ -103,13 +100,10 @@ export function RepairsTabScreen() {
               <Text style={[styles.codIconText, { color: colors.accentSoft }]}>✓</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.codTitle, { color: colors.ink }]}>Not sure about condition?</Text>
-              <Text style={[styles.codSub, { color: colors.muted }]}>Run a free phone check first.</Text>
+              <Text style={[styles.codTitle, { color: colors.ink }]}>Free phone check</Text>
             </View>
             <Text style={[styles.codChevron, { color: colors.accentSoft }]}>›</Text>
           </Pressable>
-
-          <Text style={[styles.trust, { color: colors.muted }]}>Clear pricing after inspection · Direct support</Text>
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -158,7 +152,6 @@ const styles = StyleSheet.create({
   kickerText: { color: '#7DD3FC', fontSize: 10, fontWeight: '800', letterSpacing: 0.8 },
   heroTitle: { color: '#FFFFFF', fontSize: 26, fontWeight: '800', lineHeight: 30 },
   heroAccent: { color: '#7DD3FC' },
-  heroSub: { color: 'rgba(236, 248, 255, 0.9)', fontSize: 13, lineHeight: 19, maxWidth: 320 },
   points: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 2 },
   point: {
     flexDirection: 'row',
@@ -224,7 +217,5 @@ const styles = StyleSheet.create({
   },
   codIconText: { color: '#8EC8FF', fontWeight: '900', fontSize: 16 },
   codTitle: { color: '#F7FBFF', fontWeight: '800', fontSize: 14 },
-  codSub: { color: '#A8C0DA', fontSize: 12, marginTop: 2 },
   codChevron: { color: '#8EC8FF', fontSize: 22, fontWeight: '700' },
-  trust: { color: '#A8C0DA', fontSize: 12, textAlign: 'center', fontWeight: '600' },
 });

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Facebook, Globe2, HeartPulse, Instagram, Mail, MapPin, MessageCircle, Music2, Phone, ShieldCheck, Sparkles, Truck, Twitter, Youtube } from 'lucide-react';
+import { ArrowRight, Facebook, Globe2, HeartPulse, Instagram, Mail, MapPin, MessageCircle, Music2, Phone, ShieldCheck, Sparkles, Truck, Twitter, Wrench, Youtube } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { getActiveProductsForStore, getActiveStoreBySlug } from '@/lib/db';
@@ -57,6 +57,9 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
   const featured = activeProducts.slice(0, 8);
   const shopHref = storefrontPath(store.slug, 'products');
   const phoneCheckHref = storefrontPath(store.slug, 'phone-check');
+  const repairHref = storefrontPath(store.slug, 'repair');
+  const checkoutHref = storefrontPath(store.slug, 'checkout');
+  const aboutHref = `${storefrontPath(store.slug)}#about`;
   const title = store.heroTitle || 'Everyday pieces, picked with care.';
   const chatMessage = `Hello ${store.name}, I would like to know more about your products.`;
   const contactWidgetMode = store.contactWidgetMode ?? 'both';
@@ -102,10 +105,13 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
             {chips.map((chip) => <span key={chip} className="hero-kicker">{chip}</span>)}
           </div>
           <h1 className="store-hero-title title-with-underline">{formatHeroTitle(title)}</h1>
-          {store.description && <p className="store-hero-desc">{store.description}</p>}
+          <p className="store-hero-desc">
+            {store.description || 'Chargers, cases, phone check and doorstep iPhone repair — in one place.'}
+          </p>
           <div className="hero-actions">
             <Link className="btn btn-primary btn-lg" href={shopHref}>{store.heroCtaLabel || 'Shop collection'} <ArrowRight size={17}/></Link>
-            <Link className="hero-phone-check-link" href={phoneCheckHref}><HeartPulse size={17}/><span>Free phone check</span><ArrowRight size={16}/></Link>
+            <Link className="hero-phone-check-link" href={phoneCheckHref}><HeartPulse size={17}/><span>Phone check</span><ArrowRight size={16}/></Link>
+            <Link className="hero-phone-check-link" href={repairHref}><Wrench size={17}/><span>Doorstep repair</span><ArrowRight size={16}/></Link>
           </div>
           <ul className="hero-trust-row">
             <li><Truck size={15}/><span>Cash on delivery</span></li>
@@ -123,7 +129,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
         <Reveal className="section-heading-copy featured-heading-copy">
           <div>
             <h2 className="title-with-underline">{formatSectionTitle('Featured charging essentials', 1)}</h2>
-            <p className="text-secondary">Fast chargers, durable cables and magnetic accessories for your Apple setup.</p>
+            <p className="text-secondary">Chargers, cables and magnetic picks for everyday use.</p>
           </div>
         </Reveal>
         <Reveal delay={120}><Link className="collection-link" href={shopHref}>View all products <ArrowRight size={17}/></Link></Reveal>
@@ -135,26 +141,46 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
 
     <section className="store-values" aria-labelledby="store-values-title">
       <Reveal className="store-values-intro store-values-intro-refined">
-          <p className="home-section-kicker">Power & protection, made simple</p>
+          <p className="home-section-kicker">Power & protection</p>
           <h2 id="store-values-title" className="title-with-underline">Everything your iPhone needs, <span className="section-title-accent text-accent-glow">in one place.</span></h2>
-          <p>Choose the right charger, cable or protection with clear details, helpful support and cash-on-delivery ordering.</p>
+          <p>Accessories, phone check and doorstep repair — with clear details and cash on delivery.</p>
       </Reveal>
       <div className="store-values-grid">
         <Reveal as="article" delay={40}>
-          <div className="value-card-top"><span className="value-card-index">01</span><span className="value-card-icon"><Sparkles size={21}/></span></div>
-          <div><strong>Fast charging</strong><p>Practical power accessories selected for everyday performance.</p></div>
+          <Link className="home-link-card" href={shopHref}>
+            <div className="value-card-top"><span className="value-card-icon"><Sparkles size={21}/></span></div>
+            <div><strong>Fast charging</strong><p>Everyday power accessories that keep up.</p></div>
+            <span className="home-link-card-arrow" aria-hidden>→</span>
+          </Link>
         </Reveal>
         <Reveal as="article" delay={100}>
-          <div className="value-card-top"><span className="value-card-index">02</span><span className="value-card-icon"><ShieldCheck size={21}/></span></div>
-          <div><strong>Device-friendly picks</strong><p>Clear compatibility details help you choose with confidence.</p></div>
+          <Link className="home-link-card" href={shopHref}>
+            <div className="value-card-top"><span className="value-card-icon"><ShieldCheck size={21}/></span></div>
+            <div><strong>Clear compatibility</strong><p>Know what fits before you order.</p></div>
+            <span className="home-link-card-arrow" aria-hidden>→</span>
+          </Link>
         </Reveal>
         <Reveal as="article" delay={160}>
-          <div className="value-card-top"><span className="value-card-index">03</span><span className="value-card-icon"><Truck size={21}/></span></div>
-          <div><strong>Cash on delivery</strong><p>Place your order simply and pay when it reaches you.</p></div>
+          <Link className="home-link-card" href={checkoutHref}>
+            <div className="value-card-top"><span className="value-card-icon"><Truck size={21}/></span></div>
+            <div><strong>Cash on delivery</strong><p>Pay when the order reaches you.</p></div>
+            <span className="home-link-card-arrow" aria-hidden>→</span>
+          </Link>
         </Reveal>
         <Reveal as="article" delay={220}>
-          <div className="value-card-top"><span className="value-card-index">04</span><span className="value-card-icon"><MessageCircle size={21}/></span></div>
-          <div><strong>Direct support</strong><p>Ask about chargers or compatibility through chat and WhatsApp.</p></div>
+          {whatsappHref ? (
+            <a className="home-link-card" href={whatsappHref} rel="noreferrer">
+              <div className="value-card-top"><span className="value-card-icon"><MessageCircle size={21}/></span></div>
+              <div><strong>Direct support</strong><p>Chat or WhatsApp when you need help.</p></div>
+              <span className="home-link-card-arrow" aria-hidden>→</span>
+            </a>
+          ) : (
+            <Link className="home-link-card" href={aboutHref}>
+              <div className="value-card-top"><span className="value-card-icon"><MessageCircle size={21}/></span></div>
+              <div><strong>Direct support</strong><p>Chat or WhatsApp when you need help.</p></div>
+              <span className="home-link-card-arrow" aria-hidden>→</span>
+            </Link>
+          )}
         </Reveal>
       </div>
     </section>
@@ -165,7 +191,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
       <Reveal className="store-about-modern-content" delay={60}>
         <p className="store-about-modern-kicker"><Sparkles size={14}/> About {store.name}</p>
         <h2 className="title-with-underline title-on-dark">{formatSectionTitle(store.aboutTitle || `Meet ${store.name}.`, 2)}</h2>
-        <p>{store.aboutDescription || store.description || `Explore ${store.name} and order directly through our simple storefront.`}</p>
+        <p>{store.aboutDescription || store.description || `Accessories, phone check and doorstep repair from ${store.name}.`}</p>
         <div className="store-about-modern-facts">
           <div><strong>Easy</strong><span>Simple checkout</span></div>
           <div><strong>COD</strong><span>Pay on delivery</span></div>
@@ -173,7 +199,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
         </div>
         <div className="store-about-connect">
           <p className="store-about-connect-title">Connect with us</p>
-          <p className="store-about-connect-hint">Reach {store.name} for accessories, phone check or doorstep repair.</p>
+          <p className="store-about-connect-hint">Accessories, phone check or doorstep repair.</p>
           {hasConnectDetails ? (
             <div className="store-about-contact">
               {contactPhone ? (
@@ -201,9 +227,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
                 </a>
               ) : null}
             </div>
-          ) : (
-            <p className="store-about-connect-empty">Contact details will appear here once the store admin saves them.</p>
-          )}
+          ) : null}
           {socials.length > 0 ? (
             <div className="store-socials store-about-socials">
               <span>Social</span>
@@ -213,6 +237,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
         </div>
         <div className="store-about-modern-actions">
           <Link className="btn btn-primary" href={shopHref}>Explore the collection <ArrowRight size={17}/></Link>
+          <Link className="btn btn-secondary" href={repairHref}>Book repair <ArrowRight size={17}/></Link>
         </div>
       </Reveal>
       {aboutSecondaryImage && <div className="store-about-modern-product"><img src={aboutSecondaryImage} alt="A product from our collection" loading="lazy" decoding="async"/><span>Part of our collection</span></div>}
@@ -221,32 +246,44 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
     <section className="store-journey">
       <div className="store-journey-header">
         <Reveal className="store-journey-copy store-journey-copy-refined">
-          <p className="home-section-kicker">From power pick to doorstep</p>
-          <h2 className="title-with-underline">A simpler way to upgrade <span className="section-title-accent text-accent-glow">your everyday setup.</span></h2>
+          <p className="home-section-kicker">How it works</p>
+          <h2 className="title-with-underline">Shop, check or repair — <span className="section-title-accent text-accent-glow">simple steps.</span></h2>
         </Reveal>
-        <Reveal delay={100}><p className="store-journey-intro">Pick the right accessory, confirm it your way and receive it at your doorstep with clear support throughout.</p></Reveal>
+        <Reveal delay={100}><p className="store-journey-intro">Pick what you need, confirm online or on WhatsApp, and get help at your door when you need a repair.</p></Reveal>
       </div>
-      <div className="store-journey-steps">
+      <div className="store-values-grid store-journey-grid">
         <Reveal as="article" delay={40}>
-          <div className="journey-step-meta"><span>01</span><span className="journey-step-icon"><Sparkles size={19}/></span></div>
-          <div className="journey-step-copy"><strong>Choose your accessory</strong><p>Compare ports, power and compatibility before you order.</p></div>
+          <Link className="home-link-card" href={shopHref}>
+            <div className="value-card-top"><span className="value-card-icon"><Sparkles size={21}/></span></div>
+            <div><strong>Choose</strong><p>Browse accessories or start phone check / repair.</p></div>
+            <span className="home-link-card-arrow" aria-hidden>→</span>
+          </Link>
         </Reveal>
         <Reveal as="article" delay={110}>
-          <div className="journey-step-meta"><span>02</span><span className="journey-step-icon"><MessageCircle size={19}/></span></div>
-          <div className="journey-step-copy"><strong>Confirm your order</strong><p>Checkout online or send the selected product through WhatsApp.</p></div>
+          <Link className="home-link-card" href={checkoutHref}>
+            <div className="value-card-top"><span className="value-card-icon"><MessageCircle size={21}/></span></div>
+            <div><strong>Confirm</strong><p>Checkout online or message us on WhatsApp.</p></div>
+            <span className="home-link-card-arrow" aria-hidden>→</span>
+          </Link>
         </Reveal>
         <Reveal as="article" delay={180}>
-          <div className="journey-step-meta"><span>03</span><span className="journey-step-icon"><Truck size={19}/></span></div>
-          <div className="journey-step-copy"><strong>Receive and pay</strong><p>We confirm delivery details, dispatch your order and you pay on arrival.</p></div>
+          <Link className="home-link-card" href={repairHref}>
+            <div className="value-card-top"><span className="value-card-icon"><Truck size={21}/></span></div>
+            <div><strong>Receive</strong><p>Delivery with COD, or doorstep repair at your address.</p></div>
+            <span className="home-link-card-arrow" aria-hidden>→</span>
+          </Link>
         </Reveal>
       </div>
       <Reveal delay={80} className="store-journey-cta">
         <div>
-          <span>Keep every device ready</span>
-          <strong>Find the right <span className="section-title-accent text-accent-glow">power accessory</span> today.</strong>
-          <p>Chargers, cables, cases and magnetic essentials—all in one place.</p>
+          <span>Doorstep iPhone repair</span>
+          <strong>Need a <span className="section-title-accent text-accent-glow">repair</span> today?</strong>
+          <p>Book a visit — we repair on the spot at your address.</p>
         </div>
-        <Link className="btn btn-primary btn-lg" href={shopHref}>Shop all accessories <ArrowRight size={17}/></Link>
+        <div className="store-journey-cta-actions">
+          <Link className="btn btn-primary btn-lg" href={repairHref}>Book repair <ArrowRight size={17}/></Link>
+          <Link className="btn btn-secondary btn-lg" href={shopHref}>Shop accessories <ArrowRight size={17}/></Link>
+        </div>
       </Reveal>
     </section>
 

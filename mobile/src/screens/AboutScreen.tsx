@@ -55,10 +55,6 @@ export function AboutScreen() {
   const { colors, isDark } = useAppTheme();
   const aboutImage = resolveMediaUrl(store?.aboutImage || '');
   const title = store?.aboutTitle || 'Complete accessories. One trusted mobile hub.';
-  const body =
-    store?.aboutDescription ||
-    store?.description ||
-    'Model-specific protection, chargers, cables and repair support — built for everyday iPhone use.';
 
   const phone = store?.contactPhone?.trim() || store?.whatsappNumber?.trim() || '';
   const email = store?.contactEmail?.trim() || '';
@@ -94,7 +90,6 @@ export function AboutScreen() {
                 <Text style={styles.kickerText}>ABOUT THE HUB</Text>
               </View>
               <Text style={styles.heroTitle}>{title}</Text>
-              <Text style={styles.heroSub}>{body}</Text>
               <View style={styles.points}>
                 <View style={styles.point}>
                   <Icon name="shield-checkmark-outline" size={13} color="#BFE5FF" />
@@ -114,15 +109,14 @@ export function AboutScreen() {
 
           <View style={styles.facts}>
             {[
-              { strong: 'Easy', muted: 'Simple checkout' },
-              { strong: 'COD', muted: 'Pay on delivery' },
-              { strong: phone ? 'Direct' : 'Email', muted: 'Personal support' },
+              { strong: 'Easy' },
+              { strong: 'COD' },
+              { strong: phone ? 'Direct' : 'Email' },
             ].map(item => (
               <View
                 key={item.strong}
                 style={[styles.fact, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
                 <Text style={[styles.factStrong, { color: colors.ink }]}>{item.strong}</Text>
-                <Text style={[styles.factMuted, { color: colors.muted }]}>{item.muted}</Text>
               </View>
             ))}
           </View>
@@ -148,9 +142,6 @@ export function AboutScreen() {
 
           <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
             <Text style={[styles.sectionTitle, { color: colors.ink }]}>Connect with us</Text>
-            <Text style={[styles.sectionHint, { color: colors.muted }]}>
-              Reach {store?.name || 'RM Mobile Hub'} for accessories, phone check or doorstep repair.
-            </Text>
 
             {phoneDisplay ? (
               <Pressable
@@ -306,7 +297,6 @@ const styles = StyleSheet.create({
   },
   kickerText: { color: '#7DD3FC', fontSize: 10, fontWeight: '800', letterSpacing: 0.8 },
   heroTitle: { color: '#FFFFFF', fontSize: 24, fontWeight: '800', lineHeight: 30 },
-  heroSub: { color: 'rgba(236, 248, 255, 0.92)', fontSize: 13, lineHeight: 19 },
   points: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 2 },
   point: {
     flexDirection: 'row',
@@ -329,7 +319,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   factStrong: { fontWeight: '800', textAlign: 'center', fontSize: 14 },
-  factMuted: { fontSize: 11, textAlign: 'center', marginTop: 4 },
   sectionCard: {
     borderRadius: 18,
     padding: 16,

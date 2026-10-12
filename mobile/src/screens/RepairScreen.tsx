@@ -197,7 +197,6 @@ export function RepairScreen() {
           <View style={styles.repairHeroCopy}>
             <View style={styles.repairKicker}><Icon name="construct-outline" size={15} color="#D7E7FF" /><Text style={styles.repairKickerText}>IPHONE DOORSTEP REPAIR</Text></View>
             <Text style={styles.repairTitle}>Doorstep iPhone repair</Text>
-            <Text style={styles.repairSub}>Pick your model and colour. We come to your address, repair it on the spot, and leave once it works again.</Text>
             <View style={styles.repairPoints}>
               <View style={styles.repairPoint}><Icon name="shield-checkmark-outline" size={14} color="#BFE5FF" /><Text style={styles.repairPointText}>Exact model match</Text></View>
               <View style={styles.repairPoint}><Icon name="phone-portrait-outline" size={14} color="#BFE5FF" /><Text style={styles.repairPointText}>Official colours</Text></View>
@@ -303,7 +302,6 @@ export function RepairScreen() {
                 <Text style={{ color: accent, fontWeight: '800', fontSize: 17 }}>
                   {formatMoney(estimate.marketValueMinPkr)} – {formatMoney(estimate.marketValueMaxPkr)}
                 </Text>
-                <Muted>{estimate.summary}</Muted>
               </Card>
             ) : null}
           </>
@@ -364,10 +362,6 @@ export function RepairScreen() {
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>Price confirmed after inspection</Text>
-            <Muted>
-              Online score and market worth are indicative only. Final repair quote is confirmed after the technician
-              inspects the device.
-            </Muted>
             <PrimaryButton
               label="I understand — continue"
               color={accent}
@@ -411,10 +405,7 @@ export function RepairDoneScreen() {
   return (
     <ScreenWrap style={styles.pad}>
       <Title>Booking received</Title>
-      <Muted>
-        We saved {route.params.bookingNumber}. No payment is taken now — the store will contact you to confirm the visit
-        and final quote after inspection.
-      </Muted>
+      <Muted>{route.params.bookingNumber}</Muted>
       <PrimaryButton label="Back home" onPress={() => navigation.navigate('Tabs', { screen: 'Home' })} color={accent} />
       <PrimaryButton
         label="Free phone check"
@@ -434,7 +425,6 @@ const styles = StyleSheet.create({
   repairKicker: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6, backgroundColor: 'rgba(218, 239, 255, 0.14)', borderWidth: 1, borderColor: 'rgba(150, 213, 255, 0.45)' },
   repairKickerText: { color: '#DCEBFA', fontSize: 10, fontWeight: '800', letterSpacing: 0.8 },
   repairTitle: { color: '#FFFFFF', fontSize: 31, lineHeight: 36, fontWeight: '900', maxWidth: 250 },
-  repairSub: { color: '#D5E5F3', fontSize: 14, lineHeight: 21, maxWidth: 285 },
   repairPoints: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
   repairPoint: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 9, paddingVertical: 7, borderRadius: 999, backgroundColor: 'rgba(219, 236, 252, 0.14)', borderWidth: 1, borderColor: 'rgba(203, 230, 255, 0.28)' },
   repairPointText: { color: '#E9F4FF', fontSize: 11, fontWeight: '700' },

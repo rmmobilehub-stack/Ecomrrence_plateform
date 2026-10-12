@@ -208,7 +208,6 @@ export function ProductScreen() {
             </View>
           ) : null}
         </View>
-        <Text style={styles.desc}>{product.description}</Text>
         <View style={styles.facts}>
           {product.sku ? <Text style={styles.meta}>SKU · {product.sku}</Text> : null}
           <Text style={[styles.availability, outOfStock ? styles.unavailable : styles.available]}>
@@ -272,7 +271,6 @@ export function ProductScreen() {
               onPress={() => void startWhatsApp()}>
               <Text style={styles.whatsappText}>{waBusy ? 'Preparing…' : 'Order via WhatsApp'}</Text>
             </Pressable>
-            <Text style={styles.note}>WhatsApp requests are saved as pending orders before the chat opens.</Text>
           </>
         ) : null}
 
@@ -291,11 +289,9 @@ export function ProductScreen() {
         <View style={styles.assurance}>
           <View style={styles.assuranceItem}>
             <Text style={styles.assuranceTitle}>Cash on delivery</Text>
-            <Text style={styles.assuranceText}>Pay when your order arrives.</Text>
           </View>
           <View style={styles.assuranceItem}>
             <Text style={styles.assuranceTitle}>Direct support</Text>
-            <Text style={styles.assuranceText}>We confirm compatibility before dispatch.</Text>
           </View>
         </View>
       </ScrollView>
@@ -365,7 +361,6 @@ const styles = StyleSheet.create({
   compare: { position: 'relative', paddingVertical: 1 },
   compareText: { color: '#7596BE', fontSize: 15 },
   compareStrike: { position: 'absolute', left: 0, right: 0, top: 11, height: 2, borderRadius: 99, backgroundColor: '#5F86B6' },
-  desc: { color: '#C5D5EC', lineHeight: 22, fontSize: 15 },
   facts: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 },
   meta: { color: '#7A93B0', fontSize: 12 },
   availability: { fontSize: 12, fontWeight: '800' },
@@ -418,7 +413,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   whatsappText: { color: '#fff', fontWeight: '800', fontSize: 16 },
-  note: { color: '#A8C0DA', fontSize: 12, lineHeight: 18 },
   detailsCard: { gap: 8, padding: 14, borderRadius: 16, backgroundColor: 'rgba(10, 28, 56, 0.72)', borderWidth: 1, borderColor: 'rgba(126, 200, 255, 0.2)' },
   detailsTitle: { color: '#F7FBFF', fontSize: 16, fontWeight: '800' },
   detailRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 12, paddingTop: 8, borderTopWidth: 1, borderTopColor: 'rgba(126, 200, 255, 0.12)' },
@@ -427,7 +421,6 @@ const styles = StyleSheet.create({
   assurance: { gap: 8 },
   assuranceItem: { padding: 13, borderRadius: 14, backgroundColor: 'rgba(47, 123, 255, 0.1)', borderWidth: 1, borderColor: 'rgba(126, 200, 255, 0.2)' },
   assuranceTitle: { color: '#EAF3FF', fontSize: 13, fontWeight: '800' },
-  assuranceText: { color: '#A8C0DA', fontSize: 12, marginTop: 3 },
   previewBackdrop: { flex: 1, padding: 18, justifyContent: 'center', backgroundColor: 'rgba(2, 8, 22, 0.94)' },
   previewCard: { width: '100%', aspectRatio: 0.82, maxHeight: '82%', borderRadius: 20, overflow: 'hidden', backgroundColor: '#08182F', borderWidth: 1, borderColor: 'rgba(126, 200, 255, 0.3)' },
   previewImage: { width: '100%', height: '100%' },

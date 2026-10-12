@@ -26,7 +26,7 @@ import {
   type DeviceEstimate,
   type RepairModel,
 } from '../types';
-import { Card, Chip, ErrorText, Field, LoadingBlock, Muted, PrimaryButton } from '../ui';
+import { Card, Chip, ErrorText, Field, LoadingBlock, PrimaryButton } from '../ui';
 import type { RootStackParamList } from '../navigation/types';
 const logoMark = require('../assets/rm-logo.png');
 
@@ -154,7 +154,6 @@ export function PhoneCheckScreen() {
             <View style={styles.heroCopy}>
               <View style={styles.phoneCheckKicker}><Icon name="pulse-outline" size={14} color={theme.accentSoft} /><Text style={[styles.phoneCheckKickerText, { color: theme.accentSoft }]}>PHONE CHECK</Text></View>
               <Text style={[styles.heroTitle, { color: theme.ink }]}>Health score {'&'} <Text style={[styles.heroAccent, { color: theme.accentSoft }]}>market worth</Text></Text>
-              <Text style={[styles.heroSub, { color: theme.muted }]}>Choose your model, share its condition and get an instant health score with Pakistan market range.</Text>
               <View style={styles.heroTiles}>
                 <View style={[styles.heroTile, { backgroundColor: isDark ? 'rgba(47, 123, 255, 0.14)' : '#E6F6FF', borderColor: theme.cardBorder }]}>
                   <Icon name="pulse-outline" size={13} color={theme.accentSoft} />
@@ -225,8 +224,7 @@ export function PhoneCheckScreen() {
               <Text style={styles.codIconText}>🚚</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.codTitle}>Cash on delivery available</Text>
-              <Text style={styles.codSub}>Pay safely when you receive.</Text>
+              <Text style={styles.codTitle}>Cash on delivery</Text>
             </View>
             <Text style={styles.codChevron}>›</Text>
           </Pressable>
@@ -253,7 +251,6 @@ export function PhoneCheckScreen() {
               <Text style={{ color: accent, fontWeight: '800', fontSize: 18 }}>
                 {formatMoney(estimate.marketValueMinPkr)} – {formatMoney(estimate.marketValueMaxPkr)}
               </Text>
-              <Muted>{estimate.summary}</Muted>
               {(estimate.suggestions || []).map(item => (
                 <Text key={item} style={styles.bullet}>
                   • {item}
@@ -295,7 +292,6 @@ export function ConditionFields({
   return (
     <View style={{ gap: 10 }}>
       <Text style={styles.fieldLabel}>PTA status</Text>
-      <Muted>PTA-approved phones usually get a higher market price than non-PTA.</Muted>
       <View style={styles.row}>
         {PTA_STATUS_OPTIONS.map(option => (
           <Chip
@@ -410,7 +406,6 @@ const styles = StyleSheet.create({
   phoneCheckKickerText: { color: '#9FD7FF', fontSize: 9, fontWeight: '800', letterSpacing: 0.9 },
   heroTitle: { color: '#F7FBFF', fontSize: 22, fontWeight: '800', lineHeight: 26 },
   heroAccent: { color: '#4DA3FF' },
-  heroSub: { color: '#C5D5EC', fontSize: 12, lineHeight: 17 },
   heroTiles: { flexDirection: 'row', flexWrap: 'nowrap', gap: 6, marginTop: 2 },
   heroTile: {
     flexDirection: 'row',
@@ -547,7 +542,6 @@ const styles = StyleSheet.create({
   },
   codIconText: { fontSize: 16 },
   codTitle: { color: '#F7FBFF', fontWeight: '800', fontSize: 14 },
-  codSub: { color: '#A8C0DA', fontSize: 12, marginTop: 2 },
   codChevron: { color: '#8EC8FF', fontSize: 22, fontWeight: '700' },
   fieldLabel: { fontWeight: '700', color: colors.ink, marginTop: 4 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

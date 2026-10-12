@@ -56,11 +56,6 @@ export function AuthScreen() {
           <View style={styles.card}>
             <Text style={styles.kicker}>{mode === 'login' ? 'WELCOME BACK' : 'JOIN NOW'}</Text>
             <Text style={styles.title}>{mode === 'login' ? 'Login' : 'Create account'}</Text>
-            <Text style={styles.lead}>
-              {mode === 'login'
-                ? 'Login to buy, checkout, book repairs, or run a phone check — same account as the website.'
-                : 'Register once. Buy, Phone Check and Repair stay linked to you.'}
-            </Text>
 
             <View style={styles.tabs}>
               <Pressable
@@ -159,7 +154,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   title: { color: colors.ink, fontSize: 32, fontWeight: '800', letterSpacing: -0.8 },
-  lead: { color: colors.muted, marginTop: 8, marginBottom: 16, lineHeight: 22, fontSize: 15 },
   tabs: {
     flexDirection: 'row',
     backgroundColor: 'rgba(8, 28, 58, 0.85)',

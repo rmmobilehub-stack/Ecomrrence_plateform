@@ -20,7 +20,6 @@ export function RepairCheckScreen() {
           <Text style={[styles.rowLabel, { marginTop: 12 }]}>iPhone model</Text>
           <Text style={styles.rowValue}>{model}</Text>
         </View>
-        <Text style={styles.note}>Clear pricing and a technician will confirm the visit time.</Text>
         <Pressable
           style={styles.cta}
           onPress={() => navigation.navigate('RepairDone', { bookingNumber: `RM-${Date.now().toString().slice(-6)}` })}>
@@ -48,7 +47,6 @@ const styles = StyleSheet.create({
   },
   rowLabel: { color: '#7A93B0', fontSize: 12, fontWeight: '700' },
   rowValue: { color: '#F4F8FF', fontSize: 18, fontWeight: '800', marginTop: 4 },
-  note: { color: '#C5D5EC', lineHeight: 22 },
   cta: {
     minHeight: 52,
     borderRadius: 16,
