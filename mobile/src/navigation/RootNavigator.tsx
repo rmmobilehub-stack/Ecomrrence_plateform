@@ -173,7 +173,8 @@ export function RootNavigator() {
   if (booting) {
     return (
       <View style={[styles.splash, { backgroundColor: colors.bg }]}>
-        <Image source={require('../assets/rm-mark.png')} style={styles.splashMark} resizeMode="contain" />
+        {/* Same mark + size as the native launch screen so it does not jump. */}
+        <Image source={require('../assets/splash-logo.png')} style={styles.splashMark} resizeMode="contain" />
         <ActivityIndicator color={colors.accentSoft} size="large" style={styles.splashLoader} />
       </View>
     );
@@ -204,8 +205,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  splashMark: { width: 260, height: 180 },
-  splashLoader: { marginTop: 36 },
+  // Keep logo centered (matches Android/iOS launch mark). Loader sits under it
+  // without shifting the logo when JS splash takes over from the native screen.
+  splashMark: { width: 160, height: 160 },
+  splashLoader: {
+    position: 'absolute',
+    top: '50%',
+    marginTop: 92,
+  },
   tabBar: {
     position: 'absolute',
     left: 12,
