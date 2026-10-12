@@ -7,7 +7,8 @@ type StoreData = {
   name: string; slug: string; description: string; logo: string; banner: string;
   heroSlides: string[]; heroTitle?: string; heroCtaLabel?: string; announcement?: string;
   aboutTitle?: string; aboutDescription?: string; aboutImage?: string;
-  primaryColor: string; currency: string; contactEmail: string; whatsappNumber?: string;
+  primaryColor: string; currency: string; contactEmail: string;
+  contactPhone?: string; contactAddress?: string; whatsappNumber?: string;
   contactWidgetMode?: 'chatbot' | 'whatsapp' | 'both' | 'none';
   deliveryFee?: number; freeDeliveryThreshold?: number; isActive?: boolean;
   socialLinks: {
@@ -55,8 +56,10 @@ export default function StoreSettingsForm({ brandOnly = false, complete = false,
     <h2>Business information</h2>
     <p className="form-hint brand-settings-hint">Public contact, delivery and social media details for this storefront.</p>
     <div className="grid-2">{field('name', 'Store name')}{field('slug', 'Store URL slug')}</div>
-    <div className="grid-2">{field('contactEmail', 'Contact email', 'email')}{field('whatsappNumber', 'WhatsApp order number', 'tel', '923001234567')}</div>
-    <p className="form-hint">Use international format without + or spaces. Once saved, the tracked WhatsApp order button appears on every product page.</p>
+    <div className="grid-2">{field('contactEmail', 'Contact email', 'email')}{field('contactPhone', 'Public phone number', 'tel', '03001234567')}</div>
+    <label className="form-group"><span className="form-label">Business address</span><textarea className="form-input form-textarea" placeholder="Shop / office address shown on About and Connect" value={store.contactAddress ?? ''} onChange={(event) => setStore({ ...store, contactAddress: event.target.value })}/></label>
+    <div className="grid-2">{field('whatsappNumber', 'WhatsApp order number', 'tel', '923001234567')}</div>
+    <p className="form-hint">Phone and address appear on the About page. WhatsApp uses international format without + or spaces so the order button can open chats.</p>
     <label className="form-group"><span className="form-label">Homepage contact buttons</span><select className="form-select" value={store.contactWidgetMode ?? 'both'} onChange={(event) => setStore({ ...store, contactWidgetMode: event.target.value as StoreData['contactWidgetMode'] })}><option value="chatbot">Chatbot only</option><option value="whatsapp">WhatsApp only</option><option value="both">Chatbot and WhatsApp</option><option value="none">Hide both</option></select><small className="form-hint">WhatsApp appears only when a valid WhatsApp order number is saved.</small></label>
     <h3 className="settings-section-title">Delivery offer</h3>
     <div className="grid-2">{numberField('deliveryFee', 'Delivery fee', 'Set 0 for always free delivery.')}{numberField('freeDeliveryThreshold', 'Free delivery above', 'Set 0 to disable the threshold offer.')}</div>

@@ -5,12 +5,14 @@ import type {
   ChangedPart,
   DeviceConditionInput,
   OwnershipStatus,
+  PtaStatus,
   ScreenCondition,
 } from '@/lib/device-estimate';
 import {
   BODY_FLAG_OPTIONS,
   OWNERSHIP_OPTIONS,
   PARTS_CHANGED_OPTIONS,
+  PTA_STATUS_OPTIONS,
   SCREEN_CONDITION_OPTIONS,
   toggleBodyFlag,
   toggleChangedPart,
@@ -42,6 +44,24 @@ export default function DeviceConditionFields({
           </div>
         </div>
       ) : null}
+
+      <div className="device-condition-block">
+        <p className="device-condition-label">PTA status</p>
+        <p className="device-condition-hint">PTA-approved phones usually get a higher Pakistan market price than non-PTA.</p>
+        <div className="device-choice-row">
+          {PTA_STATUS_OPTIONS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              className={`device-choice-chip ${value.ptaStatus === option.id ? 'is-selected' : ''}`}
+              onClick={() => onChange({ ...value, ptaStatus: option.id as PtaStatus })}
+            >
+              <strong>{option.label}</strong>
+              <small>{option.hint}</small>
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="device-condition-block">
         <p className="device-condition-label">Screen inside</p>

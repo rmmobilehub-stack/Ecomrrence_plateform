@@ -13,7 +13,9 @@
     "store:rebrand:rm": "node scripts/rebrand-rm-mobile-hub.js",
     "mobile:start": "yarn --cwd mobile start",
     "mobile:android": "yarn --cwd mobile android",
-    "android": "yarn --cwd mobile android"
+    "android": "yarn --cwd mobile android",
+    "ios": "yarn --cwd mobile ios",
+    "mobile:ios": "yarn --cwd mobile ios"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.4",

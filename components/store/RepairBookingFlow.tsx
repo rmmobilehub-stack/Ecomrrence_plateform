@@ -165,6 +165,7 @@ export default function RepairBookingFlow({
     condition.batteryHealthPercent,
     condition.ageYears,
     condition.ownership,
+    condition.ptaStatus,
     condition.additionalNote,
     selectedIssueDetail,
   ]);

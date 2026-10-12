@@ -34,10 +34,17 @@ export async function getCustomerSession(): Promise<CustomerAuthPayload | null> 
   return verifyCustomerToken(token);
 }
 
+export function getCustomerTokenFromRequest(req: NextRequest): string | null {
+  const header = req.headers.get('authorization') || '';
+  const bearer = header.match(/^Bearer\s+(\S+)/i)?.[1];
+  if (bearer) return bearer;
+  return req.cookies.get(CUSTOMER_COOKIE)?.value ?? null;
+}
+
 export async function getCustomerSessionFromRequest(
   req: NextRequest
 ): Promise<CustomerAuthPayload | null> {
-  const token = req.cookies.get(CUSTOMER_COOKIE)?.value;
+  const token = getCustomerTokenFromRequest(req);
   if (!token) return null;
   return verifyCustomerToken(token);
 }

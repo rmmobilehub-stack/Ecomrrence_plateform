@@ -38,6 +38,8 @@ export interface Store {
   primaryColor: string;
   currency: string;
   contactEmail: string;
+  contactPhone?: string;
+  contactAddress?: string;
   whatsappNumber?: string;
   contactWidgetMode?: 'chatbot' | 'whatsapp' | 'both' | 'none';
   deliveryFee?: number;

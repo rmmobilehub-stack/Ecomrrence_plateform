@@ -30,7 +30,7 @@ export async function PUT(req: NextRequest) {
   const allowedFields: (keyof Store)[] = [
     'name', 'slug', 'description', 'logo', 'banner', 'heroSlides', 'heroTitle', 'heroCtaLabel', 'announcement',
     'aboutTitle', 'aboutDescription', 'aboutImage', 'ads',
-    'primaryColor', 'currency', 'contactEmail', 'whatsappNumber', 'contactWidgetMode', 'deliveryFee', 'freeDeliveryThreshold', 'socialLinks', 'isActive',
+    'primaryColor', 'currency', 'contactEmail', 'contactPhone', 'contactAddress', 'whatsappNumber', 'contactWidgetMode', 'deliveryFee', 'freeDeliveryThreshold', 'socialLinks', 'isActive',
   ];
 
   const updates: Partial<Store> = {};
@@ -64,6 +64,18 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: 'Enter a valid WhatsApp number in international format, for example 923001234567' }, { status: 400 });
     }
     updates.whatsappNumber = suppliedNumber ? normalizeWhatsAppNumber(suppliedNumber) : '';
+  }
+
+  if (updates.contactPhone !== undefined) {
+    updates.contactPhone = String(updates.contactPhone || '').trim().slice(0, 40);
+  }
+
+  if (updates.contactAddress !== undefined) {
+    updates.contactAddress = String(updates.contactAddress || '').trim().slice(0, 240);
+  }
+
+  if (updates.contactEmail !== undefined) {
+    updates.contactEmail = String(updates.contactEmail || '').trim().slice(0, 120);
   }
 
   if (updates.contactWidgetMode && !['chatbot', 'whatsapp', 'both', 'none'].includes(updates.contactWidgetMode)) {
