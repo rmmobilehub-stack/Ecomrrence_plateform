@@ -3,6 +3,7 @@ import { Image, Modal, Pressable, ScrollView, StatusBar, StyleSheet, Text, View 
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { createWhatsAppOrder, fetchProduct } from '../api';
+import { SelectField } from '../components/SelectField';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
 import { resolveMediaUrl } from '../media';
@@ -216,17 +217,13 @@ export function ProductScreen() {
 
         {(product.variants || []).map(variant => (
           <View key={variant.name} style={[styles.variantBlock, !choices[variant.name] && styles.variantPending]}>
-            <Text style={styles.label}>{variant.name}{!choices[variant.name] ? ' · required' : ''}</Text>
-            <View style={styles.row}>
-              {variant.options.map(option => (
-                <Pressable
-                  key={option}
-                  onPress={() => setChoices(prev => ({ ...prev, [variant.name]: option }))}
-                  style={[styles.option, choices[variant.name] === option && styles.optionOn]}>
-                  <Text style={[styles.optionText, choices[variant.name] === option && styles.optionTextOn]}>{option}</Text>
-                </Pressable>
-              ))}
-            </View>
+            <SelectField
+              label={`${variant.name}${!choices[variant.name] ? ' · required' : ''}`}
+              placeholder={`Choose ${variant.name}`}
+              value={choices[variant.name] || ''}
+              options={variant.options.map(option => ({ id: option, label: option }))}
+              onChange={option => setChoices(prev => ({ ...prev, [variant.name]: option }))}
+            />
           </View>
         ))}
 
@@ -363,19 +360,6 @@ const styles = StyleSheet.create({
   tag: { color: '#A8CBEA', fontSize: 11, fontWeight: '700', paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999, backgroundColor: 'rgba(77, 163, 255, 0.1)', borderWidth: 1, borderColor: 'rgba(126, 200, 255, 0.2)' },
   variantBlock: { gap: 8, padding: 10, borderRadius: 14 },
   variantPending: { borderWidth: 1, borderColor: 'rgba(77, 163, 255, 0.3)', backgroundColor: 'rgba(77, 163, 255, 0.06)' },
-  label: { color: '#F4F8FF', fontWeight: '700' },
-  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  option: {
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(126, 200, 255, 0.28)',
-    backgroundColor: 'rgba(8, 28, 58, 0.55)',
-  },
-  optionOn: { backgroundColor: '#2F7BFF', borderColor: '#2F7BFF' },
-  optionText: { color: '#C5D5EC', fontWeight: '700', fontSize: 13 },
-  optionTextOn: { color: '#fff' },
   qtyRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
   qtyBtn: {
     width: 40,
