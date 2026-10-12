@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  createCustomerAuthCookie,
-  isSecureRequest,
-  signCustomerToken,
-  signMagicLoginToken,
-} from '@/lib/customer-auth';
+import { signMagicLoginToken } from '@/lib/customer-auth';
 import { getActiveStoreBySlug } from '@/lib/db';
 import { registerCustomer } from '@/lib/customers';
 import { sendCustomerEmail } from '@/lib/email';
@@ -62,9 +57,7 @@ export async function POST(req: NextRequest) {
         `Hi ${customer.name || 'there'},`,
         '',
         `Your account on ${store.name} is ready.`,
-        fromApp
-          ? 'Click the button below to open the app and log in — you are not signed in until you use this link.'
-          : 'Click the button below to log in instantly — no password needed for this link.',
+        'You are not signed in yet. Click the button below to log in with this email link.',
         '',
         'This link works for 7 days. After that, use your email and password on the login page.',
         '',
@@ -75,31 +68,10 @@ export async function POST(req: NextRequest) {
       ].join('\n'),
     });
 
-    // App registrations must log in via the email magic link (no auto session).
-    if (fromApp) {
-      return NextResponse.json({
-        success: true,
-        customer: {
-          id: customer.id,
-          name: customer.name,
-          email: customer.email,
-          phone: customer.phone,
-        },
-      });
-    }
-
-    const token = await signCustomerToken({
-      id: customer.id,
-      email: customer.email,
-      name: customer.name,
-      role: 'customer',
-      storeId: customer.storeId,
-      avatarUrl: customer.avatarUrl,
-    });
-
-    const response = NextResponse.json({
+    // Never auto-login on register — only the email magic link (or a later password login) starts a session.
+    return NextResponse.json({
       success: true,
-      token,
+      requiresEmailLogin: true,
       customer: {
         id: customer.id,
         name: customer.name,
@@ -107,8 +79,6 @@ export async function POST(req: NextRequest) {
         phone: customer.phone,
       },
     });
-    response.cookies.set(createCustomerAuthCookie(token, isSecureRequest(req)));
-    return response;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Could not register';
     const status = /already exists/i.test(message) ? 409 : 400;
