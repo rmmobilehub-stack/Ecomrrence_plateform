@@ -3,10 +3,8 @@ import { Image, Modal, Pressable, ScrollView, StatusBar, StyleSheet, Text, View 
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { createWhatsAppOrder, fetchProduct } from '../api';
-import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
-import { checkoutReturn, ensureCustomerLogin } from '../ensureCustomerLogin';
 import { resolveMediaUrl } from '../media';
 import { formatMoney } from '../money';
 import { calculateProductPrice, getReferencePrice } from '../pricing';
@@ -19,7 +17,6 @@ import { isValidWhatsAppNumber, openWhatsApp } from '../whatsapp';
 export function ProductScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'Product'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { customer } = useAuth();
   const { buyNow } = useCart();
   const { store, currency } = useStore();
   const [product, setProduct] = useState<Product | null>(null);
@@ -105,9 +102,8 @@ export function ProductScreen() {
     selectedVariants: choices,
   };
 
-  const startCheckout = async () => {
+  const startCheckout = () => {
     if (unavailable || buying) return;
-    if (!ensureCustomerLogin(customer, navigation, checkoutReturn())) return;
     setBuying(true);
     buyNow(cartItem);
     navigation.navigate('Checkout');
@@ -116,9 +112,6 @@ export function ProductScreen() {
 
   const startWhatsApp = async () => {
     if (unavailable || waBusy || !isValidWhatsAppNumber(store?.whatsappNumber)) return;
-    if (!ensureCustomerLogin(customer, navigation, { type: 'screen', name: 'Product', params: { productId: product.id } })) {
-      return;
-    }
     setWaBusy(true);
     setError('');
     try {
