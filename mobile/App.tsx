@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -6,6 +7,7 @@ import { CartProvider } from './src/context/CartContext';
 import { StoreProvider } from './src/context/StoreContext';
 import { ThemeProvider, useAppTheme } from './src/context/ThemeContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { checkForOtaUpdate } from './src/ota';
 
 function ThemedApp() {
   const { colors } = useAppTheme();
@@ -18,6 +20,10 @@ function ThemedApp() {
 }
 
 function App() {
+  useEffect(() => {
+    void checkForOtaUpdate();
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>

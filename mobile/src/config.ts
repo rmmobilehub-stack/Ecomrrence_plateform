@@ -1,7 +1,8 @@
 import { Platform } from 'react-native';
 
 /**
- * Live backend — same as NEXT_PUBLIC_SITE_URL in root .env
+ * Live backend — same as NEXT_PUBLIC_SITE_URL in root .env.
+ * Release builds also poll `${API_BASE_URL}/api/mobile/ota` for JS OTA updates.
  */
 export const LIVE_API_BASE_URL = 'https://ecomrrence-plateform.vercel.app';
 
