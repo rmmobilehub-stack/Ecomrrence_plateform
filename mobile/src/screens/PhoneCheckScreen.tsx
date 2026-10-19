@@ -1,3 +1,4 @@
+import { PhoneScoreCard } from '../components/PhoneScoreCard';
 import { Text } from '../components/AppText';
 import { usePageEffect } from '../hooks/usePageEffect';
 import { KeyboardScrollView as ScrollView } from '../components/KeyboardScrollView';
@@ -14,7 +15,6 @@ import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
 import { useAppTheme } from '../context/ThemeContext';
 import { ensureCustomerLogin, healthCheckReturn, repairReturn } from '../ensureCustomerLogin';
-import { formatMoney } from '../money';
 import { colors } from '../theme';
 import {
   BODY_FLAG_OPTIONS,
@@ -29,7 +29,7 @@ import {
   type DeviceEstimate,
   type RepairModel,
 } from '../types';
-import { Card, Chip, ErrorText, Field, LoadingBlock, PrimaryButton } from '../ui';
+import { Chip, ErrorText, Field, LoadingBlock, PrimaryButton } from '../ui';
 import type { RootStackParamList } from '../navigation/types';
 const logoMark = require('../assets/rm-logo.png');
 
@@ -248,37 +248,15 @@ export function PhoneCheckScreen() {
           ) : null}
 
           {estimate ? (
-            <Card>
-              <Text style={styles.score}>
-                {estimate.scoreLabel} · {estimate.score}/100
-              </Text>
-              <Text style={{ color: accent, fontWeight: '800', fontSize: 18 }}>
-                {formatMoney(estimate.marketValueMinPkr)} – {formatMoney(estimate.marketValueMaxPkr)}
-              </Text>
-              {(estimate.suggestions || []).map(item => (
-                <Text key={item} style={styles.bullet}>
-                  • {item}
-                </Text>
-              ))}
-              {(estimate.buySuggestions || []).map(item => (
-                <Text key={item} style={styles.bullet}>
-                  • {item}
-                </Text>
-              ))}
-              <PrimaryButton
-                label="Shop accessories"
-                onPress={() => navigation.navigate('Tabs', { screen: 'Shop' })}
-                color={accent}
-              />
-              <PrimaryButton
-                label="Book a repair"
-                onPress={() => {
-                  if (!ensureCustomerLogin(customer, navigation, repairReturn())) return;
-                  navigation.navigate('Repair');
-                }}
-                color={accent}
-              />
-            </Card>
+            <PhoneScoreCard
+              estimate={estimate}
+              modelName={selectedModel?.name}
+              onShop={() => navigation.navigate('Tabs', { screen: 'Shop' })}
+              onRepair={() => {
+                if (!ensureCustomerLogin(customer, navigation, repairReturn())) return;
+                navigation.navigate('Repair');
+              }}
+            />
           ) : null}
         </ScrollView>
       </SafeAreaView>

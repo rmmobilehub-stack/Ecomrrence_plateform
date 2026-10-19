@@ -11,13 +11,13 @@ import { checkoutReturn, ensureCustomerLogin } from '../ensureCustomerLogin';
 import { useAppTheme } from '../context/ThemeContext';
 import { formatMoney } from '../money';
 import { space } from '../theme';
-import { Card, Chip, Muted, PrimaryButton, RemoteImage, ScreenWrap, Title } from '../ui';
+import { Card, Chip, Muted, PrimaryButton, RemoteImage, ScreenWrap } from '../ui';
 import type { RootStackParamList } from '../navigation/types';
 
 export function CartScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { customer } = useAuth();
-  const { items, update, remove, subtotal, count } = useCart();
+  const { items, update, remove, subtotal } = useCart();
   const { accent, currency } = useStore();
   const { colors } = useAppTheme();
 
@@ -25,7 +25,6 @@ export function CartScreen() {
   return (
     <ScreenWrap>
       <ScrollView contentContainerStyle={styles.pad}>
-        <Title>Cart ({count})</Title>
         {!items.length && <Card><Muted>Your cart is empty.</Muted><PrimaryButton label="Browse products" onPress={() => navigation.navigate('Tabs', { screen: 'Shop' })} color={accent} /></Card>}
         {items.map((item, index) => (
           <Card key={`${item.productId}-${index}`} style={styles.row}>

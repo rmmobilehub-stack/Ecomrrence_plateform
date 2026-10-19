@@ -129,7 +129,7 @@ export function AboutScreen() {
                   <Icon name="call-outline" size={18} color={colors.accentSoft} />
                 </View>
                 <View style={styles.detailCopy}>
-                  <Text style={[styles.detailLabel, { color: colors.muted }]}>Call</Text>
+                  <Text style={[styles.detailLabel, { color: colors.muted }]}>Call our team</Text>
                 </View>
               </Pressable>
             ) : null}
@@ -143,7 +143,7 @@ export function AboutScreen() {
                   <Icon name="mail-outline" size={18} color={colors.accentSoft} />
                 </View>
                 <View style={styles.detailCopy}>
-                  <Text style={[styles.detailLabel, { color: colors.muted }]}>Email</Text>
+                  <Text style={[styles.detailLabel, { color: colors.muted }]}>Send us an email</Text>
                 </View>
               </Pressable>
             ) : null}
@@ -167,7 +167,7 @@ export function AboutScreen() {
                   <Icon name="location-outline" size={18} color={colors.accentSoft} />
                 </View>
                 <View style={styles.detailCopy}>
-                  <Text style={[styles.detailLabel, { color: colors.muted }]}>Maps</Text>
+                  <Text style={[styles.detailLabel, { color: colors.muted }]}>Get directions to our store</Text>
                 </View>
               </Pressable>
             ) : null}
@@ -186,7 +186,7 @@ export function AboutScreen() {
                   <Icon name="logo-whatsapp" size={20} color="#25D366" />
                 </View>
                 <View style={styles.detailCopy}>
-                  <Text style={[styles.detailLabel, { color: colors.muted }]}>WhatsApp</Text>
+                  <Text style={[styles.detailLabel, { color: colors.muted }]}>Chat with us on WhatsApp</Text>
                 </View>
               </Pressable>
             ) : null}
@@ -208,7 +208,7 @@ export function AboutScreen() {
                     accessibilityRole="link"
                     accessibilityLabel={`Open ${entry.label}`}
                     onPress={() => void Linking.openURL(entry.href)}>
-                    <Icon name={entry.icon} size={21} color={entry.tone} />
+                    <Icon name={entry.icon} size={26} color={entry.tone} />
                   </Pressable>
                 ))}
               </View>
@@ -304,17 +304,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   pillText: { fontWeight: '700', fontSize: 12 },
-  contactActions: { flexDirection: 'row', gap: 8 },
+  contactActions: { gap: 10 },
   detailRow: {
-    flex: 1,
-    minWidth: 0,
-    height: 88,
+    minHeight: 62,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
+    gap: 14,
     borderRadius: 14,
     borderWidth: 1,
-    paddingHorizontal: 2,
+    paddingHorizontal: 14,
     paddingVertical: 10,
   },
   detailIcon: {
@@ -324,28 +322,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  detailCopy: { alignItems: 'center' },
-  detailLabel: { fontSize: 10, fontWeight: '700' },
+  detailCopy: { flex: 1 },
+  detailLabel: { fontSize: 15, fontWeight: '700', lineHeight: 21 },
   detailValue: { fontSize: 14, fontWeight: '700', lineHeight: 19 },
   socialRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
     flexWrap: 'wrap',
-    justifyContent: 'center',
     marginTop: 0,
     paddingTop: 4,
   },
   socialIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
+    flexGrow: 1,
+    flexBasis: '20%',
+    minWidth: 48,
+    height: 52,
+    borderRadius: 13,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
   },
   btn: {
-    marginTop: 'auto',
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: 'center',
