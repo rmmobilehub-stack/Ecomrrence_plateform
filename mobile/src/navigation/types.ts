@@ -25,6 +25,7 @@ export type RootStackParamList = {
   PhoneCheck: undefined;
   Contact: undefined;
   Account: undefined;
+  Notifications: undefined;
   RepairDone: { bookingNumber: string };
   Auth: { returnTo?: AuthReturnTo } | undefined;
 };

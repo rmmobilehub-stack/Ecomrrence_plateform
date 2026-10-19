@@ -1,4 +1,7 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { RefreshScrollView as ScrollView } from '../components/PageRefresh';
+import { Text } from '../components/AppText';
+import { CustomerHistory } from '../components/CustomerHistory';
+import { Pressable,  StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
@@ -16,21 +19,12 @@ export function CartScreen() {
   const { items, update, remove, subtotal, count } = useCart();
   const { accent, currency } = useStore();
 
-  if (!items.length) {
-    return (
-      <ScreenWrap style={styles.pad}>
-        <Title>Cart</Title>
-        <Muted>Your cart is empty.</Muted>
-        <View style={{ height: 16 }} />
-        <PrimaryButton label="Browse products" onPress={() => navigation.navigate('Tabs', { screen: 'Shop' })} color={accent} />
-      </ScreenWrap>
-    );
-  }
 
   return (
     <ScreenWrap>
       <ScrollView contentContainerStyle={styles.pad}>
         <Title>Cart ({count})</Title>
+        {!items.length && <Card><Muted>Your cart is empty.</Muted><PrimaryButton label="Browse products" onPress={() => navigation.navigate('Tabs', { screen: 'Shop' })} color={accent} /></Card>}
         {items.map((item, index) => (
           <Card key={`${item.productId}-${index}`} style={styles.row}>
             <RemoteImage uri={item.thumbnail} style={styles.thumb} />
@@ -55,6 +49,7 @@ export function CartScreen() {
             </View>
           </Card>
         ))}
+        {items.length > 0 && <>
         <Text style={styles.total}>Subtotal {formatMoney(subtotal, currency)}</Text>
         <PrimaryButton
           label="Checkout"
@@ -64,6 +59,8 @@ export function CartScreen() {
           }}
           color={accent}
         />
+        </>}
+        <CustomerHistory />
       </ScrollView>
     </ScreenWrap>
   );

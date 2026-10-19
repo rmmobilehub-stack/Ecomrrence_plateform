@@ -1,4 +1,6 @@
-import { Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { RefreshScrollView as ScrollView } from '../components/PageRefresh';
+import { Text } from '../components/AppText';
+import { Pressable, StatusBar, StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,7 +13,7 @@ export function RepairCheckScreen() {
   return (
     <SafeAreaView style={styles.page} edges={['bottom']}>
       <StatusBar barStyle="light-content" />
-      <View style={styles.body}>
+      <ScrollView contentContainerStyle={styles.body}>
         <Text style={styles.kicker}>AVAILABLE TODAY</Text>
         <Text style={styles.title}>We can take this repair.</Text>
         <View style={styles.card}>
@@ -29,14 +31,14 @@ export function RepairCheckScreen() {
         <Pressable style={styles.ghost} onPress={() => navigation.goBack()}>
           <Text style={styles.ghostText}>Change selection</Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: '#050E24' },
-  body: { flex: 1, padding: 22, gap: 14 },
+  body: { flexGrow: 1, padding: 22, gap: 14 },
   kicker: { color: '#4DA3FF', fontWeight: '800', letterSpacing: 1.1, fontSize: 12, marginTop: 8 },
   title: { color: '#F7FBFF', fontSize: 28, fontWeight: '800' },
   card: {

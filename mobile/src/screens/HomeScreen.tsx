@@ -1,12 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
+import { RefreshScrollView as ScrollView } from '../components/PageRefresh';
+import { Text } from '../components/AppText';
+import { usePageEffect } from '../hooks/usePageEffect';
+import { useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
   ImageBackground,
   Pressable,
-  ScrollView,
+  
   StatusBar,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
@@ -57,12 +60,17 @@ export function HomeScreen() {
   >();
   const { store, currency } = useStore();
   const { colors, isDark } = useAppTheme();
+  const [loading, setLoading] = useState(true);
   const [featured, setFeatured] = useState<Product[]>([]);
 
-  useEffect(() => {
+  usePageEffect(() => {
+    let active = true;
+    setLoading(true);
     fetchProducts({ sortBy: 'newest' })
-      .then(data => setFeatured((data.products || []).slice(0, 6)))
-      .catch(() => setFeatured([]));
+      .then(data => { if (active) setFeatured((data.products || []).slice(0, 6)); })
+      .catch(() => { if (active) setFeatured([]); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
   const chips = useMemo(() => announcementChips(store?.announcement), [store?.announcement]);
@@ -88,7 +96,8 @@ export function HomeScreen() {
           <HeaderActions onCart={() => navigation.navigate('Cart')} onAccount={() => navigation.navigate('Account')} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        {loading && <ActivityIndicator accessibilityLabel="Loading home" color={colors.accent} />}
+        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator>
           {/* Hero */}
           <ImageBackground source={heroArt} style={styles.hero} imageStyle={styles.heroImage}>
             <View style={styles.heroShade} />

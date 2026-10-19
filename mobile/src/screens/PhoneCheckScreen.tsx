@@ -1,5 +1,8 @@
+import { Text } from '../components/AppText';
+import { usePageEffect } from '../hooks/usePageEffect';
+import { KeyboardScrollView as ScrollView } from '../components/KeyboardScrollView';
 import { useEffect, useMemo, useState } from 'react';
-import { Image, Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StatusBar, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -60,7 +63,8 @@ export function PhoneCheckScreen() {
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  usePageEffect(() => {
+    setLoading(true);
     fetchRepairCatalog()
       .then(data => setModels(data.models || []))
       .catch(err => setError(err instanceof Error ? err.message : 'Could not load catalog'))

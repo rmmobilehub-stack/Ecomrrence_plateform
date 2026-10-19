@@ -1,0 +1,17 @@
+current directory: /Users/furqan/Desktop/Skylinx Project/Ecomrrence_plateform/mobile/.gems/gems/nkf-0.3.0/ext/nkf
+/System/Library/Frameworks/Ruby.framework/Versions/2.6/usr/bin/ruby -I /System/Library/Frameworks/Ruby.framework/Versions/2.6/usr/lib/ruby/2.6.0 -r ./siteconf20261012-57753-12ir417.rb extconf.rb
+creating Makefile
+
+current directory: /Users/furqan/Desktop/Skylinx Project/Ecomrrence_plateform/mobile/.gems/gems/nkf-0.3.0/ext/nkf
+make "DESTDIR=" clean
+
+current directory: /Users/furqan/Desktop/Skylinx Project/Ecomrrence_plateform/mobile/.gems/gems/nkf-0.3.0/ext/nkf
+make "DESTDIR="
+compiling nkf.c
+2026-10-12 19:53:40.706 xcodebuild[58085:30021829]  DVTFilePathFSEvents: Failed to start fs event stream.
+linking shared-object nkf.bundle
+ld: warning: search path '/AppleInternal/Library/BuildRoots/4~CNqOugC2VOzH0AooiFHluC0Rc_Uuhf7Y_i2OsEM/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.Internal.sdk/usr/local/lib' not found
+
+current directory: /Users/furqan/Desktop/Skylinx Project/Ecomrrence_plateform/mobile/.gems/gems/nkf-0.3.0/ext/nkf
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 nkf.bundle ./.gem.20261012-57753-19oqkea

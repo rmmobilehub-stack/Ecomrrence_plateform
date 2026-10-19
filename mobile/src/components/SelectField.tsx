@@ -1,5 +1,6 @@
+import { Text } from './AppText';
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useAppTheme } from '../context/ThemeContext';
 
 export type SelectOption = { id: string; label: string; disabled?: boolean };

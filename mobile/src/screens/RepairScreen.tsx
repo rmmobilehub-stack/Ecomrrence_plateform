@@ -1,5 +1,8 @@
+import { Text } from '../components/AppText';
+import { usePageEffect } from '../hooks/usePageEffect';
+import { KeyboardScrollView as ScrollView } from '../components/KeyboardScrollView';
 import { useEffect, useMemo, useState } from 'react';
-import { ImageBackground, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, Modal, Pressable, StyleSheet, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -74,7 +77,8 @@ export function RepairScreen() {
     }));
   }, [customer]);
 
-  useEffect(() => {
+  usePageEffect(() => {
+    setLoading(true);
     fetchRepairCatalog()
       .then(data => setCatalog(data))
       .catch(err => setError(err instanceof Error ? err.message : 'Could not load repair catalog'))
@@ -409,7 +413,7 @@ export function RepairDoneScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'RepairDone'>>();
   const { accent } = useStore();
   return (
-    <ScreenWrap style={styles.pad}>
+    <ScreenWrap><ScrollView contentContainerStyle={styles.pad}>
       <Title>Booking received</Title>
       <Muted>
         We saved {route.params.bookingNumber}. No payment is taken now — the store will contact you to confirm the visit
@@ -421,7 +425,7 @@ export function RepairDoneScreen() {
         onPress={() => navigation.navigate('Tabs', { screen: 'HealthCheck' })}
         color={accent}
       />
-    </ScreenWrap>
+    </ScrollView></ScreenWrap>
   );
 }
 
