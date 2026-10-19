@@ -1,10 +1,9 @@
+import { Text } from '../components/AppText';
+import { KeyboardScrollView as ScrollView } from '../components/KeyboardScrollView';
 import { useEffect, useMemo, useState } from 'react';
 import {
   KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -150,7 +149,7 @@ export function CheckoutScreen() {
 
   return (
     <ScreenWrap>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+      <KeyboardAvoidingView behavior={undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled">
           <Title>Checkout</Title>
           <Field label="Full name *" value={form.name} onChangeText={value => setField('name', value)} />

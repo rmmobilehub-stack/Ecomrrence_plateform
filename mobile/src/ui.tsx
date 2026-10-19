@@ -1,10 +1,10 @@
+import { Text, TextInput } from './components/AppText';
 import {
   ActivityIndicator,
+  DeviceEventEmitter,
   Image,
   Pressable,
   StyleSheet,
-  Text,
-  TextInput,
   View,
   type ImageStyle,
   type StyleProp,
@@ -153,6 +153,7 @@ export function Field({
           { backgroundColor: theme.card, borderColor: theme.line, color: theme.ink },
         ]}
         {...rest}
+        onFocus={event => { DeviceEventEmitter.emit("formInputFocused"); rest.onFocus?.(event); }}
       />
     </View>
   );

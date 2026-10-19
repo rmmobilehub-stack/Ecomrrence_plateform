@@ -1,4 +1,6 @@
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { RefreshScrollView as ScrollView } from '../components/PageRefresh';
+import { Text } from '../components/AppText';
+import {  StyleSheet} from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAppTheme } from '../context/ThemeContext';

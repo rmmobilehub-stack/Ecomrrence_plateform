@@ -1,12 +1,10 @@
+import { Text, TextInput } from '../components/AppText';
+import { KeyboardScrollView as ScrollView } from '../components/KeyboardScrollView';
 import { useState, type ComponentProps } from 'react';
 import {
   KeyboardAvoidingView,
-  Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
@@ -60,7 +58,7 @@ export function AuthScreen() {
 
   return (
     <SafeAreaView style={[styles.page, { backgroundColor: colors.bg }]} edges={['top', 'left', 'right']}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.line }]}>
             <Text style={[styles.kicker, { color: colors.accentSoft }]}>

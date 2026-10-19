@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Text, TextInput } from '../components/AppText';
+import { usePageEffect } from '../hooks/usePageEffect';
+import { KeyboardScrollView as ScrollView } from '../components/KeyboardScrollView';
+import { useMemo, useState } from 'react';
 import {
   Image,
   Pressable,
-  ScrollView,
   StatusBar,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from 'react-native';
 import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
@@ -40,7 +40,7 @@ export function ShopScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
+  usePageEffect(() => {
     let cancelled = false;
     setLoading(true);
     setError('');

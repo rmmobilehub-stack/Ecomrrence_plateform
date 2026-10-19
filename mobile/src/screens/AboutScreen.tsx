@@ -1,12 +1,15 @@
+import { RefreshScrollView as ScrollView } from '../components/PageRefresh';
+import { Text } from '../components/AppText';
 import {
+  Alert,
+  Platform,
   Image,
   ImageBackground,
   Linking,
   Pressable,
-  ScrollView,
+
   StatusBar,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
@@ -55,7 +58,6 @@ export function AboutScreen() {
   const { colors, isDark } = useAppTheme();
   const aboutImage = resolveMediaUrl(store?.aboutImage || '');
   const title = store?.aboutTitle || 'Complete accessories. One trusted mobile hub.';
-
   const phone = store?.contactPhone?.trim() || store?.whatsappNumber?.trim() || '';
   const email = store?.contactEmail?.trim() || '';
   const address = store?.contactAddress?.trim() || '';
@@ -81,7 +83,7 @@ export function AboutScreen() {
           <HeaderActions onCart={() => navigation.navigate('Cart')} onAccount={() => navigation.navigate('Account')} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.pad} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={styles.pad} showsVerticalScrollIndicator>
           <ImageBackground source={heroSource} style={styles.hero} imageStyle={styles.heroImage}>
             <View style={styles.heroShade} />
             <View style={styles.heroCopy}>
@@ -91,60 +93,29 @@ export function AboutScreen() {
               </View>
               <Text style={styles.heroTitle}>{title}</Text>
               <View style={styles.points}>
-                <View style={styles.point}>
+                <Pressable accessibilityRole="button" onPress={() => navigation.navigate('Shop')} style={styles.point}>
                   <Icon name="shield-checkmark-outline" size={13} color="#BFE5FF" />
                   <Text style={styles.pointText}>Clear compatibility</Text>
-                </View>
-                <View style={styles.point}>
+                </Pressable>
+                <Pressable accessibilityRole="button" onPress={() => navigation.navigate('Cart')} style={styles.point}>
                   <Icon name="card-outline" size={13} color="#BFE5FF" />
                   <Text style={styles.pointText}>Cash on delivery</Text>
-                </View>
-                <View style={styles.point}>
+                </Pressable>
+                <Pressable accessibilityRole="button" onPress={() => navigation.navigate('Contact')} style={styles.point}>
                   <Icon name="chatbubbles-outline" size={13} color="#BFE5FF" />
                   <Text style={styles.pointText}>Direct support</Text>
-                </View>
+                </Pressable>
               </View>
             </View>
           </ImageBackground>
 
-          <View style={styles.facts}>
-            {[
-              { strong: 'Easy' },
-              { strong: 'COD' },
-              { strong: phone ? 'Direct' : 'Email' },
-            ].map(item => (
-              <View
-                key={item.strong}
-                style={[styles.fact, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-                <Text style={[styles.factStrong, { color: colors.ink }]}>{item.strong}</Text>
-              </View>
-            ))}
-          </View>
-
-          <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-            <Text style={[styles.sectionTitle, { color: colors.ink }]}>What we help with</Text>
-            <View style={styles.pillRow}>
-              {['Accessories', 'Phone check', 'Doorstep repair', 'WhatsApp orders'].map(label => (
-                <View
-                  key={label}
-                  style={[
-                    styles.pill,
-                    {
-                      backgroundColor: isDark ? 'rgba(47, 123, 255, 0.14)' : '#E6F6FF',
-                      borderColor: colors.cardBorder,
-                    },
-                  ]}>
-                  <Text style={[styles.pillText, { color: colors.ink }]}>{label}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-
           <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
             <Text style={[styles.sectionTitle, { color: colors.ink }]}>Connect with us</Text>
 
+            <View style={styles.contactActions}>
             {phoneDisplay ? (
               <Pressable
+                accessibilityRole="button"
                 style={[styles.detailRow, { borderColor: colors.cardBorder, backgroundColor: isDark ? 'rgba(5,14,36,0.45)' : '#F0F9FF' }]}
                 onPress={() => {
                   const digits = normalizeWhatsAppNumber(phone);
@@ -158,15 +129,14 @@ export function AboutScreen() {
                   <Icon name="call-outline" size={18} color={colors.accentSoft} />
                 </View>
                 <View style={styles.detailCopy}>
-                  <Text style={[styles.detailLabel, { color: colors.muted }]}>Phone</Text>
-                  <Text style={[styles.detailValue, { color: colors.ink }]}>{phoneDisplay}</Text>
+                  <Text style={[styles.detailLabel, { color: colors.muted }]}>Call</Text>
                 </View>
-                <Icon name="chevron-forward" size={18} color={colors.accentSoft} />
               </Pressable>
             ) : null}
 
             {email ? (
               <Pressable
+                accessibilityRole="button"
                 style={[styles.detailRow, { borderColor: colors.cardBorder, backgroundColor: isDark ? 'rgba(5,14,36,0.45)' : '#F0F9FF' }]}
                 onPress={() => void Linking.openURL(`mailto:${email}`)}>
                 <View style={[styles.detailIcon, { backgroundColor: isDark ? 'rgba(77,163,255,0.16)' : '#E6F6FF' }]}>
@@ -174,27 +144,37 @@ export function AboutScreen() {
                 </View>
                 <View style={styles.detailCopy}>
                   <Text style={[styles.detailLabel, { color: colors.muted }]}>Email</Text>
-                  <Text style={[styles.detailValue, { color: colors.ink }]}>{email}</Text>
                 </View>
-                <Icon name="chevron-forward" size={18} color={colors.accentSoft} />
               </Pressable>
             ) : null}
 
             {address ? (
-              <View
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel="Get directions to store"
+                onPress={() => Alert.alert('Directions to store', 'Allow Maps to use your current location to calculate directions? Maps may ask for location permission.', [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Continue', onPress: () => {
+                    const destination = encodeURIComponent(address);
+                    const url = Platform.OS === 'ios'
+                      ? `https://maps.apple.com/?daddr=${destination}&dirflg=d`
+                      : `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`;
+                    void Linking.openURL(url).catch(() => Alert.alert('Maps unavailable', 'Please try again or open your maps app.'));
+                  } },
+                ])}
                 style={[styles.detailRow, { borderColor: colors.cardBorder, backgroundColor: isDark ? 'rgba(5,14,36,0.45)' : '#F0F9FF' }]}>
                 <View style={[styles.detailIcon, { backgroundColor: isDark ? 'rgba(77,163,255,0.16)' : '#E6F6FF' }]}>
                   <Icon name="location-outline" size={18} color={colors.accentSoft} />
                 </View>
                 <View style={styles.detailCopy}>
-                  <Text style={[styles.detailLabel, { color: colors.muted }]}>Address</Text>
-                  <Text style={[styles.detailValue, { color: colors.ink }]}>{address}</Text>
+                  <Text style={[styles.detailLabel, { color: colors.muted }]}>Maps</Text>
                 </View>
-              </View>
+              </Pressable>
             ) : null}
 
             {hasWhatsApp ? (
               <Pressable
+                accessibilityRole="button"
                 style={[styles.detailRow, { borderColor: '#25D366', backgroundColor: isDark ? 'rgba(37,211,102,0.1)' : '#E8FFF1' }]}
                 onPress={() =>
                   void openWhatsApp(
@@ -207,13 +187,11 @@ export function AboutScreen() {
                 </View>
                 <View style={styles.detailCopy}>
                   <Text style={[styles.detailLabel, { color: colors.muted }]}>WhatsApp</Text>
-                  <Text style={[styles.detailValue, { color: colors.ink }]}>
-                    {formatPhoneDisplay(store?.whatsappNumber)}
-                  </Text>
                 </View>
-                <Icon name="chevron-forward" size={18} color="#25D366" />
               </Pressable>
             ) : null}
+
+            </View>
 
             {!phoneDisplay && !email && !address && !hasWhatsApp && !socials.length ? (
               <Text style={[styles.sectionHint, { color: colors.muted }]}>
@@ -240,16 +218,6 @@ export function AboutScreen() {
           <Pressable onPress={() => navigation.navigate('Shop')} style={[styles.btn, { backgroundColor: colors.accent }]}>
             <Text style={styles.btnText}>Explore the collection →</Text>
           </Pressable>
-          <Pressable
-            onPress={() => navigation.navigate('Contact')}
-            style={[styles.ghost, { borderColor: colors.cardBorder }]}>
-            <Text style={[styles.ghostText, { color: colors.ink }]}>Contact store</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => navigation.navigate('Account')}
-            style={[styles.ghost, { borderColor: colors.cardBorder }]}>
-            <Text style={[styles.ghostText, { color: colors.ink }]}>My account</Text>
-          </Pressable>
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -270,9 +238,9 @@ const styles = StyleSheet.create({
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 1 },
   headerLogo: { width: 42, height: 42, borderRadius: 13 },
   brandName: { fontSize: 16, fontWeight: '800' },
-  pad: { paddingHorizontal: 16, paddingBottom: 120, gap: 14 },
+  pad: { flexGrow: 1, paddingHorizontal: 16, paddingTop: 4, paddingBottom: 104, gap: 16 },
   hero: {
-    minHeight: 250,
+    minHeight: 200,
     borderRadius: 20,
     overflow: 'hidden',
     justifyContent: 'flex-end',
@@ -282,7 +250,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(8, 28, 42, 0.72)',
   },
-  heroCopy: { position: 'relative', zIndex: 1, padding: 18, gap: 8 },
+  heroCopy: { position: 'relative', zIndex: 1, padding: 18, gap: 12 },
   kicker: {
     alignSelf: 'flex-start',
     flexDirection: 'row',
@@ -296,7 +264,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(125, 211, 252, 0.35)',
   },
   kickerText: { color: '#7DD3FC', fontSize: 10, fontWeight: '800', letterSpacing: 0.8 },
-  heroTitle: { color: '#FFFFFF', fontSize: 24, fontWeight: '800', lineHeight: 30 },
+  heroTitle: { color: '#FFFFFF', fontSize: 22, fontWeight: '800', lineHeight: 28 },
+  heroSub: { color: 'rgba(236, 248, 255, 0.92)', fontSize: 13, lineHeight: 19 },
   points: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 2 },
   point: {
     flexDirection: 'row',
@@ -322,7 +291,7 @@ const styles = StyleSheet.create({
   sectionCard: {
     borderRadius: 18,
     padding: 16,
-    gap: 10,
+    gap: 16,
     borderWidth: 1,
   },
   sectionTitle: { fontWeight: '800', fontSize: 16 },
@@ -335,41 +304,48 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   pillText: { fontWeight: '700', fontSize: 12 },
+  contactActions: { flexDirection: 'row', gap: 8 },
   detailRow: {
-    flexDirection: 'row',
+    flex: 1,
+    minWidth: 0,
+    height: 88,
     alignItems: 'center',
-    gap: 12,
+    justifyContent: 'center',
+    gap: 6,
     borderRadius: 14,
     borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: 2,
+    paddingVertical: 10,
   },
   detailIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 34,
+    height: 34,
+    borderRadius: 11,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  detailCopy: { flex: 1, gap: 2 },
-  detailLabel: { fontSize: 11, fontWeight: '700', letterSpacing: 0.3 },
+  detailCopy: { alignItems: 'center' },
+  detailLabel: { fontSize: 10, fontWeight: '700' },
   detailValue: { fontSize: 14, fontWeight: '700', lineHeight: 19 },
   socialRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 9,
+    gap: 12,
     flexWrap: 'wrap',
-    marginTop: 2,
+    justifyContent: 'center',
+    marginTop: 0,
+    paddingTop: 4,
   },
   socialIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
+    width: 38,
+    height: 38,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
   },
   btn: {
+    marginTop: 'auto',
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: 'center',

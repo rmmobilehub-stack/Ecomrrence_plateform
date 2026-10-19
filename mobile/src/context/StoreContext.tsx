@@ -9,7 +9,7 @@ type StoreContextValue = {
   error: string;
   accent: string;
   currency: string;
-  reload: () => void;
+  reload: () => Promise<void>;
 };
 
 const StoreContext = createContext<StoreContextValue | null>(null);
@@ -22,7 +22,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const load = () => {
     setLoading(true);
     setError('');
-    fetchStore()
+    return fetchStore()
       .then(data => setStore(data.store))
       .catch(err => setError(err instanceof Error ? err.message : 'Could not load store'))
       .finally(() => setLoading(false));

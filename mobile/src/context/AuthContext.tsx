@@ -100,8 +100,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const handleUrl = (url: string | null) => {
-      const token = magicTokenFromUrl(url);
+    const handleUrl = (url: string | null | undefined) => {
+      const token = magicTokenFromUrl(url ?? null);
       if (!token) return;
       void acceptSessionToken(token).catch(() => undefined);
     };

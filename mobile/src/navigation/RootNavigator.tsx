@@ -1,7 +1,10 @@
+import { PageRefresh } from '../components/PageRefresh';
+import { Text } from '../components/AppText';
+import { NotificationsScreen } from '../screens/NotificationsScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
 import { useAppTheme } from '../context/ThemeContext';
@@ -39,6 +42,7 @@ function Tabs() {
 
   return (
     <Tab.Navigator
+      screenLayout={({ children }) => <PageRefresh>{children}</PageRefresh>}
       screenOptions={{
         headerShown: false,
         tabBarStyle: [
@@ -132,6 +136,7 @@ function AppStack({ storeName }: { storeName?: string }) {
 
   return (
     <Stack.Navigator
+      screenLayout={({ children }) => <PageRefresh>{children}</PageRefresh>}
       screenOptions={{
         headerShadowVisible: false,
         headerStyle: { backgroundColor: colors.bg },
@@ -157,18 +162,19 @@ function AppStack({ storeName }: { storeName?: string }) {
       />
       <Stack.Screen name="PhoneCheck" component={PhoneCheckScreen} options={{ title: 'Phone check' }} />
       <Stack.Screen name="Contact" component={ContactScreen} options={{ title: storeName || 'Contact' }} />
-      <Stack.Screen name="Account" component={AccountScreen} options={{ title: 'Account' }} />
+      <Stack.Screen name="Account" component={AccountScreen} options={{ title: 'My profile' }} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifications' }} />
       <Stack.Screen name="Auth" component={AuthScreen} options={{ title: 'Login', presentation: 'modal' }} />
     </Stack.Navigator>
   );
 }
 
 export function RootNavigator() {
-  const { store, loading: storeLoading } = useStore();
+  const { store, loading: storeLoading, reload } = useStore();
   const { loading: authLoading } = useAuth();
   const { colors } = useAppTheme();
 
-  const booting = authLoading || storeLoading;
+  const booting = authLoading || (storeLoading && !store);
 
   if (booting) {
     return (
@@ -182,6 +188,7 @@ export function RootNavigator() {
 
   return (
     <NavigationContainer
+      onStateChange={() => reload()}
       theme={{
         ...DefaultTheme,
         dark: colors.statusBar === 'light-content',

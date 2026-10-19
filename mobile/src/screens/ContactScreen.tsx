@@ -1,5 +1,7 @@
+import { RefreshScrollView as ScrollView } from '../components/PageRefresh';
+import { Text } from '../components/AppText';
 import { useMemo, useState } from 'react';
-import { Linking, ScrollView, StyleSheet, Text } from 'react-native';
+import { Linking,  StyleSheet} from 'react-native';
 import { createLead } from '../api';
 import { useStore } from '../context/StoreContext';
 import { useAppTheme } from '../context/ThemeContext';

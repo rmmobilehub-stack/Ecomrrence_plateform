@@ -1,5 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Image, Modal, Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { RefreshScrollView as ScrollView } from '../components/PageRefresh';
+import { Text } from '../components/AppText';
+import { usePageEffect } from '../hooks/usePageEffect';
+import { useMemo, useState } from 'react';
+import { Image, Modal, Pressable,  StatusBar, StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { createWhatsAppOrder, fetchProduct } from '../api';
@@ -32,7 +35,7 @@ export function ProductScreen() {
   const [waBusy, setWaBusy] = useState(false);
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
 
-  useEffect(() => {
+  usePageEffect(() => {
     setLoading(true);
     setError('');
     setChoices({});
