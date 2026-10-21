@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Figtree, Outfit } from 'next/font/google';
 import { getActiveStoreBySlug } from '@/lib/db';
+import { getCustomerSession } from '@/lib/customer-auth';
+import { getCustomerById } from '@/lib/customers';
 import { CartProvider } from '@/components/store/CartProvider';
 import StoreNav from '@/components/store/StoreNav';
 import { storefrontPath } from '@/lib/storefront-paths';
@@ -54,13 +56,35 @@ export default async function StoreLayout({ children, params }: { children: Reac
   const storeAccent = /^#[0-9a-f]{6}$/i.test(store.primaryColor) ? store.primaryColor : '#2563eb';
   const storeTheme = storeAccent.toLowerCase() === '#2563eb' ? 'classic-blue' : 'custom';
 
+  const session = await getCustomerSession();
+  const sessionCustomer =
+    session?.storeId === store.id ? await getCustomerById(session.id) : null;
+  const initialCustomer =
+    sessionCustomer && sessionCustomer.storeId === store.id
+      ? {
+          id: sessionCustomer.id,
+          name: sessionCustomer.name,
+          email: sessionCustomer.email,
+          avatarUrl: sessionCustomer.avatarUrl || '',
+          storeId: sessionCustomer.storeId,
+        }
+      : null;
+
   return <CartProvider slug={store.slug} currency={store.currency || 'PKR'}>
     <div
       className={`storefront-shell ${storeDisplay.variable} ${storeSans.variable}`}
       data-store-theme={storeTheme}
       style={{ '--store-accent': storeAccent } as React.CSSProperties}
     >
-      <StoreNav slug={store.slug} homeHref={homeHref} name={store.name} logo={store.logo} announcement={store.announcement}/>
+      <StoreNav
+        slug={store.slug}
+        storeId={store.id}
+        homeHref={homeHref}
+        name={store.name}
+        logo={store.logo}
+        announcement={store.announcement}
+        initialCustomer={initialCustomer}
+      />
       {children}
       <footer className="store-footer">
         <div><strong>{store.name}</strong><span>{store.description}</span></div>

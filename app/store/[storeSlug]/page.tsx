@@ -6,6 +6,8 @@ import { getActiveProductsForStore, getActiveStoreBySlug } from '@/lib/db';
 import type { Store } from '@/lib/types';
 import ProductCard from '@/components/store/ProductCard';
 import AdsBanner from '@/components/store/AdsBanner';
+import HomeFeatureMarquee from '@/components/store/HomeFeatureMarquee';
+import HomeJourneyStrip from '@/components/store/HomeJourneyStrip';
 import LeadChatbot from '@/components/store/LeadChatbot';
 import WhatsAppButton from '@/components/store/WhatsAppButton';
 import Reveal from '@/components/store/Reveal';
@@ -54,7 +56,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
   const store = await getActiveStoreBySlug(params.storeSlug);
   if (!store) return null;
   const activeProducts = await getActiveProductsForStore(store.id);
-  const featured = activeProducts.slice(0, 8);
+  const featured = activeProducts.slice(0, 4);
   const shopHref = storefrontPath(store.slug, 'products');
   const phoneCheckHref = storefrontPath(store.slug, 'phone-check');
   const repairHref = storefrontPath(store.slug, 'repair');
@@ -71,6 +73,9 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
   const hasConnectDetails = Boolean(contactPhone || contactEmail || contactAddress || isValidWhatsAppNumber(store.whatsappNumber));
   const phoneHref = contactPhone
     ? `tel:+${normalizeWhatsAppNumber(contactPhone) || contactPhone.replace(/\D/g, '')}`
+    : '';
+  const mapsHref = contactAddress
+    ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(contactAddress)}&travelmode=driving`
     : '';
   const whatsappHref = isValidWhatsAppNumber(store.whatsappNumber)
     ? createWhatsAppUrl(store.whatsappNumber, chatMessage)
@@ -135,54 +140,32 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
         <Reveal delay={120}><Link className="collection-link" href={shopHref}>View all products <ArrowRight size={17}/></Link></Reveal>
       </div>
       {featured.length
-        ? <div className="products-grid">{featured.map((product) => <ProductCard key={product.id} product={product} slug={store.slug}/>)}</div>
+        ? <div className="products-grid featured-products-grid">{featured.map((product) => <ProductCard key={product.id} product={product} slug={store.slug}/>)}</div>
         : <div className="empty-state">This store has no products yet.</div>}
     </section>
 
-    <section className="store-values" aria-labelledby="store-values-title">
+    <section className="store-values store-values-stream" aria-labelledby="store-values-title">
       <Reveal className="store-values-intro store-values-intro-refined">
           <p className="home-section-kicker">Power & protection</p>
           <h2 id="store-values-title" className="title-with-underline">Everything your iPhone needs, <span className="section-title-accent text-accent-glow">in one place.</span></h2>
           <p>Accessories, phone check and doorstep repair — with clear details and cash on delivery.</p>
       </Reveal>
-      <div className="store-values-grid">
-        <Reveal as="article" delay={40}>
-          <Link className="home-link-card" href={shopHref}>
-            <div className="value-card-top"><span className="value-card-icon"><Sparkles size={21}/></span></div>
-            <div><strong>Fast charging</strong><p>Everyday power accessories that keep up.</p></div>
-            <span className="home-link-card-arrow" aria-hidden>→</span>
-          </Link>
-        </Reveal>
-        <Reveal as="article" delay={100}>
-          <Link className="home-link-card" href={shopHref}>
-            <div className="value-card-top"><span className="value-card-icon"><ShieldCheck size={21}/></span></div>
-            <div><strong>Clear compatibility</strong><p>Know what fits before you order.</p></div>
-            <span className="home-link-card-arrow" aria-hidden>→</span>
-          </Link>
-        </Reveal>
-        <Reveal as="article" delay={160}>
-          <Link className="home-link-card" href={checkoutHref}>
-            <div className="value-card-top"><span className="value-card-icon"><Truck size={21}/></span></div>
-            <div><strong>Cash on delivery</strong><p>Pay when the order reaches you.</p></div>
-            <span className="home-link-card-arrow" aria-hidden>→</span>
-          </Link>
-        </Reveal>
-        <Reveal as="article" delay={220}>
-          {whatsappHref ? (
-            <a className="home-link-card" href={whatsappHref} rel="noreferrer">
-              <div className="value-card-top"><span className="value-card-icon"><MessageCircle size={21}/></span></div>
-              <div><strong>Direct support</strong><p>Chat or WhatsApp when you need help.</p></div>
-              <span className="home-link-card-arrow" aria-hidden>→</span>
-            </a>
-          ) : (
-            <Link className="home-link-card" href={aboutHref}>
-              <div className="value-card-top"><span className="value-card-icon"><MessageCircle size={21}/></span></div>
-              <div><strong>Direct support</strong><p>Chat or WhatsApp when you need help.</p></div>
-              <span className="home-link-card-arrow" aria-hidden>→</span>
-            </Link>
-          )}
-        </Reveal>
-      </div>
+      <HomeFeatureMarquee
+        items={[
+          { title: 'Fast charging', blurb: 'Power that keeps up', href: shopHref, icon: 'sparkles' },
+          { title: 'Clear compatibility', blurb: 'Know what fits first', href: shopHref, icon: 'shield' },
+          { title: 'Cash on delivery', blurb: 'Pay when it arrives', href: checkoutHref, icon: 'truck' },
+          {
+            title: 'Direct support',
+            blurb: 'Chat when you need help',
+            href: whatsappHref || aboutHref,
+            external: Boolean(whatsappHref),
+            icon: 'message',
+          },
+          { title: 'Phone check', blurb: 'Score before you buy or sell', href: storefrontPath(store.slug, 'phone-check'), icon: 'sparkles' },
+          { title: 'Doorstep repair', blurb: 'We come to your address', href: repairHref, icon: 'shield' },
+        ]}
+      />
     </section>
 
     <section className="store-about-modern" id="about">
@@ -201,29 +184,29 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
           <p className="store-about-connect-title">Connect with us</p>
           <p className="store-about-connect-hint">Accessories, phone check or doorstep repair.</p>
           {hasConnectDetails ? (
-            <div className="store-about-contact">
-              {contactPhone ? (
-                <a className="store-about-contact-row" href={phoneHref || undefined}>
+            <div className="store-about-contact store-about-contact-actions">
+              {contactPhone && phoneHref ? (
+                <a className="store-about-contact-row" href={phoneHref}>
                   <span className="store-about-contact-icon"><Phone size={17}/></span>
-                  <span><strong>Phone</strong><em>{contactPhone}</em></span>
+                  <span><em>Call our team</em></span>
                 </a>
               ) : null}
               {contactEmail ? (
                 <a className="store-about-contact-row" href={`mailto:${contactEmail}`}>
                   <span className="store-about-contact-icon"><Mail size={17}/></span>
-                  <span><strong>Email</strong><em>{contactEmail}</em></span>
+                  <span><em>Send us an email</em></span>
                 </a>
               ) : null}
-              {contactAddress ? (
-                <div className="store-about-contact-row">
+              {contactAddress && mapsHref ? (
+                <a className="store-about-contact-row" href={mapsHref} target="_blank" rel="noreferrer">
                   <span className="store-about-contact-icon"><MapPin size={17}/></span>
-                  <span><strong>Address</strong><em>{contactAddress}</em></span>
-                </div>
+                  <span><em>Get directions to our store</em></span>
+                </a>
               ) : null}
               {whatsappHref ? (
                 <a className="store-about-contact-row is-whatsapp" href={whatsappHref} rel="noreferrer">
                   <span className="store-about-contact-icon"><MessageCircle size={17}/></span>
-                  <span><strong>WhatsApp</strong><em>{store.whatsappNumber}</em></span>
+                  <span><em>Chat with us on WhatsApp</em></span>
                 </a>
               ) : null}
             </div>
@@ -243,7 +226,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
       {aboutSecondaryImage && <div className="store-about-modern-product"><img src={aboutSecondaryImage} alt="A product from our collection" loading="lazy" decoding="async"/><span>Part of our collection</span></div>}
     </section>
 
-    <section className="store-journey">
+    <section className="store-journey store-journey-stream">
       <div className="store-journey-header">
         <Reveal className="store-journey-copy store-journey-copy-refined">
           <p className="home-section-kicker">How it works</p>
@@ -251,29 +234,15 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
         </Reveal>
         <Reveal delay={100}><p className="store-journey-intro">Pick what you need, confirm online or on WhatsApp, and get help at your door when you need a repair.</p></Reveal>
       </div>
-      <div className="store-values-grid store-journey-grid">
-        <Reveal as="article" delay={40}>
-          <Link className="home-link-card" href={shopHref}>
-            <div className="value-card-top"><span className="value-card-icon"><Sparkles size={21}/></span></div>
-            <div><strong>Choose</strong><p>Browse accessories or start phone check / repair.</p></div>
-            <span className="home-link-card-arrow" aria-hidden>→</span>
-          </Link>
-        </Reveal>
-        <Reveal as="article" delay={110}>
-          <Link className="home-link-card" href={checkoutHref}>
-            <div className="value-card-top"><span className="value-card-icon"><MessageCircle size={21}/></span></div>
-            <div><strong>Confirm</strong><p>Checkout online or message us on WhatsApp.</p></div>
-            <span className="home-link-card-arrow" aria-hidden>→</span>
-          </Link>
-        </Reveal>
-        <Reveal as="article" delay={180}>
-          <Link className="home-link-card" href={repairHref}>
-            <div className="value-card-top"><span className="value-card-icon"><Truck size={21}/></span></div>
-            <div><strong>Receive</strong><p>Delivery with COD, or doorstep repair at your address.</p></div>
-            <span className="home-link-card-arrow" aria-hidden>→</span>
-          </Link>
-        </Reveal>
-      </div>
+      <Reveal delay={60}>
+        <HomeJourneyStrip
+          steps={[
+            { step: '01', title: 'Choose', blurb: 'Browse accessories or start phone check / repair.', href: shopHref, icon: 'choose' },
+            { step: '02', title: 'Confirm', blurb: 'Checkout online or message us on WhatsApp.', href: checkoutHref, icon: 'confirm' },
+            { step: '03', title: 'Receive', blurb: 'COD delivery, or doorstep repair at your address.', href: repairHref, icon: 'receive' },
+          ]}
+        />
+      </Reveal>
       <Reveal delay={80} className="store-journey-cta">
         <div>
           <span>Doorstep iPhone repair</span>

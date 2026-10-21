@@ -1,28 +1,40 @@
 'use client';
 
 import Link from 'next/link';
-import { Activity, Home, Info, Menu, ShoppingBag, UserRound, Wrench, X } from 'lucide-react';
+import { Activity, Home, Info, LogIn, Menu, ShoppingBag, UserRound, Wrench, X } from 'lucide-react';
 import { useState } from 'react';
 import { storefrontPath } from '@/lib/storefront-paths';
-import CustomerAccountMenu from '@/components/store/CustomerAccountMenu';
+import CustomerAccountMenu, { type CustomerBrief } from '@/components/store/CustomerAccountMenu';
 
 type StoreNavProps = {
   slug: string;
+  storeId?: string;
   homeHref: string;
   name: string;
   logo?: string;
   announcement?: string;
+  initialCustomer?: CustomerBrief | null;
 };
 
-export default function StoreNav({ slug, homeHref, name, logo, announcement }: StoreNavProps) {
+export default function StoreNav({
+  slug,
+  storeId,
+  homeHref,
+  name,
+  logo,
+  announcement,
+  initialCustomer = null,
+}: StoreNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
   const repairHref = storefrontPath(slug, 'repair');
   const phoneCheckHref = storefrontPath(slug, 'phone-check');
   const shopHref = storefrontPath(slug, 'products');
   const accountHref = storefrontPath(slug, 'account');
+  const loginHref = storefrontPath(slug, 'account/login');
   const aboutHref = `${homeHref}#about`;
   const assurance = announcement || 'Cash on delivery';
+  const isLoggedIn = Boolean(initialCustomer);
 
   return (
     <nav className="store-navbar">
@@ -60,7 +72,7 @@ export default function StoreNav({ slug, homeHref, name, logo, announcement }: S
       </div>
 
       <div className="store-nav-actions">
-        <CustomerAccountMenu slug={slug} />
+        <CustomerAccountMenu slug={slug} storeId={storeId} initialCustomer={initialCustomer} />
         <button
           className={`store-mobile-menu-btn ${menuOpen ? 'active' : ''}`}
           type="button"
@@ -112,12 +124,21 @@ export default function StoreNav({ slug, homeHref, name, logo, announcement }: S
                 About<small>Learn about {name}</small>
               </span>
             </Link>
-            <Link href={accountHref} onClick={closeMenu}>
-              <UserRound size={18} />
-              <span>
-                My account<small>Login, orders & repair history</small>
-              </span>
-            </Link>
+            {isLoggedIn ? (
+              <Link href={accountHref} onClick={closeMenu}>
+                <UserRound size={18} />
+                <span>
+                  My account<small>Orders & repair history</small>
+                </span>
+              </Link>
+            ) : (
+              <Link href={loginHref} onClick={closeMenu}>
+                <LogIn size={18} />
+                <span>
+                  Login<small>Track orders & repairs</small>
+                </span>
+              </Link>
+            )}
             <div className="store-mobile-assurance">
               <span />
               <strong>{assurance}</strong>

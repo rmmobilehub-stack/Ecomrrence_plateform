@@ -1,13 +1,14 @@
 import { RefreshScrollView as ScrollView } from '../components/PageRefresh';
 import { Text } from '../components/AppText';
 import { usePageEffect } from '../hooks/usePageEffect';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Animated,
+  Easing,
   Image,
   ImageBackground,
   Pressable,
-
   StatusBar,
   StyleSheet,
   View,
@@ -37,18 +38,37 @@ type HomeNavTarget =
   | { kind: 'stack'; screen: 'Contact' | 'Cart' }
   | { kind: 'whatsapp' };
 
-const VALUES: { title: string; target: HomeNavTarget }[] = [
-  { title: 'Fast charging', target: { kind: 'tab', screen: 'Shop' } },
-  { title: 'Compatibility', target: { kind: 'tab', screen: 'Shop' } },
-  { title: 'Cash on delivery', target: { kind: 'tab', screen: 'Shop' } },
-  { title: 'Direct support', target: { kind: 'whatsapp' } },
+type FeatureItem = {
+  title: string;
+  blurb: string;
+  icon: string;
+  target: HomeNavTarget;
+};
+
+type JourneyItem = {
+  step: string;
+  title: string;
+  blurb: string;
+  target: HomeNavTarget;
+};
+
+const VALUES: FeatureItem[] = [
+  { title: 'Fast charging', blurb: 'Power that keeps up', icon: 'flash-outline', target: { kind: 'tab', screen: 'Shop' } },
+  { title: 'Clear compatibility', blurb: 'Know what fits first', icon: 'shield-checkmark-outline', target: { kind: 'tab', screen: 'Shop' } },
+  { title: 'Cash on delivery', blurb: 'Pay when it arrives', icon: 'bicycle-outline', target: { kind: 'tab', screen: 'Shop' } },
+  { title: 'Direct support', blurb: 'Chat when you need help', icon: 'chatbubble-ellipses-outline', target: { kind: 'whatsapp' } },
+  { title: 'Phone check', blurb: 'Score before you buy or sell', icon: 'heart-outline', target: { kind: 'tab', screen: 'HealthCheck' } },
+  { title: 'Doorstep repair', blurb: 'We come to your address', icon: 'construct-outline', target: { kind: 'tab', screen: 'Repairs' } },
 ];
 
-const JOURNEY: { title: string; target: HomeNavTarget }[] = [
-  { title: 'Choose', target: { kind: 'tab', screen: 'Shop' } },
-  { title: 'Confirm', target: { kind: 'stack', screen: 'Cart' } },
-  { title: 'Receive', target: { kind: 'tab', screen: 'About' } },
+const JOURNEY: (JourneyItem & { icon: string })[] = [
+  { step: '01', title: 'Choose', blurb: 'Browse accessories or start phone check / repair.', icon: 'flash-outline', target: { kind: 'tab', screen: 'Shop' } },
+  { step: '02', title: 'Confirm', blurb: 'Checkout online or message us on WhatsApp.', icon: 'chatbubble-ellipses-outline', target: { kind: 'stack', screen: 'Cart' } },
+  { step: '03', title: 'Receive', blurb: 'COD delivery, or doorstep repair at your address.', icon: 'bicycle-outline', target: { kind: 'tab', screen: 'Repairs' } },
 ];
+
+const CHIP_WIDTH = 300;
+const CHIP_GAP = 12;
 
 function announcementChips(announcement?: string) {
   const parts = (announcement || 'Cash on delivery')
@@ -57,6 +77,63 @@ function announcementChips(announcement?: string) {
     .filter(Boolean)
     .slice(0, 3);
   return parts.length ? parts : ['Cash on delivery'];
+}
+
+function FeatureMarquee({
+  items,
+  colors,
+  onPress,
+}: {
+  items: FeatureItem[];
+  colors: ReturnType<typeof useAppTheme>['colors'];
+  onPress: (target: HomeNavTarget) => void;
+}) {
+  const loop = useMemo(() => [...items, ...items, ...items], [items]);
+  const offset = useRef(new Animated.Value(0)).current;
+  const segment = items.length * (CHIP_WIDTH + CHIP_GAP);
+
+  useEffect(() => {
+    offset.setValue(0);
+    const anim = Animated.loop(
+      Animated.timing(offset, {
+        toValue: -segment,
+        duration: Math.max(18000, items.length * 3200),
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    );
+    anim.start();
+    return () => anim.stop();
+  }, [items.length, offset, segment]);
+
+  return (
+    <View style={styles.marqueeClip}>
+      <Animated.View style={[styles.marqueeTrack, { transform: [{ translateX: offset }] }]}>
+        {loop.map((item, index) => (
+          <Pressable
+            key={`${item.title}-${index}`}
+            onPress={() => onPress(item.target)}
+            style={[
+              styles.featureChip,
+              { backgroundColor: colors.card, borderColor: colors.cardBorder },
+            ]}>
+            <View style={[styles.featureIcon, { backgroundColor: colors.accent }]}>
+              <Icon name={item.icon as 'flash-outline'} size={16} color="#FFFFFF" />
+            </View>
+            <View style={styles.featureCopy}>
+              <Text style={[styles.featureTitle, { color: colors.ink }]} numberOfLines={1}>
+                {item.title}
+              </Text>
+              <Text style={[styles.featureBlurb, { color: colors.muted }]} numberOfLines={1}>
+                {item.blurb}
+              </Text>
+            </View>
+            <Text style={[styles.featureArrow, { color: colors.accentSoft }]}>→</Text>
+          </Pressable>
+        ))}
+      </Animated.View>
+    </View>
+  );
 }
 
 export function HomeScreen() {
@@ -72,7 +149,7 @@ export function HomeScreen() {
     let active = true;
     setLoading(true);
     fetchProducts({ sortBy: 'newest' })
-      .then(data => { if (active) setFeatured((data.products || []).slice(0, 6)); })
+      .then(data => { if (active) setFeatured((data.products || []).slice(0, 4)); })
       .catch(() => { if (active) setFeatured([]); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -113,7 +190,6 @@ export function HomeScreen() {
 
         {loading && <ActivityIndicator accessibilityLabel="Loading home" color={colors.accent} />}
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator>
-          {/* Hero */}
           <ImageBackground source={heroArt} style={styles.hero} imageStyle={styles.heroImage}>
             <View style={styles.heroShade} />
             <View style={styles.heroCopy}>
@@ -204,20 +280,15 @@ export function HomeScreen() {
           </View>
 
           <View style={styles.section}>
+            <Text style={[styles.kicker, { color: colors.accentSoft }]}>POWER & PROTECTION</Text>
             <Text style={[styles.sectionTitle, { color: colors.ink }]}>
-              Why shop <Text style={[styles.accent, { color: colors.accentSoft }]}>here</Text>
+              Everything your iPhone needs,{' '}
+              <Text style={[styles.accent, { color: colors.accentSoft }]}>in one place.</Text>
             </Text>
-            <View style={styles.valuesGrid}>
-              {VALUES.map(item => (
-                <Pressable
-                  key={item.title}
-                  onPress={() => openTarget(item.target)}
-                  style={[styles.valueCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-                  <Text style={[styles.valueTitle, { color: colors.ink }]}>{item.title}</Text>
-                  <Text style={[styles.cardArrow, { color: colors.accentSoft }]}>→</Text>
-                </Pressable>
-              ))}
-            </View>
+            <Text style={[styles.sectionSub, { color: colors.muted }]}>
+              Accessories, phone check and doorstep repair — clear details and cash on delivery.
+            </Text>
+            <FeatureMarquee items={VALUES} colors={colors} onPress={openTarget} />
           </View>
 
           <View
@@ -245,17 +316,30 @@ export function HomeScreen() {
           </View>
 
           <View style={styles.section}>
+            <Text style={[styles.kicker, { color: colors.accentSoft }]}>HOW IT WORKS</Text>
             <Text style={[styles.sectionTitle, { color: colors.ink }]}>
-              How it <Text style={[styles.accent, { color: colors.accentSoft }]}>works</Text>
+              Shop, check or repair —{' '}
+              <Text style={[styles.accent, { color: colors.accentSoft }]}>simple steps.</Text>
             </Text>
-            <View style={styles.valuesGrid}>
+            <Text style={[styles.sectionSub, { color: colors.muted }]}>
+              Pick what you need, confirm online or on WhatsApp, and get help at your door.
+            </Text>
+            <View style={styles.journeyStack}>
               {JOURNEY.map(item => (
                 <Pressable
                   key={item.title}
                   onPress={() => openTarget(item.target)}
-                  style={[styles.valueCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-                  <Text style={[styles.valueTitle, { color: colors.ink }]}>{item.title}</Text>
-                  <Text style={[styles.cardArrow, { color: colors.accentSoft }]}>→</Text>
+                  style={[
+                    styles.journeyCard,
+                    { backgroundColor: colors.card, borderColor: colors.cardBorder },
+                  ]}>
+                  <Text style={[styles.journeyWatermark, { color: colors.accent }]}>{item.step}</Text>
+                  <View style={[styles.journeyIcon, { backgroundColor: colors.accent }]}>
+                    <Icon name={item.icon as 'flash-outline'} size={18} color="#FFFFFF" />
+                  </View>
+                  <Text style={[styles.journeyTitle, { color: colors.ink }]}>{item.title}</Text>
+                  <Text style={[styles.journeyBlurb, { color: colors.muted }]}>{item.blurb}</Text>
+                  <Text style={[styles.journeyGo, { color: colors.accentSoft }]}>Continue →</Text>
                 </Pressable>
               ))}
             </View>
@@ -384,6 +468,7 @@ const styles = StyleSheet.create({
   sectionHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   kicker: { color: '#4DA3FF', fontSize: 11, fontWeight: '800', letterSpacing: 1 },
   sectionTitle: { color: '#F7FBFF', fontSize: 20, fontWeight: '800', lineHeight: 26 },
+  sectionSub: { fontSize: 13, lineHeight: 19, marginTop: -2, marginBottom: 4 },
   aboutTitle: { color: '#F7FBFF', fontSize: 17, fontWeight: '800', lineHeight: 23 },
   accent: { color: '#4DA3FF' },
   link: { color: '#8EC8FF', fontWeight: '700', marginTop: 4 },
@@ -413,20 +498,66 @@ const styles = StyleSheet.create({
     backgroundColor: '#5F86B6',
   },
   productWas: { color: '#6B86A8', fontSize: 10, fontWeight: '700' },
-  valuesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  valueCard: {
-    width: '48%',
-    flexGrow: 1,
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderWidth: 1,
+  marqueeClip: {
+    marginHorizontal: -16,
+    overflow: 'hidden',
+    paddingVertical: 4,
+  },
+  marqueeTrack: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: CHIP_GAP,
+    paddingHorizontal: 16,
   },
-  valueTitle: { fontWeight: '800', fontSize: 14, flex: 1 },
-  cardArrow: { fontWeight: '700', fontSize: 16 },
+  featureChip: {
+    width: CHIP_WIDTH,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  featureIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  featureCopy: { flex: 1, minWidth: 0, gap: 3 },
+  featureTitle: { fontWeight: '800', fontSize: 16 },
+  featureBlurb: { fontSize: 13, fontWeight: '600' },
+  featureArrow: { fontWeight: '800', fontSize: 16 },
+  journeyStack: { gap: 12 },
+  journeyCard: {
+    position: 'relative',
+    overflow: 'hidden',
+    gap: 8,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  journeyWatermark: {
+    position: 'absolute',
+    top: 8,
+    right: 12,
+    fontSize: 42,
+    fontWeight: '900',
+    opacity: 0.16,
+  },
+  journeyIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  journeyTitle: { fontWeight: '800', fontSize: 17 },
+  journeyBlurb: { fontSize: 13, lineHeight: 18 },
+  journeyGo: { marginTop: 2, fontWeight: '800', fontSize: 13 },
   aboutCard: {
     marginHorizontal: 16,
     marginTop: 22,
