@@ -44,7 +44,7 @@ export default function HomeFeatureMarquee({ items }: { items: HomeFeatureItem[]
       const next = track.current?.children[items.length] as HTMLElement | undefined;
       const segment = first && next ? next.offsetLeft - first.offsetLeft : 0;
       if (segment && !reducedMotion.matches && !interacting.current && !document.hidden && now >= pausedUntil.current) {
-        position = (position + elapsed * 0.018) % segment;
+        position = (position + elapsed * 0.044) % segment;
         element.scrollLeft = position;
       } else {
         position = element.scrollLeft;

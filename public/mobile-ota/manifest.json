@@ -1,9 +1,9 @@
 {
   "android": {
-    "version": 2,
-    "url": "/mobile-ota/android-v2.zip",
-    "notes": "Slower highlights slider with manual swipe and pause on interaction",
-    "publishedAt": "2026-10-23T12:27:09.971Z"
+    "version": 3,
+    "url": "/mobile-ota/android-v3.zip",
+    "notes": "Balanced medium highlights slider speed with manual swipe",
+    "publishedAt": "2026-10-23T12:36:18.608Z"
   },
   "ios": {
     "version": 0,

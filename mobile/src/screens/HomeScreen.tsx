@@ -106,7 +106,7 @@ function FeatureMarquee({
     if (!isFocused || reducedMotion || !segment) return;
     const timer = setInterval(() => {
       if (interacting.current || Date.now() < pausedUntil.current) return;
-      position.current = (position.current + 0.6) % segment;
+      position.current = (position.current + 1.4) % segment;
       scroll.current?.scrollTo({ x: position.current, animated: false });
     }, 32);
     return () => clearInterval(timer);
