@@ -1,11 +1,11 @@
 import { RefreshScrollView as ScrollView } from '../components/PageRefresh';
 import { Text } from '../components/AppText';
 import { usePageEffect } from '../hooks/usePageEffect';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   ActivityIndicator,
-  Animated,
-  Easing,
+  ScrollView as NativeScrollView,
+  AccessibilityInfo,
   Image,
   ImageBackground,
   Pressable,
@@ -13,7 +13,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
+import { useIsFocused, useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -89,26 +89,51 @@ function FeatureMarquee({
   onPress: (target: HomeNavTarget) => void;
 }) {
   const loop = useMemo(() => [...items, ...items, ...items], [items]);
-  const offset = useRef(new Animated.Value(0)).current;
+  const scroll = useRef<ComponentRef<typeof NativeScrollView>>(null);
+  const position = useRef(0);
+  const pausedUntil = useRef(0);
+  const interacting = useRef(false);
+  const isFocused = useIsFocused();
   const segment = items.length * (CHIP_WIDTH + CHIP_GAP);
-
+  const [reducedMotion, setReducedMotion] = useState(true);
   useEffect(() => {
-    offset.setValue(0);
-    const anim = Animated.loop(
-      Animated.timing(offset, {
-        toValue: -segment,
-        duration: Math.max(18000, items.length * 3200),
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }),
-    );
-    anim.start();
-    return () => anim.stop();
-  }, [items.length, offset, segment]);
+    let active = true;
+    void AccessibilityInfo.isReduceMotionEnabled().then(value => { if (active) setReducedMotion(value); });
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReducedMotion);
+    return () => { active = false; subscription.remove(); };
+  }, []);
+  useEffect(() => {
+    if (!isFocused || reducedMotion || !segment) return;
+    const timer = setInterval(() => {
+      if (interacting.current || Date.now() < pausedUntil.current) return;
+      position.current = (position.current + 0.6) % segment;
+      scroll.current?.scrollTo({ x: position.current, animated: false });
+    }, 32);
+    return () => clearInterval(timer);
+  }, [isFocused, reducedMotion, segment]);
+  const pause = () => { pausedUntil.current = Date.now() + 5000; };
 
   return (
     <View style={styles.marqueeClip}>
-      <Animated.View style={[styles.marqueeTrack, { transform: [{ translateX: offset }] }]}>
+      <NativeScrollView
+        ref={scroll}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.marqueeTrack}
+        scrollEventThrottle={16}
+        onScroll={event => {
+          if (interacting.current || Date.now() < pausedUntil.current) {
+            position.current = Math.max(0, event.nativeEvent.contentOffset.x);
+          }
+        }}
+        onTouchStart={() => { interacting.current = true; pause(); }}
+        onTouchEnd={() => { interacting.current = false; pause(); }}
+        onTouchCancel={() => { interacting.current = false; pause(); }}
+        onScrollBeginDrag={() => { interacting.current = true; pause(); }}
+        onScrollEndDrag={() => { interacting.current = false; pause(); }}
+        onMomentumScrollBegin={() => { interacting.current = true; }}
+        onMomentumScrollEnd={() => { interacting.current = false; pause(); }}
+      >
         {loop.map((item, index) => (
           <Pressable
             key={`${item.title}-${index}`}
@@ -131,7 +156,7 @@ function FeatureMarquee({
             <Text style={[styles.featureArrow, { color: colors.accentSoft }]}>→</Text>
           </Pressable>
         ))}
-      </Animated.View>
+      </NativeScrollView>
     </View>
   );
 }
