@@ -1,8 +1,9 @@
 {
   "android": {
-    "version": 0,
-    "url": "",
-    "notes": ""
+    "version": 1,
+    "url": "/mobile-ota/android-v1.zip",
+    "notes": "Latest About, Cart and phone health report improvements",
+    "publishedAt": "2026-10-23T12:13:30.088Z"
   },
   "ios": {
     "version": 0,
