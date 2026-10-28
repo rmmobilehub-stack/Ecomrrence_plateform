@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Activity, Home, Info, LogIn, Menu, ShoppingBag, UserRound, Wrench, X } from 'lucide-react';
+import { Activity, Download, Home, Info, LogIn, Menu, ShoppingBag, UserRound, Wrench, X } from 'lucide-react';
 import { useState } from 'react';
 import { storefrontPath } from '@/lib/storefront-paths';
 import CustomerAccountMenu, { type CustomerBrief } from '@/components/store/CustomerAccountMenu';
@@ -14,6 +14,7 @@ type StoreNavProps = {
   logo?: string;
   announcement?: string;
   initialCustomer?: CustomerBrief | null;
+  androidDownloadUrl?: string;
 };
 
 export default function StoreNav({
@@ -24,6 +25,7 @@ export default function StoreNav({
   logo,
   announcement,
   initialCustomer = null,
+  androidDownloadUrl,
 }: StoreNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
@@ -68,6 +70,7 @@ export default function StoreNav({
         <Link className="store-nav-link" href={aboutHref}>
           About
         </Link>
+        {androidDownloadUrl ? <a className="store-nav-link" href={androidDownloadUrl} download="RMMobile-latest.apk">Download app</a> : null}
         <span className="nav-assurance">{assurance}</span>
       </div>
 
@@ -124,6 +127,12 @@ export default function StoreNav({
                 About<small>Learn about {name}</small>
               </span>
             </Link>
+            {androidDownloadUrl ? (
+              <a href={androidDownloadUrl} download="RMMobile-latest.apk" onClick={closeMenu}>
+                <Download size={18} />
+                <span>Download Android app<small>Get the APK for your phone</small></span>
+              </a>
+            ) : null}
             {isLoggedIn ? (
               <Link href={accountHref} onClick={closeMenu}>
                 <UserRound size={18} />

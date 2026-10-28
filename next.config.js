@@ -1,5 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async headers() {
+    return [{
+      source: '/downloads/RMMobile-latest.apk',
+      headers: [
+        { key: 'Content-Type', value: 'application/vnd.android.package-archive' },
+        { key: 'Content-Disposition', value: 'attachment; filename="RMMobile-latest.apk"' },
+        { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+      ],
+    }];
+  },
   async redirects() {
     const defaultStoreSlug = process.env.NEXT_PUBLIC_DEFAULT_STORE_SLUG || process.env.DEFAULT_STORE_SLUG || 'demo';
     return [

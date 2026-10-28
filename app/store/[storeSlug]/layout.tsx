@@ -49,6 +49,7 @@ export async function generateMetadata({ params }: { params: { storeSlug: string
 export default async function StoreLayout({ children, params }: { children: React.ReactNode; params: { storeSlug: string } }) {
   const store = await getActiveStoreBySlug(params.storeSlug);
   if (!store) notFound();
+  const androidDownloadUrl = store.slug === 'demo' ? '/downloads/RMMobile-latest.apk' : undefined;
   const homeHref = storefrontPath(store.slug);
   const productsHref = storefrontPath(store.slug, 'products');
   const repairHref = storefrontPath(store.slug, 'repair');
@@ -84,11 +85,12 @@ export default async function StoreLayout({ children, params }: { children: Reac
         logo={store.logo}
         announcement={store.announcement}
         initialCustomer={initialCustomer}
+        androidDownloadUrl={androidDownloadUrl}
       />
       {children}
       <footer className="store-footer">
         <div><strong>{store.name}</strong><span>{store.description}</span></div>
-        <nav><a href={homeHref}>Home</a><a href={productsHref}>Shop</a><a href={repairHref}>iPhone Repair</a><a href={phoneCheckHref}>Phone Check</a><a href={storefrontPath(store.slug, 'account')}>My account</a><a href={`${homeHref}#about`}>About</a></nav>
+        <nav><a href={homeHref}>Home</a><a href={productsHref}>Shop</a><a href={repairHref}>iPhone Repair</a><a href={phoneCheckHref}>Phone Check</a><a href={storefrontPath(store.slug, 'account')}>My account</a><a href={`${homeHref}#about`}>About</a>{androidDownloadUrl ? <a href={androidDownloadUrl} download="RMMobile-latest.apk">Download Android app</a> : null}</nav>
         <small>© {new Date().getFullYear()} {store.name}</small>
       </footer>
     </div>
