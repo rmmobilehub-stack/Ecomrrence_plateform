@@ -1,3 +1,4 @@
+import HeroBannerSlider from '@/components/store/HeroBannerSlider';
 import Link from 'next/link';
 import { ArrowRight, Facebook, Globe2, HeartPulse, Instagram, Mail, MapPin, MessageCircle, Music2, Phone, ShieldCheck, Sparkles, Truck, Twitter, Wrench, Youtube } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -82,6 +83,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
     : '';
 
   const productImages = featured.map((product) => product.thumbnail || product.images?.[0] || '').filter(Boolean);
+  const heroImages = Array.from(new Set([store.banner || DEFAULT_STOREFRONT_HERO_BANNER, ...productImages].filter(Boolean))).slice(0, 6);
   const aboutImage = store.aboutImage || productImages[0] || '';
   const aboutSecondaryImage = productImages.find((image) => image !== aboutImage) || productImages[1] || '';
   const socialOptions: { key: keyof Store['socialLinks']; label: string; Icon: LucideIcon }[] = [
@@ -103,7 +105,7 @@ export default async function StoreHome({ params }: { params: { storeSlug: strin
       className="store-hero store-hero-static"
       style={{ ['--hero-banner' as string]: `url("${DEFAULT_STOREFRONT_HERO_BANNER}")` }}
     >
-      <div className="store-hero-static-bg" aria-hidden />
+      <HeroBannerSlider images={heroImages} />
       <div className="store-hero-shell">
         <div className="store-hero-content">
           <div className="hero-kicker-row" aria-label="Store highlights">

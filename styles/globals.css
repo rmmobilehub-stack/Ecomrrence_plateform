@@ -10212,3 +10212,63 @@ a.store-about-contact-row:hover {
 
 /* Keep footer download/navigation links within narrow screens. */
 .store-footer nav { flex-wrap: wrap; row-gap: 12px; }
+
+/* How it works: consistent navy text, white cards and blue accents. */
+.storefront-shell .store-journey-stream {
+  background: #f1f6fc;
+  border-color: #d5e2f0;
+}
+.storefront-shell .store-journey-stream .home-section-kicker {
+  color: #1d4ed8;
+  background: #e7efff;
+  border-color: #c4d5f5;
+}
+.storefront-shell .store-journey-stream .store-journey-copy h2 {
+  color: #15334f;
+}
+.storefront-shell .store-journey-stream .store-journey-copy h2 span {
+  color: #2563eb;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+.storefront-shell .store-journey-stream .store-journey-intro {
+  color: #48617b;
+  background: #e7eff9;
+  border-color: #93b5e7;
+}
+.storefront-shell .store-journey-stream .home-journey-rail-card {
+  background: #fff;
+  border-color: #cedded;
+  box-shadow: 0 10px 28px rgba(25, 55, 90, 0.06);
+}
+.storefront-shell .store-journey-stream .home-journey-rail-card:hover,
+.storefront-shell .store-journey-stream .home-journey-rail-card:focus-visible {
+  background: #f8fbff;
+  border-color: #7ca4e5;
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.12);
+}
+.storefront-shell .store-journey-stream .home-journey-rail-title { color: #15334f; }
+.storefront-shell .store-journey-stream .home-journey-rail-blurb { color: #526b83; }
+.storefront-shell .store-journey-stream .home-journey-rail-go { color: #1d4ed8; }
+.storefront-shell .store-journey-stream .home-journey-rail-watermark { color: #dce7f6; }
+.storefront-shell .store-journey-stream .home-journey-rail-icon {
+  color: #fff;
+  background: #2563eb;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
+}
+.storefront-shell .store-journey-stream .home-journey-rail-dot {
+  background: #2563eb;
+  border-color: #fff;
+  box-shadow: 0 0 0 4px #dbe8fc;
+}
+.storefront-shell .store-journey-stream .home-journey-rail-line { background: #c4d5ef; }
+
+/* Banner pictures rotate behind the existing hero copy. */
+.hero-banner-images { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.hero-banner-images .hero-banner-image { opacity: 0; transition: opacity .8s ease; }
+.hero-banner-images .hero-banner-image.is-active { opacity: 1; }
+.store-hero .hero-banner-controls { position: absolute; z-index: 8; right: 24px; bottom: 20px; display: flex; align-items: center; gap: 12px; padding: 7px; border: 1px solid rgba(255,255,255,.3); border-radius: 999px; color: #fff; background: rgba(7,29,48,.8); }
+.hero-banner-controls button { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; color: #fff; background: rgba(255,255,255,.12); cursor: pointer; }
+.hero-banner-controls button:hover, .hero-banner-controls button:focus-visible { background: #2563eb; }
+.hero-banner-controls span { font-size: .8rem; font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .hero-banner-images .hero-banner-image { transition: none; } }
