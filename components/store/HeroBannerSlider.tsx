@@ -24,7 +24,6 @@ export default function HeroBannerSlider({ images }: { images: string[] }) {
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setPaused(false); }}>
       <button type="button" aria-label="Previous banner" onClick={() => setActive(value => (value - 1 + images.length) % images.length)}><ChevronLeft size={19} /></button>
-      <span>{current + 1} / {images.length}</span>
       <button type="button" aria-label="Next banner" onClick={() => setActive(value => (value + 1) % images.length)}><ChevronRight size={19} /></button>
     </div>}
   </>;

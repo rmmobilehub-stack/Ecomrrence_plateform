@@ -10267,8 +10267,32 @@ a.store-about-contact-row:hover {
 .hero-banner-images { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .hero-banner-images .hero-banner-image { opacity: 0; transition: opacity .8s ease; }
 .hero-banner-images .hero-banner-image.is-active { opacity: 1; }
-.store-hero .hero-banner-controls { position: absolute; z-index: 8; right: 24px; bottom: 20px; display: flex; align-items: center; gap: 12px; padding: 7px; border: 1px solid rgba(255,255,255,.3); border-radius: 999px; color: #fff; background: rgba(7,29,48,.8); }
-.hero-banner-controls button { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; color: #fff; background: rgba(255,255,255,.12); cursor: pointer; }
-.hero-banner-controls button:hover, .hero-banner-controls button:focus-visible { background: #2563eb; }
-.hero-banner-controls span { font-size: .8rem; font-weight: 700; }
+.store-hero .hero-banner-controls {
+  position: absolute;
+  z-index: 8;
+  inset: 50% 12px auto;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.hero-banner-controls button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(7,29,48,.5);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background .2s ease;
+}
+.hero-banner-controls button:hover,
+.hero-banner-controls button:focus-visible { background: #2563eb; }
+@media (max-width: 640px) {
+  .store-hero .hero-banner-controls { left: 4px; right: 4px; }
+}
 @media (prefers-reduced-motion: reduce) { .hero-banner-images .hero-banner-image { transition: none; } }
